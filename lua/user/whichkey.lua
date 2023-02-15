@@ -142,14 +142,14 @@ local mappings = {
     m = { "<cmd>BrowseMdnSearch<cr>", "Mdn" },
   },
 
-  p = {
-    name = "Packer",
-    c = { "<cmd>PackerCompile<cr>", "Compile" },
-    i = { "<cmd>PackerInstall<cr>", "Install" },
-    s = { "<cmd>PackerSync<cr>", "Sync" },
-    S = { "<cmd>PackerStatus<cr>", "Status" },
-    u = { "<cmd>PackerUpdate<cr>", "Update" },
-  },
+  -- p = {
+  --   name = "Packer",
+  --   c = { "<cmd>PackerCompile<cr>", "Compile" },
+  --   i = { "<cmd>PackerInstall<cr>", "Install" },
+  --   s = { "<cmd>PackerSync<cr>", "Sync" },
+  --   S = { "<cmd>PackerStatus<cr>", "Status" },
+  --   u = { "<cmd>PackerUpdate<cr>", "Update" },
+  -- },
 
   o = {
     name = "Options",
@@ -337,12 +337,12 @@ local mappings = {
     v = { "<cmd>ToggleTerm size=80 direction=vertical<cr>", "Vertical" },
   },
 
-  T = {
-    name = "Treesitter",
-    h = { "<cmd>TSHighlightCapturesUnderCursor<cr>", "Highlight" },
-    p = { "<cmd>TSPlaygroundToggle<cr>", "Playground" },
-    r = { "<cmd>TSToggle rainbow<cr>", "Rainbow" },
-  },
+  -- T = {
+  --   name = "Treesitter",
+  --   h = { "<cmd>TSHighlightCapturesUnderCursor<cr>", "Highlight" },
+  --   p = { "<cmd>TSPlaygroundToggle<cr>", "Playground" },
+  --   r = { "<cmd>TSToggle rainbow<cr>", "Rainbow" },
+  -- },
 
   -- z = {
   --   name = "Zen",
