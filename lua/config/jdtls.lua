@@ -211,8 +211,8 @@ local function setup_jdtls()
             sources = {
                 -- How many classes from a specific package should be imported before automatic imports combine them all into a single import
                 organizeImports = {
-                    starThreshold = 4,
-                    staticThreshold = 4
+                    starThreshold = 2,
+                    staticThreshold = 3
                 }
             },
             -- How should different pieces of code be generated?
