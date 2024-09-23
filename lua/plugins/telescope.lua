@@ -86,63 +86,63 @@ return {
                         ["q"] = actions.close,
                     },
                 },
-                pickers = {
-                    live_grep = {
-                        theme = "dropdown",
-                    },
-
-                    grep_string = {
-                        theme = "dropdown",
-                    },
-
-                    find_files = {
-                        theme = "dropdown",
-                        previewer = false,
-                    },
-
-                    buffers = {
-                        theme = "dropdown",
-                        previewer = false,
-                        initial_mode = "normal",
-                        mappings = {
-                            i = {
-                                ["<C-d>"] = actions.delete_buffer,
-                            },
-                            n = {
-                                ["dd"] = actions.delete_buffer,
-                            },
-                        },
-                    },
-
-                    planets = {
-                        show_pluto = true,
-                        show_moon = true,
-                    },
-
-                    colorscheme = {
-                        enable_preview = true,
-                    },
-
-                    lsp_references = {
-                        theme = "dropdown",
-                        initial_mode = "normal",
-                    },
-
-                    lsp_definitions = {
-                        theme = "dropdown",
-                        initial_mode = "normal",
-                    },
-
-                    lsp_declarations = {
-                        theme = "dropdown",
-                        initial_mode = "normal",
-                    },
-
-                    lsp_implementations = {
-                        theme = "dropdown",
-                        initial_mode = "normal",
-                    },
-                },
+                -- pickers = {
+                --     live_grep = {
+                --         theme = "dropdown",
+                --     },
+                --
+                --     grep_string = {
+                --         theme = "dropdown",
+                --     },
+                --
+                --     find_files = {
+                --         theme = "dropdown",
+                --         previewer = false,
+                --     },
+                --
+                --     buffers = {
+                --         theme = "dropdown",
+                --         previewer = false,
+                --         initial_mode = "normal",
+                --         mappings = {
+                --             i = {
+                --                 ["<C-d>"] = actions.delete_buffer,
+                --             },
+                --             n = {
+                --                 ["dd"] = actions.delete_buffer,
+                --             },
+                --         },
+                --     },
+                --
+                --     planets = {
+                --         show_pluto = true,
+                --         show_moon = true,
+                --     },
+                --
+                --     colorscheme = {
+                --         enable_preview = true,
+                --     },
+                --
+                --     lsp_references = {
+                --         theme = "dropdown",
+                --         initial_mode = "normal",
+                --     },
+                --
+                --     lsp_definitions = {
+                --         theme = "dropdown",
+                --         initial_mode = "normal",
+                --     },
+                --
+                --     lsp_declarations = {
+                --         theme = "dropdown",
+                --         initial_mode = "normal",
+                --     },
+                --
+                --     lsp_implementations = {
+                --         theme = "dropdown",
+                --         initial_mode = "normal",
+                --     },
+                -- },
             })
             -- load the ui-select extension
             require("telescope").load_extension("ui-select")

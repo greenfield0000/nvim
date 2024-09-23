@@ -16,7 +16,7 @@ return {
         config = function()
             -- ensure that we have lua language server, typescript launguage server, java language server, and java test language server are installed
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "tsserver", "jdtls", "cssls", "gopls" },
+                ensure_installed = { "lua_ls", "jdtls", "gopls" },
             })
         end,
     },
@@ -57,15 +57,6 @@ return {
             -- setup the lua language server
             lspconfig.lua_ls.setup({
                 capabilities = capabilities,
-            })
-
-            -- setup the typescript language server
-            lspconfig.tsserver.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.cssls.setup({
-                capabilities = capabilities
             })
 
             lspconfig.gopls.setup({
