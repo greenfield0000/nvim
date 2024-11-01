@@ -45,9 +45,16 @@ return {
             {
                 type = 'java',
                 request = 'attach',
-                name = "Debug (Attach) - Remote",
+                name = "Debug (Attach) - Remote 5005",
                 hostName = "127.0.0.1",
                 port = 5005,
+            },
+            {
+                type = 'java',
+                request = 'attach',
+                name = "Debug (Attach) - Remote 5006",
+                hostName = "127.0.0.1",
+                port = 5006,
             },
         }
     end
