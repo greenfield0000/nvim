@@ -16,7 +16,14 @@ return {
         config = function()
             -- ensure that we have lua language server, typescript launguage server, java language server, and java test language server are installed
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "jdtls", "gopls", "lemminx" },
+                ensure_installed = {
+                    "lua_ls",
+                    "gopls",
+                    "lemminx",
+                    "jsonls",
+                    "yamlls",
+                    "sqlls"
+                },
             })
         end,
     },
@@ -55,6 +62,12 @@ return {
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
             -- setup the lua language server
+            --
+            -- lspconfig.jdtls.setup({
+            --     capabilities = capabilities,
+            -- })
+            --
+
             lspconfig.lua_ls.setup({
                 capabilities = capabilities,
             })
@@ -64,6 +77,18 @@ return {
             })
 
             lspconfig.lemminx.setup({
+                capabilities = capabilities
+            })
+
+            lspconfig.jsonls.setup({
+                capabilities = capabilities
+            })
+
+            lspconfig.yamlls.setup({
+                capabilities = capabilities
+            })
+
+            lspconfig.sqlls.setup({
                 capabilities = capabilities
             })
 

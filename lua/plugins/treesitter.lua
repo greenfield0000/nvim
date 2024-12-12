@@ -1,18 +1,18 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     dependencies = {
-        -- ts-autotag utilizes treesitter to understand the code structure to automatically close tsx tags
+        -- ts-autotag использует treesitter для понимания структуры кода, чтобы автоматически закрывать теги tsx
         "windwp/nvim-ts-autotag"
     },
-    -- when the plugin builds run the TSUpdate command to ensure all our servers are installed and updated
+    -- при сборке плагина запустите команду TSUpdate, чтобы убедиться, что все наши серверы установлены и обновлены
     build = ':TSUpdate',
     config = function()
-        -- gain access to the treesitter config functions
+        -- получаем доступ к функциям конфигурации treesitter
         local ts_config = require("nvim-treesitter.configs")
 
-        -- call the treesitter setup function with properties to configure our experience
+        -- вызываем функцию настройки treesitter с параметрами для настройки нашего опыта
         ts_config.setup({
-            -- make sure we have 
+            -- убедитесь, что у нас установлены необходимые парсеры
             ensure_installed = {
                 "vim",
                 "go",
@@ -30,9 +30,9 @@ return {
                 "gitignore",
                 "sql"
             },
-            -- make sure highlighting it anabled
+            -- убедитесь, что подсветка включена
             highlight = { enable = true },
-            -- enable tsx auto closing tag creation
+            -- включите автоматическое закрытие тегов tsx
             autotag = {
                 enable = true
             }
