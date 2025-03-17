@@ -6,7 +6,7 @@ return {
         "stevearc/dressing.nvim", -- optional for vim.ui.select
     },
     config = function()
-        local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
+        -- local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
         require("flutter-tools").setup({
             -- ui = {
             --     -- the border type to use for all floating windows, the same options/formats
