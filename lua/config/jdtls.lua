@@ -258,7 +258,6 @@ local function setup_jdtls()
 
         -- Setup the java debug adapter of the JDTLS server
         require('jdtls.dap').setup_dap()
-
         -- Find the main method(s) of the application so the debug adapter can successfully start up the application
         -- Sometimes this will randomly fail if language server takes to long to startup for the project, if a ClassDefNotFoundException occurs when running
         -- the debug tool, attempt to run the debug tool while in the main class of the application, or restart the neovim instance
