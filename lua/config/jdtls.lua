@@ -1,3 +1,4 @@
+-- local
 local function get_jdtls()
     -- Get the Mason Registry to gain access to downloaded binaries
     local mason_registry = require("mason-registry")
