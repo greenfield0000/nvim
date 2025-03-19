@@ -11,22 +11,22 @@ return {
         end,
     },
     -- mason lsp config utilizes mason to automatically ensure lsp servers you want installed are installed
-    {
-        "williamboman/mason-lspconfig.nvim",
-        config = function()
-            -- ensure that we have lua language server, typescript launguage server, java language server, and java test language server are installed
-            require("mason-lspconfig").setup({
-                ensure_installed = {
-                    "lua_ls",
-                    "gopls",
-                    "lemminx",
-                    "jsonls",
-                    "yamlls",
-                    "sqlls"
-                },
-            })
-        end,
-    },
+    -- {
+    --     "williamboman/mason-lspconfig.nvim",
+    --     config = function()
+    --         -- ensure that we have lua language server, typescript launguage server, java language server, and java test language server are installed
+    --         require("mason-lspconfig").setup({
+    --             ensure_installed = {
+    --                 "lua_ls",
+    --                 "gopls",
+    --                 "lemminx",
+    --                 "jsonls",
+    --                 "yamlls",
+    --                 "sqlls"
+    --             },
+    --         })
+    --     end,
+    -- },
     -- mason nvim dap utilizes mason to automatically ensure debug adapters you want installed are installed, mason-lspconfig will not automatically install debug adapters for us
     {
         "jay-babu/mason-nvim-dap.nvim",
