@@ -28,12 +28,12 @@ return {
 			"ray-x/lsp_signature.nvim",
 		},
 	},
-	{
-		"ray-x/lsp_signature.nvim",
-		config = function()
-			require("lsp_signature").setup()
-		end,
-	},
+	-- {
+	--     "ray-x/lsp_signature.nvim",
+	--     config = function()
+	--         require("lsp_signature").setup()
+	--     end,
+	-- },
 	{
 		"neovim/nvim-lspconfig",
 		config = function()
@@ -43,6 +43,10 @@ return {
 			local lspconfig = require("lspconfig")
 
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+			lspconfig.buf.setup({
+				capabilities = capabilities,
+			})
 
 			lspconfig.lua_ls.setup({
 				capabilities = capabilities,
@@ -61,6 +65,10 @@ return {
 			})
 
 			lspconfig.yamlls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.jdtls.setup({
 				capabilities = capabilities,
 			})
 

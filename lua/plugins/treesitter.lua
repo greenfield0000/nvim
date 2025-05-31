@@ -28,7 +28,7 @@ return {
                 "markdown",
                 "markdown_inline",
                 "gitignore",
-                "sql"
+                "sql",
             },
             -- убедитесь, что подсветка включена
             highlight = { enable = true },
