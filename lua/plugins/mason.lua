@@ -34,7 +34,8 @@ return {
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile
                     -- dap
-                    "delve",                      -- many lang java, golang, c++, rust
+                    "go-debug-adapter",                      -- many lang java, golang, c++, rust
+                    "java-debug-adapter",                      -- many lang java, golang, c++, rust
                 },
             })
         end,

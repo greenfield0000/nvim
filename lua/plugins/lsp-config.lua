@@ -16,7 +16,13 @@ return {
         config = function()
             -- ensure the java debug adapter is installed
             require("mason-nvim-dap").setup({
-                ensure_installed = { "java-debug-adapter", "java-test" },
+                ensure_installed = {
+                    -- java
+                    "java-debug-adapter",
+                    "java-test",
+                    -- golang
+                    "go-debug-adapter"
+                },
             })
         end,
     },
@@ -28,12 +34,7 @@ return {
             "ray-x/lsp_signature.nvim",
         },
     },
-    -- {
-    --     "ray-x/lsp_signature.nvim",
-    --     config = function()
-    --         require("lsp_signature").setup()
-    --     end,
-    -- },
+
     {
         "neovim/nvim-lspconfig",
         config = function()
