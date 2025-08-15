@@ -18,16 +18,12 @@ return {
         config = function()
             require("mason-tool-installer").setup({
                 ensure_installed = {
-                    "glow",
+                    -- LSP
                     "lua-language-server",
-                    "marksman",
-                    "prettier",
-                    "python-lsp-server",
-                    "rust-analyzer",
-                    "shellcheck",
-                    "shellharden",
-                    "stylua",
-                    "zls",
+                    "gopls",
+                    "json-lsp",
+                    "jdtls",
+                    "lemminx",
                 },
             })
         end,
