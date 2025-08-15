@@ -20,10 +20,14 @@ return {
                 ensure_installed = {
                     -- LSP
                     "lua-language-server",
+                    "jq-lsp",
                     "gopls",
                     "json-lsp",
                     "jdtls",
                     "lemminx",
+                    "buf",
+                    -- Linter
+                    "ast-grep",
                 },
             })
         end,
