@@ -73,10 +73,6 @@ return {
                 capabilities = capabilities,
             })
 
-            lspconfig.jq.setup({
-                capabilities = capabilities,
-            })
-
             lspconfig.gopls.setup({
                 capabilities = capabilities,
             })
