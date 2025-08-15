@@ -19,15 +19,22 @@ return {
             require("mason-tool-installer").setup({
                 ensure_installed = {
                     -- LSP
-                    "lua-language-server",
-                    "jq-lsp",
-                    "gopls",
-                    "json-lsp",
-                    "jdtls",
-                    "lemminx",
-                    "buf",
+                    "lua-language-server",        -- lua
+                    "gopls",                      -- golang
+                    "json-lsp",                   -- json
+                    "jdtls",                      -- java
+                    "lemminx",                    -- xml
+                    "buf",                        -- protobuf
+                    "angular-language-server",    -- angular
+                    "dockerfile-language-server", -- dockerfile, docker
+                    "sqls",                       -- sql
+                    "marksman",                   -- md
                     -- Linter
-                    "ast-grep",
+                    "ast-grep",                   -- many lang java, golang, c++, rust
+                    "sqlfluff",                   -- sql
+                    "checkmake",                  -- makefile
+                    -- dap
+                    "delve",                      -- many lang java, golang, c++, rust
                 },
             })
         end,
