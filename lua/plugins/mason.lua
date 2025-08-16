@@ -22,7 +22,7 @@ return {
                     "lua-language-server",        -- lua
                     "gopls",                      -- golang
                     "json-lsp",                   -- json
-                    "jdtls",                      -- java
+                    -- "jdtls",                      -- java
                     "lemminx",                    -- xml
                     "buf",                        -- protobuf
                     "angular-language-server",    -- angular
@@ -30,12 +30,12 @@ return {
                     "sqls",                       -- sql
                     "marksman",                   -- md
                     -- Linter
-                    "ast-grep",                   -- many lang java, golang, c++, rust
-                    "sqlfluff",                   -- sql
-                    "checkmake",                  -- makefile
+                    -- "ast-grep",                   -- many lang java, golang, c++, rust
+                    "sqlfluff",           -- sql
+                    "checkmake",          -- makefile
                     -- dap
-                    "go-debug-adapter",                      -- many lang java, golang, c++, rust
-                    "java-debug-adapter",                      -- many lang java, golang, c++, rust
+                    "go-debug-adapter",   -- many lang java, golang, c++, rust
+                    "java-debug-adapter", -- many lang java, golang, c++, rust
                 },
             })
         end,
