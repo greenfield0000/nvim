@@ -83,7 +83,7 @@ return {
                     sorting_strategy = "ascending",
                     layout_strategy = "horizontal",
                     layout_config = {
-                        preview_width = 0.6, -- 60% of the screen width
+                        preview_width = 0.5, -- 50% of the screen width
                         horizontal = {
                             mirror = false,
                         },
@@ -99,7 +99,7 @@ return {
                     borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
                     color_devicons = true,
                     use_less = true,
-                    path_display = { "truncate" },
+                    path_display = { "tail" },
                     set_env = { ['COLORTERM'] = 'truecolor' }, -- default = nil,
                     file_previewer = require 'telescope.previewers'.vim_buffer_cat.new,
                     grep_previewer = require 'telescope.previewers'.vim_buffer_vimgrep.new,
