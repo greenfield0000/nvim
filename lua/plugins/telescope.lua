@@ -54,11 +54,10 @@ return {
                     entry_prefix = "   ",
                     initial_mode = "insert",
                     selection_strategy = "reset",
-                    -- path_display = { "smart" },
-                    -- color_devicons = true,
                     sorting_strategy = "descending",
                     layout_strategy = "horizontal",
                     layout_config = {
+                        preview_width = 0.6, -- 60% of the screen width
                         horizontal = {
                             mirror = false,
                         },
@@ -74,7 +73,14 @@ return {
                     borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
                     color_devicons = true,
                     use_less = true,
-                    path_display = {},
+                    path_display = function(opts, path)
+                        local pathLength = string.len(path)
+                        local maxLength = 21
+                        if pathLength > maxLength then
+                            path = '...' .. string.sub(path, pathLength - maxLength - 3)
+                        end
+                        return path
+                    end,
                     set_env = { ['COLORTERM'] = 'truecolor' }, -- default = nil,
                     file_previewer = require 'telescope.previewers'.vim_buffer_cat.new,
                     grep_previewer = require 'telescope.previewers'.vim_buffer_vimgrep.new,
