@@ -11,6 +11,7 @@ return {
             {
                 { "nvim-telescope/telescope-fzf-native.nvim", build = "make", lazy = true },
             },
+
         },
         config = function()
             -- get access to telescopes built in functions
@@ -36,10 +37,35 @@ return {
             local icons = require("config.icons")
 
             require("telescope").setup({
+                pickers = {
+                    lsp_references = {
+                        fname_width = 100, -- Adjust filename column width
+                    },
+                },
                 -- use ui-select dropdown as our ui
                 extensions = {
                     ["ui-select"] = {
                         require("telescope.themes").get_dropdown({}),
+                    },
+                    ["lsp_handlers"] = {
+                        disable = {},
+                        location = {
+                            telescope = {},
+                            no_results_message = 'No references found',
+                        },
+                        symbol = {
+                            telescope = {},
+                            no_results_message = 'No symbols found',
+                        },
+                        call_hierarchy = {
+                            telescope = {},
+                            no_results_message = 'No calls found',
+                        },
+                        code_action = {
+                            telescope = {},
+                            no_results_message = 'No code actions available',
+                            prefix = '',
+                        },
                     },
                     fzf = {
                         fuzzy = true,                   -- false will only do exact matching
@@ -54,7 +80,7 @@ return {
                     entry_prefix = "   ",
                     initial_mode = "insert",
                     selection_strategy = "reset",
-                    sorting_strategy = "descending",
+                    sorting_strategy = "ascending",
                     layout_strategy = "horizontal",
                     layout_config = {
                         preview_width = 0.6, -- 60% of the screen width
@@ -73,14 +99,7 @@ return {
                     borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
                     color_devicons = true,
                     use_less = true,
-                    path_display = function(opts, path)
-                        local pathLength = string.len(path)
-                        local maxLength = 21
-                        if pathLength > maxLength then
-                            path = '...' .. string.sub(path, pathLength - maxLength - 3)
-                        end
-                        return path
-                    end,
+                    path_display = { "truncate" },
                     set_env = { ['COLORTERM'] = 'truecolor' }, -- default = nil,
                     file_previewer = require 'telescope.previewers'.vim_buffer_cat.new,
                     grep_previewer = require 'telescope.previewers'.vim_buffer_vimgrep.new,

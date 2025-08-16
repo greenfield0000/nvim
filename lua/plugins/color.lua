@@ -5,7 +5,7 @@ return {
         priority = 1000,
         opts = {},
         config = function()
-            require("jb").setup({transparent = true})
+            require("jb").setup({ transparent = true })
         end,
     },
 
