@@ -34,14 +34,6 @@ return {
             "ray-x/lsp_signature.nvim",
         },
     },
-
-    {
-        "neovim/nvim-lspconfig",
-        config = function()
-            local icons = require("config.icons")
-        end
-        -- utility plugin for configuring the java language server for us
-    },
     {
         "mfussenegger/nvim-jdtls",
         dependencies = {

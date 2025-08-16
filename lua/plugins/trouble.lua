@@ -4,8 +4,13 @@ return { {
     cmd = { "Trouble" },
     opts = {
         modes = {
-            lsp = {
-                win = { position = "right" },
+            symbols = {
+                win = {
+                    type = "split",     -- split window
+                    relative = "win",   -- relative to current window
+                    position = "right", -- right side
+                    size = 0.5,         -- 30% of the window,
+                },
             },
         },
     },

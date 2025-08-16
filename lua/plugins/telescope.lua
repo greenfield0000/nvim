@@ -64,7 +64,7 @@ return {
 						"--line-number",
 						"--column",
 						"--smart-case",
-						"--hidden",
+						-- "--hidden",
 						"--glob=!.git/",
                         -- можно добавить ненужные директории или типы файлов
 						-- "!.target/",
