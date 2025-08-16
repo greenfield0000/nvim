@@ -85,10 +85,6 @@ return {
                 capabilities = capabilities,
             })
 
-            lspconfig.jdtls.setup({
-                capabilities = capabilities,
-            })
-
             lspconfig.sqlls.setup({
                 capabilities = capabilities,
             })

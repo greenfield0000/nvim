@@ -34,15 +34,13 @@ vim.keymap.set("v", "<", "<gv", { desc = "Indent left in visual mode" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right in visual mode" })
 
 -- Code
-vim.keymap.set("v", "<leader>cf", vim.lsp.buf.format, { desc = "[C]ode [F]ormat" })
-vim.keymap.set("n", "<leader>cf", vim.lsp.buf.format, { desc = "[C]ode [F]ormat" })
--- Set vim motion for <Space> + c + h to show code documentation about the code the cursor is currently over if available
+vim.keymap.set({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, { desc = "[C]ode [F]ormat" })
 vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "[C]ode [H]over Documentation" })
--- Set vim motion for <Space> + c + d to go where the code/variable under the cursor was defined
 vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "[C]ode Goto [D]efinition" })
--- Set vim motion for <Space> + c + a for display code action suggestions for code diagnostics in both normal and visual mode
 vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ctions" })
--- Set a vim motion for <Space> + c + <Shift>R to smartly rename the code under the cursor
 vim.keymap.set("n", "<leader>cR", vim.lsp.buf.rename, { desc = "[C]ode [R]ename" })
--- Set a vim motion for <Space> + c + <Shift>D to go to where the code/object was declared in the project (class file)
-vim.keymap.set("n", "<leader>cD", vim.lsp.buf.declaration, { desc = "[C]ode Goto [D]eclaration" })
+vim.keymap.set("n", "<leader>ci", vim.lsp.buf.implementation, { desc = "[C]ode Goto [I]mplementation" })
+vim.keymap.set("n", "<leader>ct", vim.lsp.buf.type_definition, { desc = "[C]ode Goto [T]ype definition" })
+vim.keymap.set("n", "<leader>cr", vim.lsp.buf.references, { desc = "[C]ode [R]eferences" })
+vim.keymap.set("n", "<leader>cds", vim.lsp.buf.document_symbol, { desc = "[C]ode [D]ocument [S]ymbol" })
+vim.keymap.set("n", "<leader>csh", vim.lsp.buf.signature_help, { desc = "[C]ode [S]ignature [H]elp" })
