@@ -22,7 +22,7 @@ return {
                     "lua-language-server",        -- lua
                     "gopls",                      -- golang
                     "json-lsp",                   -- json
-                    -- "jdtls",                      -- java
+                    "jdtls",                      -- java
                     "lemminx",                    -- xml
                     "buf",                        -- protobuf
                     "angular-language-server",    -- angular

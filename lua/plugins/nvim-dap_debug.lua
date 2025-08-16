@@ -125,7 +125,7 @@ return {
         -- Close debugger and clear breakpoints
         vim.keymap.set("n", "<localleader>de", function()
             dap.clear_breakpoints()
-            ui.toggle({})
+            dapui.toggle({})
             dap.terminate()
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>=", false, true, true), "n", false)
             require("notify")("Debugger session ended", "warn")
