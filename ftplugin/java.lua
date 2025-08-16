@@ -31,7 +31,9 @@ local capabilities = {
 local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 for k, v in pairs(lsp_capabilities) do
-    capabilities[k] = v
+    if (capabilities[k] == nil) then
+        capabilities[k] = v
+    end
 end
 
 -- Get the default extended client capablities of the JDTLS language server
@@ -289,7 +291,7 @@ local config = {
         '-configuration', jdtls_path .. '/config_' .. os,
         '-data', workspace_dir
     },
-    root_dir = vim.fs.dirname(vim.fs.find({ 'gradlew', '.git', 'mvnw' }, { upward = true })[1]),
+    root_dir = vim.fs.dirname(vim.fs.find({ 'gradlew', '.git', 'mvnw', 'pom.xml' }, { upward = true })[1]),
     capabilities = capabilities,
     on_attach = on_attach,
     settings = settings,
