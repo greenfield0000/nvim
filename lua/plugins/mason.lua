@@ -26,7 +26,7 @@ return {
                     "lemminx",                    -- xml
                     "buf",                        -- protobuf
                     "angular-language-server",    -- angular
-                    "typescript-language-server",    -- angular
+                    "typescript-language-server", -- angular
                     "dockerfile-language-server", -- dockerfile, docker
                     "sqls",                       -- sql
                     "marksman",                   -- md

@@ -2,7 +2,7 @@ local jdtls = require('jdtls')
 local mason_path = vim.fn.stdpath('data') .. '/mason'
 
 local jdtls_path = mason_path .. '/packages/jdtls'
-local lombok_path = jdtls_path .. '/lombok.jar'
+local lombok_path = '/home/roman/.local/share/nvim/mason/packages/jdtls/lombok.jar'
 
 local os = "unknown-os"
 if vim.fn.has("mac") == 1 then
@@ -230,6 +230,7 @@ local config = {
         '-Declipse.product=org.eclipse.jdt.ls.core.product',
         '-Dlog.protocol=true',
         '-Dlog.level=ALL',
+        '-Dmaven.wagon.http.ssl.insecure=true',
         '-Xmx1g',
         '--add-modules=ALL-SYSTEM',
         '--add-opens', 'java.base/java.util=ALL-UNNAMED',

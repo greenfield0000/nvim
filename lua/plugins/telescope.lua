@@ -38,35 +38,35 @@ return {
 
             require("telescope").setup({
                 pickers = {
-                    lsp_references = {
-                        fname_width = 100, -- Adjust filename column width
-                    },
+                    -- lsp_references = {
+                    --     fname_width = 100, -- Adjust filename column width
+                    -- },
                 },
                 -- use ui-select dropdown as our ui
                 extensions = {
                     ["ui-select"] = {
                         require("telescope.themes").get_dropdown({}),
                     },
-                    ["lsp_handlers"] = {
-                        disable = {},
-                        location = {
-                            telescope = {},
-                            no_results_message = 'No references found',
-                        },
-                        symbol = {
-                            telescope = {},
-                            no_results_message = 'No symbols found',
-                        },
-                        call_hierarchy = {
-                            telescope = {},
-                            no_results_message = 'No calls found',
-                        },
-                        code_action = {
-                            telescope = {},
-                            no_results_message = 'No code actions available',
-                            prefix = '',
-                        },
-                    },
+                    -- ["lsp_handlers"] = {
+                    --     disable = {},
+                    --     location = {
+                    --         telescope = {},
+                    --         no_results_message = 'No references found',
+                    --     },
+                    --     symbol = {
+                    --         telescope = {},
+                    --         no_results_message = 'No symbols found',
+                    --     },
+                    --     call_hierarchy = {
+                    --         telescope = {},
+                    --         no_results_message = 'No calls found',
+                    --     },
+                    --     code_action = {
+                    --         telescope = {},
+                    --         no_results_message = 'No code actions available',
+                    --         prefix = '',
+                    --     },
+                    -- },
                     fzf = {
                         fuzzy = true,                   -- false will only do exact matching
                         override_generic_sorter = true, -- override the generic sorter
@@ -84,12 +84,12 @@ return {
                     layout_strategy = "horizontal",
                     layout_config = {
                         preview_width = 0.5, -- 50% of the screen width
-                        horizontal = {
-                            mirror = false,
-                        },
-                        vertical = {
-                            mirror = false,
-                        },
+                        -- horizontal = {
+                        --     mirror = false,
+                        -- },
+                        -- vertical = {
+                        --     mirror = false,
+                        -- },
                     },
                     file_sorter = require 'telescope.sorters'.get_fuzzy_file,
                     file_ignore_patterns = {},
