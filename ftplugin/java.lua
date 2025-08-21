@@ -207,6 +207,26 @@ local settings = {
         -- If changes to the project will require the developer to update the projects configuration advise the developer before accepting the change
         configuration = {
             updateBuildConfiguration = "interactive",
+            runtimes = {
+                {
+                    name = "JavaSE-1.8",
+                    path = "~/.sdkman/candidates/java/8.0.265-open",
+                    default = true,
+                },
+                {
+                    name = "JavaSE-17",
+                    path = "~/.sdkman/candidates/java/17.0.12-oracle",
+                },
+                {
+                    name = "JavaSE-19",
+                    path = "~/.sdkman/candidates/java/19.0.2-open",
+                },
+                {
+                    name = "JavaSE-21",
+                    path = "~/.sdkman/candidates/java/21.0.5-oracle",
+                },
+
+            },
         },
         -- enable code lens in the lsp
         referencesCodeLens = {
