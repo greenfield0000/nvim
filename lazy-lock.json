@@ -12,7 +12,6 @@
   "jb.nvim": { "branch": "main", "commit": "2c96d4cb8a7cbc4aaf5fed2746053933069cb486" },
   "json-nvim": { "branch": "master", "commit": "beb76a5ffa0a936677695bc82cc868654aad4398" },
   "lazy.nvim": { "branch": "main", "commit": "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a" },
-  "lazydocker.nvim": { "branch": "main", "commit": "495fbbbdb22d48f2649a4b58c432f58c7981e3e2" },
   "lazygit.nvim": { "branch": "main", "commit": "3c524ebec6072568064235c407195e9f9fd0cb8a" },
   "lsp_signature.nvim": { "branch": "master", "commit": "62cadce83aaceed677ffe7a2d6a57141af7131ea" },
   "lualine.nvim": { "branch": "master", "commit": "b8c23159c0161f4b89196f74ee3a6d02cdc3a955" },
