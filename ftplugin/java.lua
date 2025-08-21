@@ -1,249 +1,109 @@
-local jdtls = require('jdtls')
-local mason_path = vim.fn.stdpath('data') .. '/mason'
+local home = os.getenv("HOME")
+local jdtls = require("jdtls")
+local fn = vim.fn
 
-local jdtls_path = mason_path .. '/packages/jdtls'
-local lombok_path = jdtls_path .. '/lombok.jar'
-
-local os = "unknown-os"
-if vim.fn.has("mac") == 1 then
-    os = "mac"
-elseif vim.fn.has("unix") == 1 then
-    os = "linux"
-elseif vim.fn.has("win32") == 1 then
-    os = "win"
-end
-
-if not os or os == "unknown-os" then
-    vim.notify("jdtls: Could not detect valid OS", vim.log.levels.ERROR)
-end
-
-local capabilities = {
-    workspace = {
-        configuration = true,
-    },
-    textDocument = {
-        completion = {
-            snippetSupport = false,
-        },
-    },
-}
-
-local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-for k, v in pairs(lsp_capabilities) do
-    if (capabilities[k] == nil) then
-        capabilities[k] = v
+-- === Функция определения Java по Maven/Gradle =================
+local function java_from_build()
+  local pom = fn.getcwd() .. "/pom.xml"
+  if fn.filereadable(pom) == 1 then
+    for line in io.lines(pom) do
+      local v = line:match("<maven.compiler.source>(%d+)</maven.compiler.source>")
+      if v then
+        local path = home .. "/.sdkman/candidates/java/" .. v
+        if fn.isdirectory(path) == 1 then return path end
+      end
     end
+  end
+  local gradle = fn.getcwd() .. "/build.gradle"
+  if fn.filereadable(gradle) == 1 then
+    for line in io.lines(gradle) do
+      local v = line:match("sourceCompatibility%s*=%s*['\"]?(%d+)['\"]?")
+      if v then
+        local path = home .. "/.sdkman/candidates/java/" .. v
+        if fn.isdirectory(path) == 1 then return path end
+      end
+    end
+  end
+  return nil
 end
 
--- Get the default extended client capablities of the JDTLS language server
-local extendedClientCapabilities = jdtls.extendedClientCapabilities
--- Modify one property called resolveAdditionalTextEditsSupport and set it to true
-extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
-
-local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
-local workspace_dir = vim.fn.stdpath('data') .. '/jdtls-workspace/' .. project_name
-
-
-local function java_keymaps()
-    -- Allow yourself to run JdtCompile as a Vim command
-    vim.cmd(
-        "command! -buffer -nargs=? -complete=custom,v:lua.require'jdtls'._complete_compile JdtCompile lua require('jdtls').compile(<f-args>)"
-    )
-    -- Allow yourself/register to run JdtUpdateConfig as a Vim command
-    vim.cmd("command! -buffer JdtUpdateConfig lua require('jdtls').update_project_config()")
-    -- Allow yourself/register to run JdtBytecode as a Vim command
-    vim.cmd("command! -buffer JdtBytecode lua require('jdtls').javap()")
-    -- Allow yourself/register to run JdtShell as a Vim command
-    vim.cmd("command! -buffer JdtJshell lua require('jdtls').jshell()")
+-- === Получаем JAVA_HOME для проекта ==========================
+local function get_java_home()
+  return java_from_build() or (home .. "/.sdkman/candidates/java/current")
 end
 
--- Function that will be ran once the language server is attached
-local on_attach = function(_, bufnr)
-    -- Map the Java specific key mappings once the server is attached
-    java_keymaps()
-
-    -- Setup the java debug adapter of the JDTLS server
-    require("jdtls.dap").setup_dap()
-    -- Find the main method(s) of the application so the debug adapter can successfully start up the application
-    -- Sometimes this will randomly fail if language server takes to long to startup for the project, if a ClassDefNotFoundException occurs when running
-    -- the debug tool, attempt to run the debug tool while in the main class of the application, or restart the neovim instance
-    -- Unfortunately I have not found an elegant way to ensure this works 100%
-    require("jdtls.dap").setup_dap_main_class_configs()
-    -- Enable jdtls commands to be used in Neovim
-    require("jdtls.setup").add_commands()
-    -- Refresh the codelens
-    -- Code lens enables features such as code reference counts, implemenation counts, and more.
-    vim.lsp.codelens.refresh()
-
-    require("lsp_signature").on_attach({
-        bind = true,
-        padding = "",
-        handler_opts = {
-            border = "rounded",
-        },
-        hint_prefix = "󱄑 ",
-    }, bufnr)
-
-    -- Setup a function that automatically runs every time a java file is saved to refresh the code lens
-    vim.api.nvim_create_autocmd("BufWritePost", {
-        pattern = { "*.java" },
-        callback = function()
-            local _, _ = pcall(vim.lsp.codelens.refresh)
-        end,
-    })
+-- === Собираем все JDK из SDKMAN ==============================
+local function get_all_runtimes()
+  local runtimes = {}
+  local base = home .. "/.sdkman/candidates/java"
+  local handle = io.popen("ls -1 " .. base)
+  if handle then
+    for version in handle:lines() do
+      local path = base .. "/" .. version
+      if fn.isdirectory(path) == 1 and version ~= "current" then
+        table.insert(runtimes, { name = "JavaSE-" .. version, path = path })
+      end
+    end
+    handle:close()
+  end
+  return runtimes
 end
 
-local function get_bundles()
-    -- Get the Mason Registry to gain access to downloaded binaries
-    local mason_registry = require("mason-registry")
-    -- Find the Java Debug Adapter package in the Mason Registry
-    local java_debug = mason_registry.get_package("java-debug-adapter")
-    -- Obtain the full path to the directory where Mason has downloaded the Java Debug Adapter binaries
-    local java_debug_path = java_debug:get_install_path()
+-- === Конфиг JDTLS ===========================================
+local function start_jdtls()
+  local java_home = get_java_home()
+  local runtimes = get_all_runtimes()
+  table.insert(runtimes, 1, { name = "JavaSDK", path = java_home, default = true })
 
-    local bundles = {
-        vim.fn.glob(java_debug_path .. "/extension/server/com.microsoft.java.debug.plugin-*.jar", 1),
-    }
+  local jdtls_dir = home .. "/.local/share/nvim/mason/packages/jdtls"
+  local launcher = fn.glob(jdtls_dir .. "/plugins/org.eclipse.equinox.launcher_*.jar")
+  local config_os = "mac" -- mac / win
+  local config_dir = jdtls_dir .. "/config_" .. config_os
+  local project_name = fn.fnamemodify(fn.getcwd(), ":p:h:t")
+  local workspace_dir = home .. "/.local/share/eclipse/" .. project_name
 
-    -- Find the Java Test package in the Mason Registry
-    local java_test = mason_registry.get_package("java-test")
-    -- Obtain the full path to the directory where Mason has downloaded the Java Test binaries
-    local java_test_path = java_test:get_install_path()
-    -- Add all of the Jars for running tests in debug mode to the bundles list
-    vim.list_extend(bundles, vim.split(vim.fn.glob(java_test_path .. "/extension/server/*.jar", 1), "\n"))
-
-    return bundles
-end
-
--- Create a table called init_options to pass the bundles with debug and testing jar, along with the extended client capablies to the start or attach function of JDTLS
-local init_options = {
-    -- bundles = get_bundles,
-    extendedClientCapabilities = extendedClientCapabilities,
-}
-
--- Configure settings in the JDTLS server
-local settings = {
-    java = {
-        import = { enabled = true },
-        -- Enable code formatting
-        format = {
-            enabled = true,
-            -- -- Use the Google Style guide for code formattingh
-            -- settings = {
-            --     url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
-            --     profile = "GoogleStyle"
-            -- }
-        },
-        -- Enable downloading archives from eclipse automatically
-        eclipse = {
-            downloadSource = true,
-        },
-        -- Enable downloading archives from maven automatically
-        maven = {
-            downloadSources = true,
-        },
-        -- Enable method signature help
-        signatureHelp = {
-            enabled = true,
-        },
-        -- Use the fernflower decompiler when using the javap command to decompile byte code back to java code
-        contentProvider = {
-            preferred = "fernflower",
-        },
-        -- Setup automatical package import oranization on file save
-        saveActions = {
-            organizeImports = true,
-        },
-        -- Customize completion options
-        completion = {
-            -- When using an unimported static method, how should the LSP rank possible places to import the static method from
-            favoriteStaticMembers = {
-                "org.hamcrest.MatcherAssert.assertThat",
-                "org.hamcrest.Matchers.*",
-                "org.hamcrest.CoreMatchers.*",
-                "org.junit.jupiter.api.Assertions.*",
-                "java.util.Objects.requireNonNull",
-                "java.util.Objects.requireNonNullElse",
-                "org.mockito.Mockito.*",
-            },
-            -- Try not to suggest imports from these packages in the code action window
-            filteredTypes = {
-                "com.sun.*",
-                "io.micrometer.shaded.*",
-                "java.awt.*",
-                "jdk.*",
-                "sun.*",
-            },
-            -- Set the order in which the language server should organize imports
-            importOrder = {
-                "java",
-                "jakarta",
-                "javax",
-                "com",
-                "org",
-            },
-        },
-        sources = {
-            -- How many classes from a specific package should be imported before automatic imports combine them all into a single import
-            organizeImports = {
-                starThreshold = 2,
-                staticThreshold = 3,
-            },
-        },
-        -- How should different pieces of code be generated?
-        codeGeneration = {
-            -- When generating toString use a json format
-            toString = {
-                template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}",
-            },
-            -- When generating hashCode and equals methods use the java 7 objects method
-            hashCodeEquals = {
-                useJava7Objects = true,
-            },
-            -- When generating code use code blocks
-            useBlocks = true,
-        },
-        -- If changes to the project will require the developer to update the projects configuration advise the developer before accepting the change
-        configuration = {
-            updateBuildConfiguration = "interactive",
-        },
-        -- enable code lens in the lsp
-        referencesCodeLens = {
-            enabled = true,
-        },
-        -- enable inlay hints for parameter names,
-        inlayHints = {
-            parameterNames = {
-                enabled = "all",
-            },
-        },
-    },
-}
-
-local config = {
+  local config = {
     cmd = {
-        'java',
-        '-javaagent:' .. lombok_path,
-        '-Declipse.application=org.eclipse.jdt.ls.core.id1',
-        '-Dosgi.bundles.defaultStartLevel=4',
-        '-Declipse.product=org.eclipse.jdt.ls.core.product',
-        '-Dlog.protocol=true',
-        '-Dlog.level=ALL',
-        '-Xmx1g',
-        '--add-modules=ALL-SYSTEM',
-        '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-        '-jar', vim.fn.glob(jdtls_path .. '/plugins/org.eclipse.equinox.launcher_*.jar'),
-        '-configuration', jdtls_path .. '/config_' .. os,
-        '-data', workspace_dir
+      java_home .. "/bin/java",
+      "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+      "-Dosgi.bundles.defaultStartLevel=4",
+      "-Declipse.product=org.eclipse.jdt.ls.core.product",
+      "-Dlog.protocol=true",
+      "-Dlog.level=ALL",
+      "-Xms1g",
+      "--add-modules=ALL-SYSTEM",
+      "--add-opens", "java.base/java.util=ALL-UNNAMED",
+      "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+      "-jar", launcher,
+      "-configuration", config_dir,
+      "-data", workspace_dir,
     },
-    root_dir = vim.fs.dirname(vim.fs.find({ 'gradlew', '.git', 'mvnw', 'pom.xml' }, { upward = true })[1]),
-    capabilities = capabilities,
-    on_attach = on_attach,
-    settings = settings,
-    init_options = init_options,
-    bundles = get_bundles,
-}
+    root_dir = require("jdtls.setup").find_root({ ".git", "mvnw", "gradlew", "pom.xml" }),
+    settings = {
+      java = { configuration = { runtimes = runtimes } }
+    },
+  }
 
-jdtls.start_or_attach(config)
+  jdtls.start_or_attach(config)
+  return java_home
+end
+
+-- === Авто-reload JDTLS ======================================
+if not vim.g.current_java_home then
+  vim.g.current_java_home = start_jdtls()
+else
+  local new_java_home = get_java_home()
+  if vim.g.current_java_home ~= new_java_home then
+    jdtls.stop()
+    vim.g.current_java_home = start_jdtls()
+  end
+end
+
+-- === DAP =====================================================
+local dap = require("dap")
+jdtls.setup_dap({ hotcodereplace = "auto" })
+jdtls.setup.add_commands()
+local launchjs = fn.getcwd() .. "/.vscode/launch.json"
+if fn.filereadable(launchjs) == 1 then
+  require("dap.ext.vscode").load_launchjs(launchjs, { java = { "java" } })
+end
