@@ -62,7 +62,46 @@ local function detect_os()
         return "linux"
     end
 end
+-- Function that will be ran once the language server is attached
+local on_attach = function(_, bufnr)
+    -- Map the Java specific key mappings once the server is attached
+    -- Setup the java debug adapter of the JDTLS server
+    require('jdtls.dap').setup_dap()
+    -- Find the main method(s) of the application so the debug adapter can successfully start up the application
+    -- Sometimes this will randomly fail if language server takes to long to startup for the project, if a ClassDefNotFoundException occurs when running
+    -- the debug tool, attempt to run the debug tool while in the main class of the application, or restart the neovim instance
+    -- Unfortunately I have not found an elegant way to ensure this works 100%
+    require('jdtls.dap').setup_dap_main_class_configs()
+    -- Enable jdtls commands to be used in Neovim
+    require 'jdtls.setup'.add_commands()
+    -- Refresh the codelens
+    -- Code lens enables features such as code reference counts, implemenation counts, and more.
+    vim.lsp.codelens.refresh()
 
+    require("lsp_signature").on_attach({
+        bind = true,
+        padding = "",
+        handler_opts = {
+            border = "rounded",
+        },
+        hint_prefix = "󱄑 ",
+    }, bufnr)
+
+    -- Setup a function that automatically runs every time a java file is saved to refresh the code lens
+    vim.api.nvim_create_autocmd("BufWritePost", {
+        pattern = { "*.java" },
+        callback = function()
+            local _, _ = pcall(vim.lsp.codelens.refresh)
+        end
+    })
+end
+--
+-- Configure settings in the JDTLS server
+local function get_settings()
+    return {
+
+    }
+end
 -- === Конфиг JDTLS с поддержкой Lombok =====================
 local function start_jdtls()
     local java_home = get_java_home()
@@ -122,8 +161,104 @@ local function start_jdtls()
             extendedClientCapabilities = jdtls.extendedClientCapabilities,
         },
         settings = {
-            java = { configuration = { runtimes = runtimes }, contentProvider = { preferred = "fernflower" }, }
+            java = {
+                runtimes = get_all_runtimes(),
+                import = { enabled = true },
+                -- Enable code formatting
+                format = {
+                    enabled = true,
+                    -- -- Use the Google Style guide for code formattingh
+                    -- settings = {
+                    --     url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
+                    --     profile = "GoogleStyle"
+                    -- }
+                },
+                -- Enable downloading archives from eclipse automatically
+                eclipse = {
+                    downloadSource = true
+                },
+                -- Enable downloading archives from maven automatically
+                maven = {
+                    downloadSources = true
+                },
+                -- Enable method signature help
+                signatureHelp = {
+                    enabled = true
+                },
+                -- Use the fernflower decompiler when using the javap command to decompile byte code back to java code
+                contentProvider = {
+                    preferred = "fernflower"
+                },
+                -- Setup automatical package import oranization on file save
+                saveActions = {
+                    organizeImports = true
+                },
+                -- Customize completion options
+                completion = {
+                    -- When using an unimported static method, how should the LSP rank possible places to import the static method from
+                    favoriteStaticMembers = {
+                        "org.hamcrest.MatcherAssert.assertThat",
+                        "org.hamcrest.Matchers.*",
+                        "org.hamcrest.CoreMatchers.*",
+                        "org.junit.jupiter.api.Assertions.*",
+                        "java.util.Objects.requireNonNull",
+                        "java.util.Objects.requireNonNullElse",
+                        "org.mockito.Mockito.*",
+                    },
+                    -- Try not to suggest imports from these packages in the code action window
+                    filteredTypes = {
+                        "com.sun.*",
+                        "io.micrometer.shaded.*",
+                        "java.awt.*",
+                        "jdk.*",
+                        "sun.*",
+                    },
+                    -- Set the order in which the language server should organize imports
+                    importOrder = {
+                        "java",
+                        "jakarta",
+                        "javax",
+                        "com",
+                        "org",
+                    }
+                },
+                sources = {
+                    -- How many classes from a specific package should be imported before automatic imports combine them all into a single import
+                    organizeImports = {
+                        starThreshold = 2,
+                        staticThreshold = 3
+                    }
+                },
+                -- How should different pieces of code be generated?
+                codeGeneration = {
+                    -- When generating toString use a json format
+                    toString = {
+                        template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}"
+                    },
+                    -- When generating hashCode and equals methods use the java 7 objects method
+                    hashCodeEquals = {
+                        useJava7Objects = true
+                    },
+                    -- When generating code use code blocks
+                    useBlocks = true
+                },
+                -- If changes to the project will require the developer to update the projects configuration advise the developer before accepting the change
+                configuration = {
+                    updateBuildConfiguration = "interactive"
+                },
+                -- enable code lens in the lsp
+                referencesCodeLens = {
+                    enabled = true
+                },
+                -- enable inlay hints for parameter names,
+                inlayHints = {
+                    parameterNames = {
+                        enabled = "all"
+                    }
+                }
+            }
         },
+        on_attach = on_attach
     }
 
     jdtls.start_or_attach(config)
