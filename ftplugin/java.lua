@@ -1,6 +1,29 @@
 local home = os.getenv("HOME")
 local jdtls = require("jdtls")
 local fn = vim.fn
+--
+-- Map the Java specific key mappings once the server is attached
+-- Setup the java debug adapter of the JDTLS server
+require('jdtls.dap').setup_dap()
+-- Find the main method(s) of the application so the debug adapter can successfully start up the application
+-- Sometimes this will randomly fail if language server takes to long to startup for the project, if a ClassDefNotFoundException occurs when running
+-- the debug tool, attempt to run the debug tool while in the main class of the application, or restart the neovim instance
+-- Unfortunately I have not found an elegant way to ensure this works 100%
+require('jdtls.dap').setup_dap_main_class_configs()
+-- Enable jdtls commands to be used in Neovim
+require 'jdtls.setup'.add_commands()
+-- Refresh the codelens
+-- Code lens enables features such as code reference counts, implemenation counts, and more.
+vim.lsp.codelens.refresh()
+
+-- Setup a function that automatically runs every time a java file is saved to refresh the code lens
+vim.api.nvim_create_autocmd("BufWritePost", {
+    pattern = { "*.java" },
+    callback = function()
+        local _, _ = pcall(vim.lsp.codelens.refresh)
+    end
+})
+
 
 -- === Определение Java из Maven/Gradle ======================
 local function java_from_build()
@@ -62,6 +85,7 @@ local function detect_os()
         return "linux"
     end
 end
+
 -- Function that will be ran once the language server is attached
 local on_attach = function(_, bufnr)
     -- Map the Java specific key mappings once the server is attached
@@ -95,13 +119,7 @@ local on_attach = function(_, bufnr)
         end
     })
 end
---
--- Configure settings in the JDTLS server
-local function get_settings()
-    return {
 
-    }
-end
 -- === Конфиг JDTLS с поддержкой Lombok =====================
 local function start_jdtls()
     local java_home = get_java_home()
@@ -162,7 +180,6 @@ local function start_jdtls()
         },
         settings = {
             java = {
-                runtimes = get_all_runtimes(),
                 import = { enabled = true },
                 -- Enable code formatting
                 format = {
@@ -244,7 +261,8 @@ local function start_jdtls()
                 },
                 -- If changes to the project will require the developer to update the projects configuration advise the developer before accepting the change
                 configuration = {
-                    updateBuildConfiguration = "interactive"
+                    updateBuildConfiguration = "interactive",
+                    runtimes = get_all_runtimes(),
                 },
                 -- enable code lens in the lsp
                 referencesCodeLens = {
@@ -260,6 +278,13 @@ local function start_jdtls()
         },
         on_attach = on_attach
     }
+
+    vim.api.nvim_create_autocmd("Filetype", {
+        pattern = "java",
+        callback = function()
+            require("jdtls").start_or_attach(config)
+        end,
+    })
 
     jdtls.start_or_attach(config)
     return java_home
