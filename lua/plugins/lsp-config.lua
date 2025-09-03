@@ -50,7 +50,7 @@ return {
 
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-            lspconfig.buf.setup({
+            lspconfig.prettired.setup({
                 capabilities = capabilities,
             })
 
