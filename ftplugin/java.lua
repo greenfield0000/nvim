@@ -151,7 +151,7 @@ local function start_jdtls()
         init_options = {
             bundles = bundles,
             downloadSources = true,           -- подтягиваем исходники
-            progressReports = true,           -- показывать прогресс
+            progressReports = false,          -- показывать прогресс
             classFileContents = "fernflower", -- красивый декомпилер
             extendedClientCapabilities = jdtls.extendedClientCapabilities,
         },
@@ -162,10 +162,10 @@ local function start_jdtls()
                 format = {
                     enabled = true,
                     -- -- Use the Google Style guide for code formattingh
-                    -- settings = {
-                    --     url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
-                    --     profile = "GoogleStyle"
-                    -- }
+                    settings = {
+                        url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
+                        profile = "GoogleStyle"
+                    }
                 },
                 -- Enable downloading archives from eclipse automatically
                 eclipse = {
@@ -185,7 +185,7 @@ local function start_jdtls()
                 },
                 -- Setup automatical package import oranization on file save
                 saveActions = {
-                    organizeImports = true
+                    organizeImports = false
                 },
                 -- Customize completion options
                 completion = {
@@ -278,43 +278,39 @@ else
     end
 end
 
--- === DAP для Java с портами 5005 и 5006 ====================
+-- Убедимся, что DAP загружен
 local dap = require("dap")
 
-dap.configurations.java = {
-    -- Локальный запуск программы
-    {
-        type = "java",
-        request = "launch",
-        name = "Launch Java Program",
-        mainClass = function()
-            return vim.fn.input('Main class > ', '', 'file')
-        end,
-        projectName = function()
-            return vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
-        end,
-        cwd = vim.fn.getcwd(),
-        console = "integratedTerminal",
-    },
-
-    -- Подключение к JVM на порту 5005
-    {
-        type = "java",
-        request = "attach",
-        name = "Attach to Java 5005",
-        hostName = "127.0.0.1",
-        port = 5005,
-    },
-
-    -- Подключение к JVM на порту 5006
-    {
-        type = "java",
-        request = "attach",
-        name = "Attach to Java 5006",
-        hostName = "127.0.0.1",
-        port = 5006,
-    },
+-- Настройка адаптера для Java
+dap.adapters.java = {
+    type = 'server',
+    host = '127.0.0.1',
+    port = function()
+        return vim.fn.input('Port: ', '5005')
+    end,
 }
+
+-- Конфигурации для отладки Java
+dap.configurations.java = {
+    {
+        type = 'java',
+        request = 'attach',
+        name = 'Attach to Remote',
+        hostName = '127.0.0.1',
+        port = function()
+            return vim.fn.input('Port: ', '5005')
+        end,
+    },
+
+}
+
+-- Интеграция с jdtls если используется
+local status_ok, jdtls = pcall(require, "jdtls")
+if status_ok then
+    vim.keymap.set('n', '<leader>df', jdtls.pick_test, { buffer = true, desc = 'Pick Test' })
+    vim.keymap.set('n', '<leader>dt', jdtls.test_class, { buffer = true, desc = 'Test Class' })
+    vim.keymap.set('n', '<leader>dT', jdtls.test_nearest_method, { buffer = true, desc = 'Test Method' })
+end
 
 -- === Авто-загрузка launch.json, если есть ==================
 local launchjs = fn.getcwd() .. "/.vscode/launch.json"

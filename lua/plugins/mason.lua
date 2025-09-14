@@ -26,7 +26,7 @@ return {
                     "lemminx",                    -- xml
                     "buf",                        -- protobuf
                     "angular-language-server",    -- angular
-                    "typescript-language-server",    -- angular
+                    "typescript-language-server", -- angular
                     "dockerfile-language-server", -- dockerfile, docker
                     "sqls",                       -- sql
                     "marksman",                   -- md
@@ -37,6 +37,8 @@ return {
                     -- dap
                     "go-debug-adapter",   -- many lang java, golang, c++, rust
                     "java-debug-adapter", -- many lang java, golang, c++, rust
+                    -- test
+                    "java-test",
                 },
             })
         end,
@@ -49,6 +51,7 @@ return {
             -- ensure the java debug adapter is installed
             require("mason-nvim-dap").setup({
                 ensure_installed = {
+                    "delve",
                     "java-debug-adapter",
                     "java-test",
                 },
