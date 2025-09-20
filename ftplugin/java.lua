@@ -73,7 +73,7 @@ local function detect_os()
 end
 
 -- Function that will be ran once the language server is attached
-local on_attach = function(client, bufnr)
+local on_attach = function(_, bufnr)
     -- Enable jdtls commands to be used in Neovim
     require 'jdtls.setup'.add_commands()
 

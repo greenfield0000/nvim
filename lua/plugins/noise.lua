@@ -1,3 +1,43 @@
+local function setup_noice_theme()
+    -- Базовые цвета из текущей темы
+    local colors = {
+        bg = vim.api.nvim_get_hl_by_name("Normal", true).background or "#1e1e2e",
+        fg = vim.api.nvim_get_hl_by_name("Normal", true).foreground or "#cdd6f4",
+        border = vim.api.nvim_get_hl_by_name("FloatBorder", true).foreground or "#585b70",
+        comment = vim.api.nvim_get_hl_by_name("Comment", true).foreground or "#7f849c",
+        search = vim.api.nvim_get_hl_by_name("Search", true).background or "#a6e3a1",
+    }
+
+    -- Noice highlight группы
+    local hl_groups = {
+        -- Основные
+        NoiceCmdlinePopup = { bg = colors.bg, fg = colors.fg },
+        NoiceCmdlinePopupBorder = { fg = colors.border, bg = colors.bg },
+        NoiceCmdlinePopupTitle = { fg = colors.fg, bg = colors.bg, bold = true },
+
+        -- Уведомления
+        NoiceNotify = { bg = colors.bg, fg = colors.fg },
+        NoiceNotifyBorder = { fg = colors.border, bg = colors.bg },
+        NoiceNotifyTitle = { fg = colors.fg, bg = colors.bg, bold = true },
+
+        -- Мини
+        NoiceMini = { bg = colors.bg, fg = colors.comment },
+
+        -- Иконки
+        NoiceCmdlineIcon = { fg = colors.comment },
+        NoiceCmdlineIconSearch = { fg = colors.search or colors.comment },
+
+        -- LSP
+        NoiceLspProgressClient = { fg = colors.comment },
+        NoiceLspProgressTitle = { fg = colors.fg, bold = true },
+    }
+
+    -- Применяем highlight группы
+    for group, settings in pairs(hl_groups) do
+        vim.api.nvim_set_hl(0, group, settings)
+    end
+end
+
 return {
     {
         "folke/noice.nvim",
@@ -235,7 +275,7 @@ return {
             local original_notify = vim.notify
 
             -- === ГЛОБАЛЬНОЕ ПЕРЕНАПРАВЛЕНИЕ VIM.NOTIFY ===
-            vim.notify = function(msg, level, opts)
+            vim.notify = function(msg, level, _)
                 -- Список сообщений для полного игнорирования
                 local ignored_patterns = {
                     "jdtls", "JDTLS", "LSP", "lsp",
@@ -264,28 +304,27 @@ return {
             -- Инициализируем noice
             require("noice").setup(opts)
 
+            setup_noice_theme()
+            vim.api.nvim_create_autocmd("ColorScheme", {
+                callback = setup_noice_theme,
+            })
+
             -- === КАСТОМНЫЕ ХОТКЕИ ===
             local keymap = vim.keymap.set
             local nopts = { noremap = true, silent = true }
 
             -- История сообщений
             keymap("n", "<leader>nH", "<cmd>Noice history<CR>", nopts)
-
             -- Последнее сообщение
             keymap("n", "<leader>nL", "<cmd>Noice last<CR>", nopts)
-
             -- Ошибки
             keymap("n", "<leader>nE", "<cmd>Noice errors<CR>", nopts)
-
             -- Перезагрузить noice
             keymap("n", "<leader>nR", "<cmd>Noice reload<CR>", nopts)
-
             -- Документация
             keymap("n", "<leader>nD", "<cmd>Noice docs<CR>", nopts)
-
             -- Отладка
             keymap("n", "<leader>nd", "<cmd>Noice debug<CR>", nopts)
-
             -- Тoggle noice
             keymap("n", "<leader>nt", function()
                 require("noice").cmd("toggle")
@@ -293,7 +332,6 @@ return {
 
             -- === АВТОМАТИЧЕСКОЕ УПРАВЛЕНИЕ LSP УВЕДОМЛЕНИЯМИ ===
             -- Отключаем прогресс-бары LSP
-            vim.lsp.handlers["window/workDoneProgress/create"] = function() end
             vim.lsp.handlers["$/progress"] = function() end
 
             -- Перенаправляем LSP сообщения через нашу систему
