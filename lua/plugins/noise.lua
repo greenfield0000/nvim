@@ -54,7 +54,7 @@ return {
             -- === ВИДЫ СООБЩЕНИЙ ===
             cmdline = {
                 enabled = true,
-                view = "cmdline_popup", -- cmdline, cmdline_popup
+                view = "cmdline", -- cmdline, cmdline_popup
                 opts = {},
                 format = {
                     cmdline = { pattern = "^:", icon = "", lang = "vim" },
@@ -84,7 +84,7 @@ return {
                 cmdline_popup = {
                     position = {
                         row = "30%", -- Вертикальная позиция (20%, 50%, 5)
-                        col = "50%", -- Горизонтальная позиция
+                        -- col = "50%", -- Горизонтальная позиция
                     },
                     size = {
                         width = "60%", -- 60% ширины экрана
@@ -121,7 +121,7 @@ return {
                     },
                     border = { style = "rounded" },
                     win_options = {
-                        winblend = 10, -- Прозрачность (0-100)
+                        winblend = 100, -- Прозрачность (0-100)
                     },
                 },
 
