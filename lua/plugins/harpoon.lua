@@ -18,4 +18,4 @@ function M.mark_file()
 end
 
 -- return M
-return {}
+return M
