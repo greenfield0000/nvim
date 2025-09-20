@@ -43,8 +43,6 @@ return {
             })
         end,
     },
-    -- mason nvim dap utilizes mason to automatically ensure debug adapters you want installed are installed,
-    -- mason-lspconfig will not automatically install debug adapters for us
     {
         "jay-babu/mason-nvim-dap.nvim",
         config = function()
