@@ -91,6 +91,7 @@ local on_attach = function(client, bufnr)
             },
             hint_prefix = "󱄑 ",
         }, bufnr)
+        require('jdtls').setup_dap({ hotcodereplace = 'auto' })
     end
 
     -- Setup a function that automatically runs every time a java file is saved to refresh the code lens
@@ -132,26 +133,53 @@ local function start_jdtls()
     end
 
     -- === bundles: Debug + Test =================================
-    local bundles = {}
-    local java_debug_path = vim.fn.glob(
-        home ..
-        "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
-        false, true
-    )
-    if java_debug_path and #java_debug_path > 0 then
-        bundles = java_debug_path
-    end
-
+    -- local bundles = {}
+    -- local java_debug_path = vim.fn.glob(
+    --     home ..
+    --     "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
+    --     false, true
+    -- )
+    -- if java_debug_path and #java_debug_path > 0 then
+    --     bundles = java_debug_path
+    -- end
+    --
     -- Добавляем java-test bundle если есть
-    local java_test_path = vim.fn.glob(
-        home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar",
-        false, true
+    -- local java_test_path = vim.fn.glob(
+    --     home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar",
+    --     false, true
+    -- )
+
+    -- if java_test_path and #java_test_path > 0 then
+    --     for _, path in ipairs(java_test_path) do
+    --         table.insert(bundles, path)
+    --     end
+    -- end
+    --
+    -- This bundles definition is the same as in the previous section (java-debug installation)
+    local bundles = {
+        vim.fn.glob(
+            home ..
+            "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
+            1)
+    }
+
+    -- This is the new part
+    local java_test_bundles = vim.split(
+        vim.fn.glob(
+            home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1
+        ), "\n"
     )
-    if java_test_path and #java_test_path > 0 then
-        for _, path in ipairs(java_test_path) do
-            table.insert(bundles, path)
+    local excluded = {
+        "com.microsoft.java.test.runner-jar-with-dependencies.jar",
+        "jacocoagent.jar",
+    }
+    for _, java_test_jar in ipairs(java_test_bundles) do
+        local fname = vim.fn.fnamemodify(java_test_jar, ":t")
+        if not vim.tbl_contains(excluded, fname) then
+            table.insert(bundles, java_test_jar)
         end
     end
+    -- End of the new part
 
     local cmd = {
         java_home .. "/bin/java",
@@ -246,33 +274,3 @@ if vim.bo.filetype == "java" then
         end
     end, 100)
 end
-
--- === Интеграция с DAP ====================
-vim.defer_fn(function()
-    local status_ok, dap = pcall(require, "dap")
-    if not status_ok then
-        return
-    end
-
-    -- Java-specific DAP keymaps
-    local jdtls_ok, jdtls = pcall(require, "jdtls")
-    if jdtls_ok then
-        vim.keymap.set('n', '<leader>dt', function()
-            jdtls.test_class()
-        end, { buffer = true, desc = 'Test Class' })
-
-        vim.keymap.set('n', '<leader>dT', function()
-            jdtls.test_nearest_method()
-        end, { buffer = true, desc = 'Test Method' })
-
-        vim.keymap.set('n', '<leader>df', function()
-            jdtls.pick_test()
-        end, { buffer = true, desc = 'Pick Test' })
-    end
-
-    -- Автозагрузка launch.json для Java проектов
-    local launchjs = vim.fn.getcwd() .. "/.vscode/launch.json"
-    if vim.fn.filereadable(launchjs) == 1 then
-        pcall(require("dap.ext.vscode").load_launchjs, launchjs, { java = { "java" } })
-    end
-end, 3000)
