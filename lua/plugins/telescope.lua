@@ -21,7 +21,8 @@ return {
             vim.keymap.set("n", "<leader>fB", builtin.git_branches, { desc = "[f]ind Git [B]ranch" })
             vim.keymap.set("n", "<leader>fs", builtin.git_status, { desc = "[f]ind Git [s]tatus" })
             vim.keymap.set("n", "<leader>fS", builtin.git_stash, { desc = "[f]ind Git [S]tash" })
-            vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[f] [h]elp tags' })
+            vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[f]ind [h]elp tags' })
+            vim.keymap.set('n', '<leader>fp', function () require("telescope").extensions.projects.projects() end, { desc = '[f]ind [p]rojects' })
 
             local actions = require("telescope.actions")
             local icons = require("config.icons")
