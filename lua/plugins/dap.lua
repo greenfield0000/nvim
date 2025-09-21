@@ -185,9 +185,11 @@ return {
                 {
                     type = "java",
                     request = "attach",
-                    name = "Attach to Remote Java Process",
-                    hostName = "${host}",
-                    port = "${port}",
+                    name = "Attach to Remote Java Process with custom port",
+                    hostName = "localhost",
+                    port = function()
+                        return tonumber(vim.fn.input('Port: ', '9229'))
+                    end,
                 },
             }
 
