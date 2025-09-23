@@ -132,29 +132,6 @@ local function start_jdtls()
         table.insert(javaagent_opts, "-javaagent:" .. lombok_path)
     end
 
-    -- === bundles: Debug + Test =================================
-    -- local bundles = {}
-    -- local java_debug_path = vim.fn.glob(
-    --     home ..
-    --     "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
-    --     false, true
-    -- )
-    -- if java_debug_path and #java_debug_path > 0 then
-    --     bundles = java_debug_path
-    -- end
-    --
-    -- Добавляем java-test bundle если есть
-    -- local java_test_path = vim.fn.glob(
-    --     home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar",
-    --     false, true
-    -- )
-
-    -- if java_test_path and #java_test_path > 0 then
-    --     for _, path in ipairs(java_test_path) do
-    --         table.insert(bundles, path)
-    --     end
-    -- end
-    --
     -- This bundles definition is the same as in the previous section (java-debug installation)
     local bundles = {
         vim.fn.glob(
