@@ -324,7 +324,7 @@ return {
             -- Документация
             keymap("n", "<leader>nD", "<cmd>Noice docs<CR>", nopts)
             -- Отладка
-            keymap("n", "<leader>nd", "<cmd>Noice debug<CR>", nopts)
+            keymap("n", "<leader>nd", "<cmd>Noice disable<CR>", nopts)
             -- Тoggle noice
             keymap("n", "<leader>nt", function()
                 require("noice").cmd("toggle")
