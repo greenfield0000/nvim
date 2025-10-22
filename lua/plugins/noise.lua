@@ -47,13 +47,13 @@ return {
         },
         opts = {
             -- === ОСНОВНЫЕ НАСТРОЙКИ ===
-            enabled = true,
+            enabled = false,
             debug = false,
             verbose = 0,
 
             -- === ВИДЫ СООБЩЕНИЙ ===
             cmdline = {
-                enabled = true,
+                enabled = false,
                 view = "cmdline", -- cmdline, cmdline_popup
                 opts = {},
                 format = {
@@ -67,7 +67,7 @@ return {
             },
 
             messages = {
-                enabled = true,
+                enabled = false,
                 view = "notify", -- mini, notify, messages
                 view_error = "notify",
                 view_warn = "notify",
@@ -75,7 +75,7 @@ return {
             },
 
             popupmenu = {
-                enabled = true,
+                enabled = false,
                 backend = "nui", -- nvim-cmp, nui
             },
 
