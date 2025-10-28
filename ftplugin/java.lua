@@ -218,11 +218,34 @@ local function start_jdtls()
                         "org.mockito.Mockito.*",
                     },
                 },
-                signatureHelp = { enabled = true },
+                signatureHelp = {
+                    enabled = false,
+                    description = {
+                        enabled = true
+                    }
+                },
                 contentProvider = { preferred = "fernflower" },
                 saveActions = { organizeImports = false },
                 referencesCodeLens = { enabled = true },
-                inlayHints = { parameterNames = { enabled = "all" } }
+                inlayHints = { parameterNames = { enabled = "all" } },
+                codeGeneration = {
+                    useBlocks = true,
+                    generateComments = true,
+                    insertLocation = true
+                },
+                autobuild = {
+                    enabled = true
+                },
+                progressReports = {
+                    enabled = false
+                },
+                -- eclipse = {
+                --     downloadSources = true
+                -- },
+                maven = {
+                    downloadSources = true,
+                    updateSnapshots = true
+                }
             }
         },
         on_attach = on_attach,

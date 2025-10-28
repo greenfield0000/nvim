@@ -330,24 +330,25 @@ return {
                 require("noice").cmd("toggle")
             end, nopts)
 
-            -- === АВТОМАТИЧЕСКОЕ УПРАВЛЕНИЕ LSP УВЕДОМЛЕНИЯМИ ===
-            -- Отключаем прогресс-бары LSP
-            vim.lsp.handlers["$/progress"] = function() end
-
-            -- Перенаправляем LSP сообщения через нашу систему
-            vim.lsp.handlers["window/showMessage"] = function(_, result, ctx)
-                local client = vim.lsp.get_client_by_id(ctx.client_id)
-                local client_name = client and client.name or "unknown"
-
-                -- Показываем только ошибки через noice
-                if result.type == vim.lsp.protocol.MessageType.Error then
-                    vim.notify(result.message, vim.log.levels.ERROR, {
-                        title = "LSP Error: " .. client_name
-                    })
-                end
-            end
-
-            vim.notify("Noice configured with global redirection", vim.log.levels.INFO)
+            -- 
+            -- -- === АВТОМАТИЧЕСКОЕ УПРАВЛЕНИЕ LSP УВЕДОМЛЕНИЯМИ ===
+            -- -- Отключаем прогресс-бары LSP
+            -- vim.lsp.handlers["$/progress"] = function() end
+            --
+            -- -- Перенаправляем LSP сообщения через нашу систему
+            -- vim.lsp.handlers["window/showMessage"] = function(_, result, ctx)
+            --     local client = vim.lsp.get_client_by_id(ctx.client_id)
+            --     local client_name = client and client.name or "unknown"
+            --
+            --     -- Показываем только ошибки через noice
+            --     if result.type == vim.lsp.protocol.MessageType.Error then
+            --         vim.notify(result.message, vim.log.levels.ERROR, {
+            --             title = "LSP Error: " .. client_name
+            --         })
+            --     end
+            -- end
+            --
+            -- vim.notify("Noice configured with global redirection", vim.log.levels.INFO)
         end,
     }
 }
