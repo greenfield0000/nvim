@@ -72,10 +72,109 @@ local function detect_os()
     end
 end
 
+local function show_coverage()
+    local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+    local index_html = project_name .. "/target/jacoco-ut/index.html"
+
+    vim.notify("Running Maven tests...")
+
+    -- Выполняем mvn clean test
+    vim.fn.jobstart({ "mvn", "clean", "test", "-Dmaven.wagon.http.ssl.insecure=true" }, {
+        detach = true,
+        on_exit = function(_, exit_code)
+            if exit_code == 0 then
+                vim.notify("Tests completed successfully! Opening coverage report...")
+                -- После успешного выполнения тестов открываем отчет
+                vim.fn.jobstart({ "xdg-open", index_html }, { detach = true })
+            else
+                vim.notify("Tests failed with exit code: " .. exit_code, vim.log.levels.ERROR)
+            end
+        end,
+        on_stdout = function(_, data)
+            if data and data[1] ~= "" then
+                print("[Maven] " .. data[1])
+            end
+        end,
+        on_stderr = function(_, data)
+            if data and data[1] ~= "" then
+                print("[Maven ERROR] " .. data[1])
+            end
+        end
+    })
+end
+
+-- === Кастомизация значков тестов =========================
+local function setup_test_icons()
+    local icons = {
+        success = "✅",
+        failure = "❌",
+        error = "💥",
+        running = "⏳",
+        skipped = "⚠️",
+    }
+
+    jdtls.extendedClientCapabilities = jdtls.extendedClientCapabilities or {}
+    jdtls.extendedClientCapabilities.testExplorer = {
+        treeIconFailed = icons.failure,
+        treeIconErrored = icons.error,
+        treeIconRunning = icons.running,
+        treeIconSkipped = icons.skipped,
+        treeIconPassed = icons.success,
+
+        statusIconFailed = icons.failure,
+        statusIconErrored = icons.error,
+        statusIconRunning = icons.running,
+        statusIconSkipped = icons.skipped,
+        statusIconPassed = icons.success,
+
+        codeLensFailed = icons.failure,
+        codeLensErrored = icons.error,
+        codeLensRunning = icons.running,
+        codeLensSkipped = icons.skipped,
+        codeLensPassed = icons.success,
+    }
+end
+
+-- === Кастомные уведомления для тестов ====================
+local function setup_test_notifications()
+    local notify_ok, notify = pcall(require, "notify")
+    if not notify_ok then return end
+
+    -- Переопределяем обработку результатов тестов
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "JdtTestLaunch",
+        callback = function()
+            notify("🧪 Запуск тестов...", "info", { title = "Java Tests", timeout = 2000 })
+        end
+    })
+
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "JdtTestFinished",
+        callback = function(data)
+            local result = data.data and data.data.result
+            if result then
+                local total = result.total or 0
+                local passed = result.passed or 0
+                local failed = result.failed or 0
+                local skipped = result.skipped or 0
+
+                if failed > 0 then
+                    notify(string.format("❌ Тесты завершены: %d/%d успешно, %d провалено, %d пропущено",
+                        passed, total, failed, skipped), "error", { title = "Java Tests", timeout = 5000 })
+                else
+                    notify(string.format("✅ Все тесты пройдены: %d/%d успешно, %d пропущено",
+                        passed, total, skipped), "info", { title = "Java Tests", timeout = 3000 })
+                end
+            end
+        end
+    })
+end
+
 -- === DAP конфигурация для тестирования ====================
 local function setup_dap()
-    local dap = require("dap")
-    
+    local dap_ok, dap = pcall(require, "dap")
+    if not dap_ok then return end
+
     -- Конфигурация для Java
     dap.configurations.java = {
         {
@@ -108,6 +207,57 @@ local function setup_dap()
     }
 end
 
+-- === Умная отладка тестов с DAP UI =======================
+local function debug_test(test_fn)
+    return function()
+        local dapui_ok, dapui = pcall(require, "dapui")
+        local dap_ok, dap = pcall(require, "dap")
+
+        -- Закрываем предыдущую сессию если есть
+        if dap_ok and dap.session() then
+            dap.terminate()
+            if dapui_ok then
+                dapui.close()
+            end
+            vim.wait(500) -- Даем время для закрытия
+        end
+
+        -- Настраиваем одноразовые listeners для этой сессии
+        if dap_ok and dapui_ok then
+            local listener_id = "jdtls_test_debug"
+
+            -- Удаляем предыдущие listeners с таким же ID
+            dap.listeners.after.event_initialized[listener_id] = nil
+            dap.listeners.before.event_terminated[listener_id] = nil
+            dap.listeners.before.event_exited[listener_id] = nil
+
+            -- Добавляем новые listeners
+            dap.listeners.after.event_initialized[listener_id] = function()
+                dapui.open()
+            end
+
+            dap.listeners.before.event_terminated[listener_id] = function()
+                dapui.close()
+                -- Очищаем listeners после завершения
+                dap.listeners.after.event_initialized[listener_id] = nil
+                dap.listeners.before.event_terminated[listener_id] = nil
+                dap.listeners.before.event_exited[listener_id] = nil
+            end
+
+            dap.listeners.before.event_exited[listener_id] = function()
+                dapui.close()
+                -- Очищаем listeners после завершения
+                dap.listeners.after.event_initialized[listener_id] = nil
+                dap.listeners.before.event_terminated[listener_id] = nil
+                dap.listeners.before.event_exited[listener_id] = nil
+            end
+        end
+
+        -- Запускаем тест
+        test_fn()
+    end
+end
+
 -- Function that will be ran once the language server is attached
 local on_attach = function(_, bufnr)
     -- Enable jdtls commands to be used in Neovim
@@ -132,23 +282,52 @@ local on_attach = function(_, bufnr)
 
     -- === Ключевые маппинги для тестирования ===============
     local map = function(mode, lhs, rhs, desc)
-        if desc then
-            desc = "JDTLS: " .. desc
-        end
+        -- if desc then
+        --     desc = "JDTLS: " .. desc
+        -- end
         vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc, buffer = bufnr })
     end
 
     -- Тестирование
-    map('n', '<leader>tt', function() require('jdtls').test_class() end, "Test Class")
-    map('n', '<leader>tn', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
-    map('n', '<leader>tT', function() require('jdtls').pick_test() end, "Pick Test")
+    map('n', '<leader>tc', function()
+        require('jdtls').test_class()
+    end, "Test Class")
+
+    map('n', '<leader>tm', function()
+        require('jdtls').test_nearest_method()
+    end, "Test current Method")
+
+    map('n', '<leader>tp', function()
+        require('jdtls').pick_test()
+    end, "Pick Test")
+
+    -- Покрытие кода
+    map('n', '<leader>tC', show_coverage, "Show Coverage Report")
+    
     -- Отладка тестов
-    map('n', '<leader>tcd', function() require('jdtls.dap').test_class() end, "Debug Test Class")
-    map('n', '<leader>tmd', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
-    -- Code lens для тестов
-    map('n', '<leader>cl', function() vim.lsp.codelens.run() end, "Run Code Lens")
-    -- Генерация тестов
-    map('n', '<leader>tg', function() require('jdtls').generate_test() end, "Generate Test")
+    map('n', '<leader>tdc', debug_test(function()
+        require('jdtls.dap').test_class()
+    end), "Debug Test Class")
+
+    map('n', '<leader>tdm', debug_test(function()
+        require('jdtls.dap').test_nearest_method()
+    end), "Debug Test Method")
+    --
+    -- Если используете nvim-coverage, добавьте также:
+    local coverage_ok, _ = pcall(require, "coverage")
+    if coverage_ok then
+        map('n', '<leader>cS', function()
+            require("coverage").summary()
+        end, "Coverage Summary")
+
+        map('n', '<leader>cL', function()
+            require("coverage").load()
+        end, "Coverage Load")
+
+        map('n', '<leader>cH', function()
+            require("coverage").hide()
+        end, "Coverage Hide")
+    end
 
     -- Setup a function that automatically runs every time a java file is saved to refresh the code lens
     vim.api.nvim_create_autocmd("BufWritePost", {
@@ -246,6 +425,12 @@ local function start_jdtls()
         return java_home
     end
 
+    -- === Настройка кастомных значков тестов ===
+    setup_test_icons()
+
+    -- === Настройка кастомных уведомлений тестов ===
+    setup_test_notifications()
+
     local config = {
         cmd = cmd,
         root_dir = root_dir,
@@ -290,19 +475,30 @@ local function start_jdtls()
                     showProgress = true,
                     -- Конфигурация по умолчанию для запуска тестов
                     defaultConfig = "JUnit5",
+                    -- === КАСТОМИЗАЦИЯ ЗНАЧКОВ ТЕСТОВ ===
+                    result = {
+                        success = "✅", -- Успешный тест
+                        failure = "❌", -- Проваленный тест
+                        ignored = "⚠️", -- Пропущенный тест
+                        running = "⏳", -- Тест выполняется
+                    },
                     -- Конфигурации тестов
                     configurations = {
                         {
                             name = "JUnit5",
                             workingDirectory = "${workspaceFolder}",
-                            vmargs = "-Xmx1024m",
+                            vmargs = "-Xmx1024m -javaagent:" ..
+                                home ..
+                                "/.local/share/nvim/mason/packages/java-test/extension/server/jacocoagent.jar=destfile=build/jacoco.exec,append=true",
                             env = {},
                             args = {}
                         },
                         {
-                            name = "JUnit4", 
+                            name = "JUnit4",
                             workingDirectory = "${workspaceFolder}",
-                            vmargs = "-Xmx1024m",
+                            vmargs = "-Xmx1024m -javaagent:" ..
+                                home ..
+                                "/.local/share/nvim/mason/packages/java-test/extension/server/jacocoagent.jar=destfile=build/jacoco.exec,append=true",
                             env = {},
                             args = {}
                         }
@@ -319,13 +515,13 @@ local function start_jdtls()
                 implementationsCodeLens = {
                     enabled = true,
                 },
-                referencesCodeLens = { 
-                    enabled = true 
+                referencesCodeLens = {
+                    enabled = true
                 },
-                inlayHints = { 
-                    parameterNames = { 
-                        enabled = "all" 
-                    } 
+                inlayHints = {
+                    parameterNames = {
+                        enabled = "all"
+                    }
                 },
                 codeGeneration = {
                     useBlocks = true,
@@ -363,12 +559,27 @@ local function start_jdtls()
                 vim.lsp.codelens.refresh()
             end)
 
-            -- Показывать тестовую панель при запуске тестов
+            -- Настройка DAP конфигураций без автоматического показа UI
             local status_ok, jdtls_dap = pcall(require, "jdtls.dap")
             if status_ok then
                 jdtls_dap.setup_dap_main_class_configs()
             end
         end
+    })
+
+    -- Автоматическая загрузка покрытия после тестов
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "JdtTestFinished",
+        callback = function()
+            if vim.b.coverage_enabled then
+                vim.schedule(function()
+                    local status_ok, coverage = pcall(require, "coverage")
+                    if status_ok then
+                        coverage.load()
+                    end
+                end)
+            end
+        end,
     })
 
     return java_home
