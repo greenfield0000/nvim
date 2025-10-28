@@ -72,35 +72,143 @@ local function detect_os()
     end
 end
 
-local function show_coverage()
-    local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
-    local index_html = project_name .. "/target/jacoco-ut/index.html"
+-- === Получение Java версии из pom.xml ====================
+local function get_java_version_from_pom()
+    local root_dir = require("jdtls.setup").find_root({ "pom.xml" })
+    if not root_dir then
+        return nil, "No pom.xml found"
+    end
 
-    vim.notify("Running Maven tests...")
+    local pom_file = root_dir .. "/pom.xml"
+    if vim.fn.filereadable(pom_file) ~= 1 then
+        return nil, "pom.xml not readable"
+    end
 
-    -- Выполняем mvn clean test
-    vim.fn.jobstart({ "mvn", "clean", "test", "-Dmaven.wagon.http.ssl.insecure=true" }, {
-        detach = true,
-        on_exit = function(_, exit_code)
-            if exit_code == 0 then
-                vim.notify("Tests completed successfully! Opening coverage report...")
-                -- После успешного выполнения тестов открываем отчет
-                vim.fn.jobstart({ "xdg-open", index_html }, { detach = true })
-            else
-                vim.notify("Tests failed with exit code: " .. exit_code, vim.log.levels.ERROR)
-            end
-        end,
-        on_stdout = function(_, data)
-            if data and data[1] ~= "" then
-                print("[Maven] " .. data[1])
-            end
-        end,
-        on_stderr = function(_, data)
-            if data and data[1] ~= "" then
-                print("[Maven ERROR] " .. data[1])
-            end
+    -- Парсим pom.xml для получения версии Java
+    for line in io.lines(pom_file) do
+        -- Ищем версию в properties
+        local version = line:match("<maven%.compiler%.source>(%d+)</maven%.compiler%.source>")
+        if version then
+            return version
         end
-    })
+
+        -- Ищем в plugin configuration
+        version = line:match("<source>(%d+)</source>")
+        if version then
+            return version
+        end
+
+        -- Ищем в общих properties
+        version = line:match("<java%.version>(%d+)</java%.version>")
+        if version then
+            return version
+        end
+    end
+
+    return nil, "Java version not found in pom.xml"
+end
+--
+-- === Получение конкретной версии JDK из runtimes =========
+local function get_jdk_by_version(version)
+    local runtimes = get_all_runtimes()
+
+    -- Ищем точное совпадение
+    for _, runtime in ipairs(runtimes) do
+        if runtime.path:match(version .. "$") or runtime.path:match(version .. ".%d+$") then
+            return runtime
+        end
+    end
+
+    -- Ищем частичное совпадение (например, "11" в "11.0.2")
+    for _, runtime in ipairs(runtimes) do
+        local runtime_version = runtime.path:match("/(%d+[%d.]*)$")
+        if runtime_version and runtime_version:match("^" .. version) then
+            return runtime
+        end
+    end
+
+    return home .. "/.sdkman/candidates/java/11.0.12-open"
+end
+
+-- Специальная функция для JDK 11
+local function get_jdk_11()
+    return get_jdk_by_version("11")
+end
+
+local function show_coverage()
+    local root_dir = require("jdtls.setup").find_root({ "pom.xml" })
+    if not root_dir then
+        vim.notify("❌ No Maven project found!", vim.log.levels.ERROR)
+        return
+    end
+
+    -- Получаем Java из pom.xml
+    local java_version = get_java_version_from_pom()
+    -- local java_home = java_version and get_java_home_from_version(java_version) or get_java_home()
+    local java_home = get_jdk_11()
+
+    vim.notify("🧪 java home is " .. java_home)
+
+    local index_html = root_dir .. "/target/jacoco-ut/index.html"
+
+    -- Создаем временный файл для логов
+    local log_file = "/tmp/maven_test_" .. os.time() .. ".log"
+
+    vim.notify("🧪 Starting Maven tests in background...\nLogs: " .. log_file)
+
+    -- Запускаем Maven wrapper если есть, иначе используем системный Maven
+    local mvn_command = vim.fn.filereadable(root_dir .. "/mvnw") == 1 and "./mvnw" or "mvn"
+
+
+    vim.notify("🧪 Java home " .. java_home)
+
+    -- Команда для запуска в фоне с логированием
+    local cmd = string.format(
+        -- "cd %s && JAVA_HOME=%s nohup %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!",
+        "cd %s && mvn clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!",
+        -- vim.fn.shellescape(root_dir),
+        -- vim.fn.shellescape(java_home),
+        mvn_command,
+        vim.fn.shellescape(log_file)
+    )
+
+    -- Запускаем и получаем PID процесса
+    local handle = io.popen(cmd)
+    local pid = handle:read("*a"):gsub("%s+", "")
+    handle:close()
+
+    if pid and pid ~= "" then
+        vim.notify("📝 Maven tests running in background (PID: " .. pid .. ")\nCheck logs: " .. log_file)
+
+        -- Запускаем мониторинг процесса
+        vim.fn.jobstart({ "sh", "-c", "while kill -0 " .. pid .. " 2>/dev/null; do sleep 2; done" }, {
+            detach = false,
+            on_exit = function()
+                -- Когда процесс завершился
+                vim.defer_fn(function()
+                    -- Проверяем exit code через файл логов
+                    local log_handle = io.open(log_file, "r")
+                    if log_handle then
+                        local content = log_handle:read("*a")
+                        log_handle:close()
+
+                        if content:find("BUILD SUCCESS") then
+                            vim.notify("✅ Background tests completed successfully!")
+                            if vim.fn.filereadable(index_html) == 1 then
+                                vim.fn.jobstart({ "xdg-open", index_html }, { detach = true })
+                            else
+                                vim.notify("⚠️ Coverage report not found at: " .. index_html)
+                            end
+                        else
+                            vim.notify("❌ Background tests failed. Check logs: " .. log_file, vim.log.levels.ERROR)
+                        end
+                    end
+                end, 1000)
+            end
+        })
+    else
+        vim.notify("❌ Failed to start background tests", vim.log.levels.ERROR)
+    end
 end
 
 -- === Кастомизация значков тестов =========================
@@ -303,7 +411,7 @@ local on_attach = function(_, bufnr)
 
     -- Покрытие кода
     map('n', '<leader>tC', show_coverage, "Show Coverage Report")
-    
+
     -- Отладка тестов
     map('n', '<leader>tdc', debug_test(function()
         require('jdtls.dap').test_class()
