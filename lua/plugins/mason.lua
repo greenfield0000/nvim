@@ -28,7 +28,7 @@ return {
                     "angular-language-server",    -- angular
                     "typescript-language-server", -- angular
                     "dockerfile-language-server", -- dockerfile, docker
-                    "sqls",                       -- sql
+                    "sqlls",                      -- sql
                     "marksman",                   -- md
                     -- Linter
                     -- "ast-grep",                   -- many lang java, golang, c++, rust

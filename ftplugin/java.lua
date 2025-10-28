@@ -72,6 +72,42 @@ local function detect_os()
     end
 end
 
+-- === DAP конфигурация для тестирования ====================
+local function setup_dap()
+    local dap = require("dap")
+    
+    -- Конфигурация для Java
+    dap.configurations.java = {
+        {
+            type = 'java',
+            request = 'attach',
+            name = "Debug (Attach) - Remote",
+            hostName = "127.0.0.1",
+            port = 5005,
+        },
+        {
+            type = 'java',
+            request = 'launch',
+            name = "Launch Java File",
+            mainClass = "${file}",
+            projectName = "${fileBasenameNoExtension}",
+        },
+        {
+            type = 'java',
+            request = 'launch',
+            name = "Run Current Test",
+            vmArgs = "-Xmx2048m -XX:+ShowCodeDetailsInExceptionMessages",
+            mainClass = "org.junit.platform.console.ConsoleLauncher",
+            args = {
+                "--scan-classpath",
+                "--include-classname",
+                "${file}",
+            },
+            projectName = "${fileBasenameNoExtension}",
+        }
+    }
+end
+
 -- Function that will be ran once the language server is attached
 local on_attach = function(_, bufnr)
     -- Enable jdtls commands to be used in Neovim
@@ -94,6 +130,26 @@ local on_attach = function(_, bufnr)
         require('jdtls').setup_dap({ hotcodereplace = 'auto' })
     end
 
+    -- === Ключевые маппинги для тестирования ===============
+    local map = function(mode, lhs, rhs, desc)
+        if desc then
+            desc = "JDTLS: " .. desc
+        end
+        vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc, buffer = bufnr })
+    end
+
+    -- Тестирование
+    map('n', '<leader>tt', function() require('jdtls').test_class() end, "Test Class")
+    map('n', '<leader>tn', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
+    map('n', '<leader>tT', function() require('jdtls').pick_test() end, "Pick Test")
+    -- Отладка тестов
+    map('n', '<leader>tcd', function() require('jdtls.dap').test_class() end, "Debug Test Class")
+    map('n', '<leader>tmd', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
+    -- Code lens для тестов
+    map('n', '<leader>cl', function() vim.lsp.codelens.run() end, "Run Code Lens")
+    -- Генерация тестов
+    map('n', '<leader>tg', function() require('jdtls').generate_test() end, "Generate Test")
+
     -- Setup a function that automatically runs every time a java file is saved to refresh the code lens
     vim.api.nvim_create_autocmd("BufWritePost", {
         buffer = bufnr,
@@ -101,6 +157,9 @@ local on_attach = function(_, bufnr)
             pcall(vim.lsp.codelens.refresh)
         end
     })
+
+    -- Инициализируем DAP
+    setup_dap()
 end
 
 -- === Конфиг JDTLS с поддержкой Lombok =====================
@@ -213,10 +272,41 @@ local function start_jdtls()
                         "org.hamcrest.Matchers.*",
                         "org.hamcrest.CoreMatchers.*",
                         "org.junit.jupiter.api.Assertions.*",
+                        "org.junit.jupiter.api.DynamicTest.*",
+                        "org.junit.jupiter.api.DynamicContainer.*",
+                        "org.mockito.Mockito.*",
+                        "org.mockito.ArgumentMatchers.*",
+                        "org.mockito.Answers.*",
                         "java.util.Objects.requireNonNull",
                         "java.util.Objects.requireNonNullElse",
-                        "org.mockito.Mockito.*",
                     },
+                },
+                -- === НАСТРОЙКИ ТЕСТИРОВАНИЯ =======================
+                test = {
+                    enabled = true,
+                    -- Автоматически обновлять тесты при изменении кода
+                    autoTrack = true,
+                    -- Показывать отчет о тестировании
+                    showProgress = true,
+                    -- Конфигурация по умолчанию для запуска тестов
+                    defaultConfig = "JUnit5",
+                    -- Конфигурации тестов
+                    configurations = {
+                        {
+                            name = "JUnit5",
+                            workingDirectory = "${workspaceFolder}",
+                            vmargs = "-Xmx1024m",
+                            env = {},
+                            args = {}
+                        },
+                        {
+                            name = "JUnit4", 
+                            workingDirectory = "${workspaceFolder}",
+                            vmargs = "-Xmx1024m",
+                            env = {},
+                            args = {}
+                        }
+                    }
                 },
                 signatureHelp = {
                     enabled = false,
@@ -226,12 +316,24 @@ local function start_jdtls()
                 },
                 contentProvider = { preferred = "fernflower" },
                 saveActions = { organizeImports = false },
-                referencesCodeLens = { enabled = true },
-                inlayHints = { parameterNames = { enabled = "all" } },
+                implementationsCodeLens = {
+                    enabled = true,
+                },
+                referencesCodeLens = { 
+                    enabled = true 
+                },
+                inlayHints = { 
+                    parameterNames = { 
+                        enabled = "all" 
+                    } 
+                },
                 codeGeneration = {
                     useBlocks = true,
                     generateComments = true,
-                    insertLocation = true
+                    insertLocation = true,
+                    toString = {
+                        template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}"
+                    }
                 },
                 autobuild = {
                     enabled = true
@@ -239,9 +341,6 @@ local function start_jdtls()
                 progressReports = {
                     enabled = false
                 },
-                -- eclipse = {
-                --     downloadSources = true
-                -- },
                 maven = {
                     downloadSources = true,
                     updateSnapshots = true
@@ -254,6 +353,24 @@ local function start_jdtls()
 
     -- Запускаем JDTLS
     jdtls.start_or_attach(config)
+
+    -- === Автокоманды для тестирования ========================
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = "java",
+        callback = function()
+            -- Авто-обновление code lens при входе в буфер
+            vim.schedule(function()
+                vim.lsp.codelens.refresh()
+            end)
+
+            -- Показывать тестовую панель при запуске тестов
+            local status_ok, jdtls_dap = pcall(require, "jdtls.dap")
+            if status_ok then
+                jdtls_dap.setup_dap_main_class_configs()
+            end
+        end
+    })
+
     return java_home
 end
 
