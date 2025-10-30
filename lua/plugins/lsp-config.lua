@@ -1,15 +1,4 @@
 return {
-    {
-        "williamboman/mason.nvim",
-        config = function()
-            -- setup mason with default properties
-            require("mason").setup({
-                ui = {
-                    border = "rounded",
-                },
-            })
-        end,
-    },
     -- utility plugin for configuring the java language server for us
     {
         "mfussenegger/nvim-jdtls",
@@ -26,68 +15,13 @@ return {
     },
     {
         "neovim/nvim-lspconfig",
+        event = { "BufReadPre", "BufNewFile" },
+        dependencies = {
+            "hrsh7th/cmp-nvim-lsp",
+            { "antosha417/nvim-lsp-file-operations", config = true },
+        },
         config = function()
-            local icons = require("config.icons")
-
-            -- get access to the lspconfig plugins functions
-            local lspconfig = require("lspconfig")
-
-            local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-            lspconfig.lua_ls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.gopls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.lemminx.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.jsonls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.sqlls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.sqlfmt.setup({
-                capabilities = capabilities,
-            })
-
-
-            local default_diagnostic_config = {
-                signs = {
-                    active = true,
-                    values = {
-                        { name = "DiagnosticSignError", text = icons.diagnostics.Error },
-                        { name = "DiagnosticSignWarn",  text = icons.diagnostics.Warning },
-                        { name = "DiagnosticSignHint",  text = icons.diagnostics.Hint },
-                        { name = "DiagnosticSignInfo",  text = icons.diagnostics.Information },
-                    },
-                },
-                virtual_text = false,
-                update_in_insert = false,
-                underline = true,
-                severity_sort = true,
-                float = {
-                    focusable = true,
-                    style = "minimal",
-                    border = "rounded",
-                    source = "always",
-                    header = "",
-                    prefix = "",
-                },
-            }
-
-            vim.diagnostic.config(default_diagnostic_config)
-
-            for _, sign in ipairs(vim.tbl_get(vim.diagnostic.config(), "signs", "values") or {}) do
-                vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
-            end
+            -- NOTE: LSP Keybinds
 
             -- Set vim motion for <Space> + c + h to show code documentation about the code the cursor is currently over if available
             vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "[C]ode [H]over Documentation" })
@@ -113,6 +47,61 @@ return {
             vim.keymap.set("n", "<leader>cR", vim.lsp.buf.rename, { desc = "[C]ode [R]ename" })
             -- Set a vim motion for <Space> + c + <Shift>D to go to where the code/object was declared in the project (class file)
             vim.keymap.set("n", "<leader>cD", vim.lsp.buf.declaration, { desc = "[C]ode Goto [D]eclaration" })
+
+            -- Define sign icons for each severity
+            local signs = {
+                [vim.diagnostic.severity.ERROR] = " ",
+                [vim.diagnostic.severity.WARN] = " ",
+                [vim.diagnostic.severity.HINT] = "󰠠 ",
+                [vim.diagnostic.severity.INFO] = " ",
+            }
+
+            -- Set diagnostic config
+            vim.diagnostic.config({
+                signs = {
+                    text = signs,
+                },
+                virtual_text = true,
+                underline = true,
+                update_in_insert = false,
+            })
+
+            -- Setup servers
+            local cmp_nvim_lsp = require("cmp_nvim_lsp")
+            local capabilities = cmp_nvim_lsp.default_capabilities()
+
+            -- Global LSP settings (applied to all servers)
+            vim.lsp.config('*', {
+                capabilities = capabilities,
+            })
+
+            -- vim.lsp.config('lemminx', {
+            --     capabilities = capabilities,
+            -- })
+
+            vim.lsp.enable("lemminx")
+
+            -- Configure and enable LSP servers
+            -- lua_ls
+            vim.lsp.config("lua_ls", {
+                settings = {
+                    Lua = {
+                        diagnostics = {
+                            globals = { "vim" },
+                        },
+                        completion = {
+                            callSnippet = "Replace",
+                        },
+                        workspace = {
+                            library = {
+                                [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+                                [vim.fn.stdpath("config") .. "/lua"] = true,
+                            },
+                        },
+                    },
+                },
+            })
+            vim.lsp.enable("lua_ls")
         end,
     },
 }

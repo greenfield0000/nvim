@@ -39,6 +39,8 @@ return {
                     "java-debug-adapter", -- many lang java, golang, c++, rust
                     -- test
                     "java-test",
+                    -- formatter
+                    "xmlformatter",
                 },
             })
         end,
