@@ -22,7 +22,6 @@ return {
         },
         config = function()
             -- NOTE: LSP Keybinds
-
             -- Set vim motion for <Space> + c + h to show code documentation about the code the cursor is currently over if available
             vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "[C]ode [H]over Documentation" })
             -- Set vim motion for <Space> + c + d to go where the code/variable under the cursor was defined
@@ -74,34 +73,6 @@ return {
             vim.lsp.config('*', {
                 capabilities = capabilities,
             })
-
-            -- vim.lsp.config('lemminx', {
-            --     capabilities = capabilities,
-            -- })
-
-            vim.lsp.enable("lemminx")
-
-            -- Configure and enable LSP servers
-            -- lua_ls
-            vim.lsp.config("lua_ls", {
-                settings = {
-                    Lua = {
-                        diagnostics = {
-                            globals = { "vim" },
-                        },
-                        completion = {
-                            callSnippet = "Replace",
-                        },
-                        workspace = {
-                            library = {
-                                [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-                                [vim.fn.stdpath("config") .. "/lua"] = true,
-                            },
-                        },
-                    },
-                },
-            })
-            vim.lsp.enable("lua_ls")
         end,
     },
 }

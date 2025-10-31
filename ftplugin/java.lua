@@ -164,7 +164,7 @@ local function show_coverage()
 
     -- Команда для запуска в фоне с логированием
     local cmd = string.format(
-        -- "cd %s && JAVA_HOME=%s nohup %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!",
+    -- "cd %s && JAVA_HOME=%s nohup %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!",
         "cd %s && mvn clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!",
         -- vim.fn.shellescape(root_dir),
         -- vim.fn.shellescape(java_home),
@@ -693,20 +693,53 @@ local function start_jdtls()
     return java_home
 end
 
--- === Основная инициализация ================================
-if vim.bo.filetype == "java" then
-    -- Отложенный запуск чтобы избежать конфликтов
-    vim.defer_fn(function()
-        if not vim.g.current_java_home then
-            vim.g.current_java_home = start_jdtls()
-        else
-            local new_java_home = get_java_home()
-            if vim.g.current_java_home ~= new_java_home then
-                pcall(jdtls.stop)
-                vim.g.current_java_home = start_jdtls()
-            else
-                start_jdtls() -- Просто attach если HOME не изменился
-            end
+
+-- -- === Основная инициализация ================================
+-- if vim.bo.filetype == "java" then
+--     -- Отложенный запуск чтобы избежать конфликтов
+--     vim.defer_fn(function()
+--         if not vim.g.current_java_home then
+--             vim.g.current_java_home = start_jdtls()
+--         else
+--             local new_java_home = get_java_home()
+--             if vim.g.current_java_home ~= new_java_home then
+--                 pcall(jdtls.stop)
+--                 vim.g.current_java_home = start_jdtls()
+--             else
+--                 start_jdtls() -- Просто attach если HOME не изменился
+--             end
+--         end
+--     end, 100)
+-- end
+
+local function setup_jdtls()
+    -- Проверяем, прикреплен ли уже LSP к буферу
+    local buf_clients = vim.lsp.get_active_clients({ bufnr = vim.api.nvim_get_current_buf() })
+    for _, client in ipairs(buf_clients) do
+        if client.name == "jdtls" then
+            return
         end
-    end, 100)
+    end
+
+    -- Проверяем глобально запущенные клиенты
+    local global_clients = vim.lsp.get_active_clients()
+    local jdtls_running = false
+    for _, client in ipairs(global_clients) do
+        if client.name == "jdtls" then
+            jdtls_running = true
+            break
+        end
+    end
+
+    if not jdtls_running then
+        start_jdtls()
+    else
+        -- Если jdtls уже запущен, но не прикреплен к текущему буферу
+        vim.lsp.buf_attach_client(0, vim.lsp.get_active_clients({ name = 'jdtls' })[1].id)
+    end
+end
+
+-- Вызываем только если это Java файл
+if vim.bo.filetype == 'java' then
+    setup_jdtls()
 end
