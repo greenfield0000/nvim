@@ -640,13 +640,13 @@ local function start_jdtls()
                     }
                 },
                 autobuild = {
-                    enabled = true
+                    enabled = false
                 },
                 progressReports = {
                     enabled = false
                 },
                 maven = {
-                    downloadSources = true,
+                    downloadSources = false,
                     updateSnapshots = true
                 }
             }

@@ -2,7 +2,7 @@ return {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreview", "MarkdownPreviewStop" },
     build = function()
-        vim.fn["mkdp#util#install"]()
+        -- vim.fn["mkdp#util#install"]()
     end,
     config = function()
         -- Настройки переменных должны быть ДО загрузки плагина
