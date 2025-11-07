@@ -6,6 +6,9 @@ return {
             "mfussenegger/nvim-dap",
             "ray-x/lsp_signature.nvim",
         },
+        -- config = function()
+        --     vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "jdtls" })
+        -- end
     },
     {
         "ray-x/lsp_signature.nvim",

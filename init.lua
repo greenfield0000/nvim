@@ -24,7 +24,7 @@ local opts = {
     },
     checker = {
         -- Automatically check for package updates
-        enabled = true,
+        enabled = false,
         -- Don't spam us with notification every time there is an update available
         notify = false,
     },

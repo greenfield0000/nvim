@@ -1,3 +1,8 @@
+local status, jdtls = pcall(require, "jdtls")
+if not status then
+    return
+end
+
 -- ftplugin/java.lua (исправленная версия)
 local home = os.getenv("HOME")
 local jdtls = require("jdtls")
@@ -78,34 +83,35 @@ end
 
 -- === Извлекаем требуемую версию Java из pom.xml или build.gradle =====
 local function java_version_from_build()
-    local root = project_root()
-    if not root then return nil end
-
-    -- pom.xml
-    local pom = root .. "/pom.xml"
-    if fn.filereadable(pom) == 1 then
-        for _, line in ipairs(read_file_lines(pom)) do
-            local v = line:match("<maven%.compiler%.source>(%d+)</maven%.compiler%.source>")
-            if v then return v end
-            v = line:match("<java%.version>(%d+)</java%.version>")
-            if v then return v end
-            v = line:match("<source>(%d+)</source>")
-            if v then return v end
-        end
-    end
-
-    -- build.gradle (simple match)
-    local gradle = root .. "/build.gradle"
-    if fn.filereadable(gradle) == 1 then
-        for _, line in ipairs(read_file_lines(gradle)) do
-            local v = line:match("sourceCompatibility%s*=%s*['\"]?(%d+)['\"]?")
-            if v then return v end
-            v = line:match("targetCompatibility%s*=%s*['\"]?(%d+)['\"]?")
-            if v then return v end
-        end
-    end
-
-    return nil
+    return "21"
+    -- local root = project_root()
+    -- if not root then return nil end
+    --
+    -- -- pom.xml
+    -- local pom = root .. "/pom.xml"
+    -- if fn.filereadable(pom) == 1 then
+    --     for _, line in ipairs(read_file_lines(pom)) do
+    --         local v = line:match("<maven%.compiler%.source>(%d+)</maven%.compiler%.source>")
+    --         if v then return v end
+    --         v = line:match("<java%.version>(%d+)</java%.version>")
+    --         if v then return v end
+    --         v = line:match("<source>(%d+)</source>")
+    --         if v then return v end
+    --     end
+    -- end
+    --
+    -- -- build.gradle (simple match)
+    -- local gradle = root .. "/build.gradle"
+    -- if fn.filereadable(gradle) == 1 then
+    --     for _, line in ipairs(read_file_lines(gradle)) do
+    --         local v = line:match("sourceCompatibility%s*=%s*['\"]?(%d+)['\"]?")
+    --         if v then return v end
+    --         v = line:match("targetCompatibility%s*=%s*['\"]?(%d+)['\"]?")
+    --         if v then return v end
+    --     end
+    -- end
+    --
+    -- return nil
 end
 
 -- === Получаем java_home для проекта: сначала из build, иначе sdkman current
@@ -146,7 +152,8 @@ local function show_coverage()
     local jhome = java_home and fn.shellescape(java_home) or ""
     local cmd
     if java_home then
-        cmd = string.format('cd %s && JAVA_HOME=%s %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!',
+        cmd = string.format(
+            'cd %s && JAVA_HOME=%s %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!',
             cd, jhome, fn.shellescape(mvn_cmd), fn.shellescape(log_file))
     else
         cmd = string.format('cd %s && %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!',
@@ -356,24 +363,24 @@ local on_attach = function(_, bufnr)
     map('n', '<leader>tc', function() require('jdtls').test_class() end, "Test Class")
     map('n', '<leader>tm', function() require('jdtls').test_nearest_method() end, "Test Method")
     map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
-    map('n', '<leader>tC', show_coverage, "Show Coverage Report")
+    -- map('n', '<leader>tC', show_coverage, "Show Coverage Report")
 
     map('n', '<leader>tdc', debug_test(function() require('jdtls.dap').test_class() end), "Debug Test Class")
     map('n', '<leader>tdm', debug_test(function() require('jdtls.dap').test_nearest_method() end), "Debug Test Method")
 
-    local coverage_ok, _ = pcall(require, "coverage")
-    if coverage_ok then
-        map('n', '<leader>cS', function() require("coverage").summary() end, "Coverage Summary")
-        map('n', '<leader>cL', function() require("coverage").load() end, "Coverage Load")
-        map('n', '<leader>cH', function() require("coverage").hide() end, "Coverage Hide")
-    end
+    -- local coverage_ok, _ = pcall(require, "coverage")
+    -- if coverage_ok then
+    --     map('n', '<leader>cS', function() require("coverage").summary() end, "Coverage Summary")
+    --     map('n', '<leader>cL', function() require("coverage").load() end, "Coverage Load")
+    --     map('n', '<leader>cH', function() require("coverage").hide() end, "Coverage Hide")
+    -- end
 
     vim.api.nvim_create_autocmd("BufWritePost", {
         buffer = bufnr,
         callback = function() pcall(vim.lsp.codelens.refresh) end
     })
 
-    setup_dap()
+    -- setup_dap()
 end
 
 -- === start_jdtls: собираем cmd, bundles и запускаем ==================
@@ -418,8 +425,13 @@ local function start_jdtls()
 
     -- java-debug bundle
     local bundles = {}
-    local dbg = vim.fn.glob(home .. "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar", 1)
+    local dbg = vim.fn.glob(
+        home ..
+        "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
+        1)
     if dbg ~= "" then table.insert(bundles, dbg) end
+
+    vim.notify("dbg: ", dbg)
 
     -- java-test bundles (exclude лишние файлы)
     local java_test_glob = vim.fn.glob(home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1)
@@ -427,10 +439,13 @@ local function start_jdtls()
         for _, jar in ipairs(vim.split(java_test_glob, "\n")) do
             local fname = vim.fn.fnamemodify(jar, ":t")
             if fname ~= "com.microsoft.java.test.runner-jar-with-dependencies.jar" and fname ~= "jacocoagent.jar" then
+                -- if fname ~= "com.microsoft.java.test.runner-jar-with-dependencies.jar" then
                 table.insert(bundles, jar)
             end
         end
     end
+
+    vim.notify("bundles: ", bundles)
 
     -- Собираем cmd
     local java_exec = "java"
@@ -448,6 +463,7 @@ local function start_jdtls()
         "-Declipse.product=org.eclipse.jdt.ls.core.product",
         "-Dlog.protocol=true",
         "-Dlog.level=ALL",
+        "-Daether.connector.https.securityMode=insecure",
         "-Xms1g",
         "--add-modules=ALL-SYSTEM",
         "--add-opens", "java.base/java.util=ALL-UNNAMED",
@@ -470,24 +486,27 @@ local function start_jdtls()
         return java_home
     end
 
-    setup_test_icons()
-    setup_test_notifications()
+    -- setup_test_icons()
+    -- setup_test_notifications()
 
     local config = {
         cmd = cmd,
         root_dir = root_dir,
         init_options = {
             bundles = bundles,
-            extendedClientCapabilities = jdtls.extendedClientCapabilities,
+            -- extendedClientCapabilities = jdtls.extendedClientCapabilities,
         },
         settings = {
             java = {
+                eclipse = {
+                    downloadSources = false,
+                },
                 configuration = {
                     runtimes = runtime_entries,
                     updateBuildConfiguration = "interactive",
                 },
                 format = {
-                    enabled = true,
+                    enabled = false,
                     settings = {
                         url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
                         profile = "GoogleStyle"
@@ -556,7 +575,10 @@ local function start_jdtls()
                 },
                 autobuild = { enabled = false },
                 progressReports = { enabled = false },
-                maven = { downloadSources = false, updateSnapshots = true },
+                maven = {
+                    downloadSources = false,
+                    updateSnapshots = true
+                },
             }
         },
         on_attach = on_attach,
@@ -603,7 +625,9 @@ local function setup_jdtls()
     local global_clients = vim.lsp.get_active_clients()
     local jdtls_running = false
     for _, c in ipairs(global_clients) do
-        if c.name == "jdtls" then jdtls_running = true; break end
+        if c.name == "jdtls" then
+            jdtls_running = true; break
+        end
     end
 
     if not jdtls_running then
@@ -614,11 +638,8 @@ local function setup_jdtls()
         if clients and clients[1] then
             vim.lsp.buf_attach_client(0, clients[1].id)
         else
-            start_jdtls()
         end
     end
 end
 
-if vim.bo.filetype == 'java' then
-    setup_jdtls()
-end
+start_jdtls()
