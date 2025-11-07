@@ -13,6 +13,7 @@ local function project_root()
     return require("jdtls.setup").find_root({ ".git", "pom.xml", "build.gradle", "mvnw", "gradlew" })
 end
 
+---@diagnostic disable-next-line: unused-function
 local function read_file_lines(path)
     local lines = {}
     local f = io.open(path, "r")
@@ -131,6 +132,7 @@ local function get_java_home()
 end
 
 -- === show_coverage: запуск maven тестов с правильной установкой JAVA_HOME =====
+---@diagnostic disable-next-line: unused-function
 local function show_coverage()
     local root = project_root()
     if not root then
@@ -204,6 +206,7 @@ local function show_coverage()
 end
 
 -- === Тестовые иконки и уведомления (без изменений, немного упрочнены) =
+---@diagnostic disable-next-line: unused-function
 local function setup_test_icons()
     local icons = {
         success = "✅",
@@ -235,6 +238,7 @@ local function setup_test_icons()
     }
 end
 
+---@diagnostic disable-next-line: unused-function
 local function setup_test_notifications()
     local notify_ok, notify = pcall(require, "notify")
     if not notify_ok then return end
@@ -269,6 +273,7 @@ local function setup_test_notifications()
 end
 
 -- === DAP configuration (оставил общий вид, адаптируйте по необходимости) =
+---@diagnostic disable-next-line: unused-function
 local function setup_dap()
     local dap_ok, dap = pcall(require, "dap")
     if not dap_ok then return end
@@ -615,6 +620,7 @@ local function start_jdtls()
 end
 
 -- === setup_jdtls: attach or start если нужно =========================
+---@diagnostic disable-next-line: unused-function
 local function setup_jdtls()
     -- если клиент уже прикреплён к буферу - выход
     local buf_clients = vim.lsp.get_active_clients({ bufnr = vim.api.nvim_get_current_buf() })
