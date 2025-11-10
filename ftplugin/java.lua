@@ -1,7 +1,7 @@
-local status, jdtls = pcall(require, "jdtls")
-if not status then
-    return
-end
+-- local status, jdtls = pcall(require, "jdtls")
+-- if not status then
+--     return
+-- end
 
 -- ftplugin/java.lua (исправленная версия)
 local home = os.getenv("HOME")
