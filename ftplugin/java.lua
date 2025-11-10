@@ -499,7 +499,7 @@ local function start_jdtls()
         root_dir = root_dir,
         init_options = {
             bundles = bundles,
-            -- extendedClientCapabilities = jdtls.extendedClientCapabilities,
+            extendedClientCapabilities = jdtls.extendedClientCapabilities,
         },
         settings = {
             java = {
@@ -511,11 +511,11 @@ local function start_jdtls()
                     updateBuildConfiguration = "interactive",
                 },
                 format = {
-                    enabled = false,
-                    settings = {
-                        url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
-                        profile = "GoogleStyle"
-                    }
+                    enabled = true,
+                    -- settings = {
+                    --     url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
+                    --     profile = "GoogleStyle"
+                    -- }
                 },
                 completion = {
                     favoriteStaticMembers = {
