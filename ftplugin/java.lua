@@ -75,7 +75,7 @@ end
 -- === DAP конфигурация для тестирования ====================
 local function setup_dap()
     local dap = require("dap")
-    
+
     -- Конфигурация для Java
     dap.configurations.java = {
         {
@@ -300,7 +300,7 @@ local function start_jdtls()
                             args = {}
                         },
                         {
-                            name = "JUnit4", 
+                            name = "JUnit4",
                             workingDirectory = "${workspaceFolder}",
                             vmargs = "-Xmx1024m",
                             env = {},
@@ -319,13 +319,13 @@ local function start_jdtls()
                 implementationsCodeLens = {
                     enabled = true,
                 },
-                referencesCodeLens = { 
-                    enabled = true 
+                referencesCodeLens = {
+                    enabled = true
                 },
-                inlayHints = { 
-                    parameterNames = { 
-                        enabled = "all" 
-                    } 
+                inlayHints = {
+                    parameterNames = {
+                        enabled = "all"
+                    }
                 },
                 codeGeneration = {
                     useBlocks = true,
