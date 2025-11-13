@@ -7,7 +7,6 @@ return {
             silent_chdir = true,
             scope_chdir = 'global',
         })
-
         -- Автоматическое определение проектов
         require("telescope").load_extension("projects")
     end

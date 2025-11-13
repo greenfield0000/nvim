@@ -27,7 +27,7 @@ return {
                     "buf",                        -- protobuf
                     "angular-language-server",    -- angular
                     "typescript-language-server", -- angular
-                    "dockerfile-language-server", -- dockerfile, docker
+                    "docker-language-server",     -- dockerfile, docker
                     "sqlls",                      -- sql
                     "marksman",                   -- md
                     -- Linter
@@ -39,6 +39,8 @@ return {
                     "java-debug-adapter", -- many lang java, golang, c++, rust
                     -- test
                     "java-test",
+                    -- formatter
+                    "xmlformatter",
                 },
             })
         end,
