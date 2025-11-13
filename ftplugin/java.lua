@@ -602,17 +602,17 @@ local function start_jdtls()
     --     end
     -- })
 
-    vim.api.nvim_create_autocmd("User", {
-        pattern = "JdtTestFinished",
-        callback = function()
-            if vim.b.coverage_enabled then
-                vim.schedule(function()
-                    local ok, coverage = pcall(require, "coverage")
-                    if ok then coverage.load() end
-                end)
-            end
-        end,
-    })
+    -- vim.api.nvim_create_autocmd("User", {
+    --     pattern = "JdtTestFinished",
+    --     callback = function()
+    --         if vim.b.coverage_enabled then
+    --             vim.schedule(function()
+    --                 local ok, coverage = pcall(require, "coverage")
+    --                 if ok then coverage.load() end
+    --             end)
+    --         end
+    --     end,
+    -- })
 
     return java_home
 end
