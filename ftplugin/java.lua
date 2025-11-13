@@ -129,183 +129,6 @@ local function get_java_home()
     return nil
 end
 
--- === show_coverage: запуск maven тестов с правильной установкой JAVA_HOME =====
----@diagnostic disable-next-line: unused-function
-local function show_coverage()
-    local root = project_root()
-    if not root then
-        vim.notify("❌ No Maven/Gradle project found!", vim.log.levels.ERROR)
-        return
-    end
-
-    local java_home = get_java_home()
-    if not java_home then
-        vim.notify("⚠️ JAVA_HOME not detected, using system java (PATH).", vim.log.levels.WARN)
-    end
-
-    local index_html = root .. "/target/jacoco-ut/index.html"
-    local log_file = "/tmp/maven_test_" .. os.time() .. ".log"
-
-    local mvn_cmd = fn.filereadable(root .. "/mvnw") == 1 and "./mvnw" or "mvn"
-
-    local cd = fn.shellescape(root)
-    local jhome = java_home and fn.shellescape(java_home) or ""
-    local cmd
-    if java_home then
-        cmd = string.format(
-            'cd %s && JAVA_HOME=%s %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!',
-            cd, jhome, fn.shellescape(mvn_cmd), fn.shellescape(log_file))
-    else
-        cmd = string.format('cd %s && %s clean test -Dmaven.wagon.http.ssl.insecure=true > %s 2>&1 & echo $!',
-            cd, fn.shellescape(mvn_cmd), fn.shellescape(log_file))
-    end
-
-    local handle = io.popen(cmd)
-    local pid = ""
-    if handle then
-        pid = handle:read("*a") or ""
-        handle:close()
-    end
-    pid = pid:gsub("%s+", "")
-
-    if pid ~= "" then
-        vim.notify("📝 Maven tests started (PID: " .. pid .. "). Logs: " .. log_file)
-        vim.fn.jobstart({ "sh", "-c", "while kill -0 " .. pid .. " 2>/dev/null; do sleep 1; done" }, {
-            on_exit = function()
-                vim.defer_fn(function()
-                    local f = io.open(log_file, "r")
-                    if not f then
-                        vim.notify("⚠️ Log file not found after tests finished: " .. log_file, vim.log.levels.WARN)
-                        return
-                    end
-                    local content = f:read("*a") or ""
-                    f:close()
-                    if content:find("BUILD SUCCESS") then
-                        vim.notify("✅ Background tests completed successfully!")
-                        if fn.filereadable(index_html) == 1 then
-                            local open_cmd = "xdg-open " .. fn.shellescape(index_html) .. " >/dev/null 2>&1 &"
-                            if vim.loop.os_uname().sysname == "Darwin" then
-                                open_cmd = "open " .. fn.shellescape(index_html) .. " >/dev/null 2>&1 &"
-                            end
-                            vim.fn.jobstart({ "sh", "-c", open_cmd }, { detach = true })
-                        else
-                            vim.notify("⚠️ Coverage report not found at: " .. index_html)
-                        end
-                    else
-                        vim.notify("❌ Background tests failed. Check logs: " .. log_file, vim.log.levels.ERROR)
-                    end
-                end, 1000)
-            end
-        })
-    else
-        vim.notify("❌ Failed to start Maven tests", vim.log.levels.ERROR)
-    end
-end
-
--- === Тестовые иконки и уведомления =
----@diagnostic disable-next-line: unused-function
-local function setup_test_icons()
-    local icons = {
-        success = "✅",
-        failure = "❌",
-        error = "💥",
-        running = "⏳",
-        skipped = "⚠️",
-    }
-
-    jdtls.extendedClientCapabilities = jdtls.extendedClientCapabilities or {}
-    jdtls.extendedClientCapabilities.testExplorer = {
-        treeIconFailed = icons.failure,
-        treeIconErrored = icons.error,
-        treeIconRunning = icons.running,
-        treeIconSkipped = icons.skipped,
-        treeIconPassed = icons.success,
-
-        statusIconFailed = icons.failure,
-        statusIconErrored = icons.error,
-        statusIconRunning = icons.running,
-        statusIconSkipped = icons.skipped,
-        statusIconPassed = icons.success,
-
-        codeLensFailed = icons.failure,
-        codeLensErrored = icons.error,
-        codeLensRunning = icons.running,
-        codeLensSkipped = icons.skipped,
-        codeLensPassed = icons.success,
-    }
-end
-
----@diagnostic disable-next-line: unused-function
-local function setup_test_notifications()
-    local notify_ok, notify = pcall(require, "notify")
-    if not notify_ok then return end
-
-    vim.api.nvim_create_autocmd("User", {
-        pattern = "JdtTestLaunch",
-        callback = function()
-            notify("🧪 Запуск тестов...", "info", { title = "Java Tests", timeout = 2000 })
-        end
-    })
-
-    vim.api.nvim_create_autocmd("User", {
-        pattern = "JdtTestFinished",
-        callback = function(data)
-            local result = data.data and data.data.result
-            if result then
-                local total = result.total or 0
-                local passed = result.passed or 0
-                local failed = result.failed or 0
-                local skipped = result.skipped or 0
-
-                if failed > 0 then
-                    notify(string.format("❌ Тесты завершены: %d/%d успешно, %d провалено, %d пропущено",
-                        passed, total, failed, skipped), "error", { title = "Java Tests", timeout = 5000 })
-                else
-                    notify(string.format("✅ Все тесты пройдены: %d/%d успешно, %d пропущено",
-                        passed, total, skipped), "info", { title = "Java Tests", timeout = 3000 })
-                end
-            end
-        end
-    })
-end
-
--- === DAP configuration =
----@diagnostic disable-next-line: unused-function
-local function setup_dap()
-    local dap_ok, dap = pcall(require, "dap")
-    if not dap_ok then return end
-
-    dap.configurations.java = {
-        {
-            type = 'java',
-            request = 'attach',
-            name = "Debug (Attach) - Remote",
-            hostName = "127.0.0.1",
-            port = 5005,
-        },
-        {
-            type = 'java',
-            request = 'launch',
-            name = "Launch Java File",
-            mainClass = "${file}",
-            projectName = "${fileBasenameNoExtension}",
-        },
-        {
-            type = 'java',
-            request = 'launch',
-            name = "Run Current Test",
-            vmArgs = "-Xmx2048m -XX:+ShowCodeDetailsInExceptionMessages",
-            mainClass = "org.junit.platform.console.ConsoleLauncher",
-            args = {
-                "--scan-classpath",
-                "--include-classname",
-                "${file}",
-            },
-            projectName = "${fileBasenameNoExtension}",
-        }
-    }
-end
-
 local function debug_test(test_fn)
     return function()
         local dapui_ok, dapui = pcall(require, "dapui")
@@ -348,9 +171,29 @@ end
 
 -- === on_attach =
 local on_attach = function(_, bufnr)
-    require 'jdtls.setup'.add_commands()
+    require('jdtls.setup').add_commands()
     vim.lsp.codelens.refresh()
 
+    -- 1) Включаем DAP интеграцию от jdtls
+    require('jdtls').setup_dap({ hotcodereplace = 'auto' })
+    require('jdtls.dap').setup_dap_main_class_configs()
+
+    -- 2) Автооткрытие DAP UI и REPL при старте сессии
+    local ok_dap, dap = pcall(require, 'dap')
+    if ok_dap then
+        dap.listeners.after.event_initialized['jdtls_repl'] = function()
+            -- Откройте REPL; если используете dapui, откройте его тоже
+            pcall(function() require('dap').repl.open() end)
+            pcall(function() require('dapui').open() end)
+        end
+        -- Опционально: автозакрытие
+        dap.listeners.before.event_terminated['jdtls_repl'] = function()
+            pcall(function() require('dapui').close() end)
+        end
+        dap.listeners.before.event_exited['jdtls_repl'] = function()
+            pcall(function() require('dapui').close() end)
+        end
+    end
     local status_ok, signature = pcall(require, "lsp_signature")
     if status_ok then
         signature.on_attach({
@@ -359,7 +202,7 @@ local on_attach = function(_, bufnr)
             handler_opts = { border = "rounded" },
             hint_prefix = "󱄑 ",
         }, bufnr)
-        require('jdtls').setup_dap({ hotcodereplace = 'auto' })
+        -- require('jdtls').setup_dap({ hotcodereplace = 'auto' })
     end
 
     local map = function(mode, lhs, rhs, desc)
@@ -370,7 +213,6 @@ local on_attach = function(_, bufnr)
     map('n', '<leader>tc', function() require('jdtls').test_class() end, "Test Class")
     map('n', '<leader>tm', function() require('jdtls').test_nearest_method() end, "Test Method")
     map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
-    map('n', '<leader>tC', show_coverage, "Show Coverage Report")
 
     -- Отладка тестов
     map('n', '<leader>tdc', debug_test(function() require('jdtls.dap').test_class() end), "Debug Test Class")
@@ -400,8 +242,10 @@ local function get_bundles()
         for _, jar in ipairs(vim.split(java_test_glob, "\n")) do
             local fname = vim.fn.fnamemodify(jar, ":t")
             -- Исключаем вспомогательные jar файлы
-            if fname ~= "com.microsoft.java.test.runner-jar-with-dependencies.jar"
-                and fname ~= "jacocoagent.jar"
+            if
+            -- fname ~= "com.microsoft.java.test.runner-jar-with-dependencies.jar"
+            -- and
+                fname ~= "jacocoagent.jar"
                 and jar ~= "" then
                 table.insert(bundles, jar)
             end
@@ -470,6 +314,7 @@ local function start_jdtls()
         "-Dlog.protocol=true",
         "-Dlog.level=ALL",
         "-Daether.connector.https.securityMode=insecure",
+        "-Dmaven.wagon.http.ssl.insecure=true",
         "-Xms1g",
         "--add-modules=ALL-SYSTEM",
         "--add-opens", "java.base/java.util=ALL-UNNAMED",
@@ -492,8 +337,8 @@ local function start_jdtls()
         return java_home
     end
 
-    setup_test_icons()
-    setup_test_notifications()
+    -- setup_test_icons()
+    -- setup_test_notifications()
 
     local config = {
         cmd = cmd,
@@ -509,7 +354,7 @@ local function start_jdtls()
                 },
                 configuration = {
                     runtimes = runtime_entries,
-                    updateBuildConfiguration = "interactive",
+                    updateBuildConfiguration = "automatic",
                 },
                 format = {
                     enabled = true,
@@ -544,18 +389,18 @@ local function start_jdtls()
                         {
                             name = "JUnit5",
                             workingDirectory = "${workspaceFolder}",
-                            vmargs = "-Xmx1024m -javaagent:" ..
-                                home ..
-                                "/.local/share/nvim/mason/packages/java-test/extension/server/jacocoagent.jar=destfile=build/jacoco.exec,append=true",
+                            -- vmargs = "-Xmx1024m -javaagent:" ..
+                            --     home ..
+                            --     "/.local/share/nvim/mason/packages/java-test/extension/server/jacocoagent.jar=destfile=build/jacoco.exec,append=true",
                             env = {},
                             args = {}
                         },
                         {
                             name = "JUnit4",
                             workingDirectory = "${workspaceFolder}",
-                            vmargs = "-Xmx1024m -javaagent:" ..
-                                home ..
-                                "/.local/share/nvim/mason/packages/java-test/extension/server/jacocoagent.jar=destfile=build/jacoco.exec,append=true",
+                            -- vmargs = "-Xmx1024m -javaagent:" ..
+                            --     home ..
+                            --     "/.local/share/nvim/mason/packages/java-test/extension/server/jacocoagent.jar=destfile=build/jacoco.exec,append=true",
                             env = {},
                             args = {}
                         }
