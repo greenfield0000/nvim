@@ -561,7 +561,7 @@ local function start_jdtls()
                         }
                     }
                 },
-                signatureHelp = { enabled = false, description = { enabled = true } },
+                signatureHelp = { enabled = true, description = { enabled = true } },
                 contentProvider = { preferred = "fernflower" },
                 saveActions = { organizeImports = false },
                 implementationsCodeLens = { enabled = true },
@@ -578,7 +578,7 @@ local function start_jdtls()
                 autobuild = { enabled = false },
                 progressReports = { enabled = false },
                 maven = {
-                    disableTestClasspathFlag = true,
+                    disableTestClasspathFlag = false,
                     downloadSources = false,
                     updateSnapshots = false
                 },
@@ -589,30 +589,6 @@ local function start_jdtls()
     }
 
     jdtls.start_or_attach(config)
-
-    -- -- Автокоманды
-    -- vim.api.nvim_create_autocmd("FileType", {
-    --     pattern = "java",
-    --     callback = function()
-    --         vim.schedule(function() pcall(vim.lsp.codelens.refresh) end)
-    --         local ok, jdtls_dap = pcall(require, "jdtls.dap")
-    --         if ok and type(jdtls_dap.setup_dap_main_class_configs) == "function" then
-    --             jdtls_dap.setup_dap_main_class_configs()
-    --         end
-    --     end
-    -- })
-
-    -- vim.api.nvim_create_autocmd("User", {
-    --     pattern = "JdtTestFinished",
-    --     callback = function()
-    --         if vim.b.coverage_enabled then
-    --             vim.schedule(function()
-    --                 local ok, coverage = pcall(require, "coverage")
-    --                 if ok then coverage.load() end
-    --             end)
-    --         end
-    --     end,
-    -- })
 
     return java_home
 end
