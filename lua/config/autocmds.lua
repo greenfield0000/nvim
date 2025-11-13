@@ -28,3 +28,16 @@ vim.api.nvim_create_autocmd("FileType", {
         end
     end
 })
+
+-- vim.api.nvim_create_autocmd("DirChanged", {
+--   callback = function()
+--     -- Останавливаем все LSP клиенты для текущего буфера
+--     for _, client in pairs(vim.lsp.get_active_clients()) do
+--       vim.lsp.stop_client(client.id)
+--     end
+--     -- Повторно запускаем LSP для буфера
+--     -- Обычно достаточно просто переоткрыть буфер, но для надёжности:
+--     vim.cmd("edit")
+--   end,
+--   desc = "Перезапуск LSP при изменении рабочей директории",
+-- })

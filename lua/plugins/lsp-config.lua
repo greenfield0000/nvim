@@ -2,13 +2,10 @@ return {
     -- utility plugin for configuring the java language server for us
     {
         "mfussenegger/nvim-jdtls",
-        dependencies = {
-            "mfussenegger/nvim-dap",
-            "ray-x/lsp_signature.nvim",
-        },
-        -- config = function()
-        --     vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "jdtls" })
-        -- end
+        -- dependencies = {
+        --     "mfussenegger/nvim-dap",
+        --     "ray-x/lsp_signature.nvim",
+        -- },
     },
     {
         "ray-x/lsp_signature.nvim",
