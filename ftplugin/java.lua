@@ -139,14 +139,14 @@ local on_attach = function(_, bufnr)
     end
 
     -- Тестирование
-    map('n', '<leader>tc', function() require('jdtls').test_class() end, "Test Class")
-    map('n', '<leader>tm', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
-    map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
+    map('n', '<leader>tt', function() require('jdtls').test_class() end, "Test Class")
+    map('n', '<leader>tn', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
+    map('n', '<leader>tT', function() require('jdtls').pick_test() end, "Pick Test")
     -- Отладка тестов
-    map('n', '<leader>tdc', function() require('jdtls.dap').test_class() end, "Debug Test Class")
-    map('n', '<leader>tdm', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
+    map('n', '<leader>tcd', function() require('jdtls.dap').test_class() end, "Debug Test Class")
+    map('n', '<leader>tmd', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
     -- Code lens для тестов
-    map('n', '<leader>tl', function() vim.lsp.codelens.run() end, "Run Code Lens")
+    map('n', '<leader>cl', function() vim.lsp.codelens.run() end, "Run Code Lens")
     -- Генерация тестов
     map('n', '<leader>tg', function() require('jdtls').generate_test() end, "Generate Test")
 

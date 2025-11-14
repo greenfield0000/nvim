@@ -12,7 +12,6 @@ return {
 			view = {
                 width = 60,
 				relativenumber = true,
-                side = "right"
 			},
 			renderer = {
 				add_trailing = true,
