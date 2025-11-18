@@ -54,11 +54,6 @@ return {
                 capabilities = capabilities,
             })
 
-            lspconfig.sqlfmt.setup({
-                capabilities = capabilities,
-            })
-
-
             local default_diagnostic_config = {
                 signs = {
                     active = true,

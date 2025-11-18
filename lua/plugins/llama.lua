@@ -1,0 +1,32 @@
+return {
+    -- {
+    --     'jpmcb/nvim-llama',
+    --     config = function()
+    --         require('nvim-llama').setup({
+    --             debug = false,
+    --             model = "codellama",                 -- модель, которую позже подтянет ollama
+    --             endpoint = "http://127.0.0.1:11434", -- API твоего контейнера
+    --
+    --         })
+    --     end,
+    --     keys = {
+    --         { '<leader>lc', function() require('nvim-llama').open_chat() end, desc = 'Llama chat' },
+    --         { '<leader>lg', function() require('nvim-llama').generate() end,  mode = { 'n', 'v' }, desc = 'Llama generate' },
+    --     },
+    -- }
+
+    {
+        "Jacob411/Ollama-Copilot",
+        opts = {
+            ollama_url = "http://localhost:11434",
+            model_name = "codellama:7b-code", -- или другая кодовая модель[web:104]
+            filetypes = { "lua", "python", "rust", "go", "javascript", "java" },
+            keymaps = {
+                suggestion    = "<leader>ls", -- показать подсказку[web:104]
+                reject        = "<leader>ld", -- отклонить[web:104]
+                insert_accept = "<leader>la", -- принять подсказку[web:104]
+            },
+            stream_suggestion = true,
+        },
+    }
+}
