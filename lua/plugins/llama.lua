@@ -15,18 +15,18 @@ return {
     --     },
     -- }
 
-    {
-        "Jacob411/Ollama-Copilot",
-        opts = {
-            ollama_url = "http://localhost:11434",
-            model_name = "codellama:7b-code", -- или другая кодовая модель[web:104]
-            filetypes = { "lua", "python", "rust", "go", "javascript", "java" },
-            keymaps = {
-                suggestion    = "<leader>ls", -- показать подсказку[web:104]
-                reject        = "<leader>ld", -- отклонить[web:104]
-                insert_accept = "<leader>la", -- принять подсказку[web:104]
-            },
-            stream_suggestion = true,
-        },
-    }
+    -- {
+    --     "Jacob411/Ollama-Copilot",
+    --     opts = {
+    --         ollama_url = "http://localhost:11434",
+    --         model_name = "codellama:7b-code", -- или другая кодовая модель[web:104]
+    --         filetypes = { "lua", "python", "rust", "go", "javascript", "java" },
+    --         keymaps = {
+    --             suggestion    = "<leader>ls", -- показать подсказку[web:104]
+    --             reject        = "<leader>ld", -- отклонить[web:104]
+    --             insert_accept = "<leader>la", -- принять подсказку[web:104]
+    --         },
+    --         stream_suggestion = true,
+    --     },
+    -- }
 }
