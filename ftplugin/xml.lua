@@ -1,6 +1,6 @@
-local lspconfig = require("lspconfig")
-local capabilities = vim.g.lsp_capabilities
-
-lspconfig.lemminx.setup({
-  capabilities = capabilities,
+require("lspconfig").lemminx.setup({
+    capabilities = vim.g.lsp_capabilities,
+    cmd = { 'lemminx' },
+    filetypes = { 'xml', 'xsd', 'xsl', 'xslt', 'svg' },
+    root_markers = { '.git' },
 })
