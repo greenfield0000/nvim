@@ -1,4 +1,3 @@
--- lua/plugins/lsp.lua (или как у тебя называется)
 return {
     {
         "williamboman/mason.nvim",
@@ -7,14 +6,13 @@ return {
                 ui = { border = "rounded" },
             })
         end,
+    }, {
+    "mfussenegger/nvim-jdtls",
+    dependencies = {
+        "mfussenegger/nvim-dap",
+        "ray-x/lsp_signature.nvim",
     },
-    {
-        "mfussenegger/nvim-jdtls",
-        dependencies = {
-            "mfussenegger/nvim-dap",
-            "ray-x/lsp_signature.nvim",
-        },
-    },
+},
     {
         "ray-x/lsp_signature.nvim",
         config = function()
@@ -81,19 +79,28 @@ return {
             })
 
             local servers = {
-                'lua_ls',                    -- для lua
-                'lemminx',                   -- для xml
-                'jsonls',                    -- для json
-                'sqlls',                     -- для sql
-                'rust_analyzer',             -- для rust
-                'gopls',                     -- для golang
-                'typescript-language-server' -- для typescript
+                'lua_ls',        -- для lua
+                'lemminx',       -- для xml
+                'jsonls',        -- для json
+                'sqlls',         -- для sql
+                'rust_analyzer', -- для rust
+                'gopls',         -- для golang
+                'angularls',     -- для ангуляр
             }
             for _, lsp in ipairs(servers) do
                 require('lspconfig')[lsp].setup {
                     capabilities = capabilities,
                 }
             end
+
+            -- CUSTOM BLOCKS
+            -- angular
+            -- local nvim_lsp = require('lspconfig')
+            -- nvim_lsp.angularls.setup {
+            --     cmd = { "ngserver", "--stdio" },
+            --     capabilities = capabilities,
+            --     root_dir = nvim_lsp.util.root_pattern("angular.json", "package.json", ".git"),
+            -- }
         end,
     },
 }
