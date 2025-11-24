@@ -23,7 +23,7 @@ return {
 				root_folder_label = ":t",
 				indent_width = 2,
 				indent_markers = {
-					enable = false,
+					enable = true,
 					inline_arrows = true,
 					icons = {
 						corner = "└",
@@ -66,7 +66,7 @@ return {
 			},
 			update_focused_file = {
 				enable = true,
-				debounce_delay = 15,
+				-- debounce_delay = 15,
 				update_root = true,
 				ignore_list = {},
 			},
@@ -75,7 +75,7 @@ return {
 				enable = true,
 				show_on_dirs = false,
 				show_on_open_dirs = true,
-				debounce_delay = 50,
+				-- debounce_delay = 50,
 				severity = {
 					min = vim.diagnostic.severity.HINT,
 					max = vim.diagnostic.severity.ERROR,

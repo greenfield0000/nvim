@@ -1,16 +1,13 @@
+-- lua/plugins/lsp.lua (или как у тебя называется)
 return {
     {
         "williamboman/mason.nvim",
         config = function()
-            -- setup mason with default properties
             require("mason").setup({
-                ui = {
-                    border = "rounded",
-                },
+                ui = { border = "rounded" },
             })
         end,
     },
-    -- utility plugin for configuring the java language server for us
     {
         "mfussenegger/nvim-jdtls",
         dependencies = {
@@ -28,36 +25,10 @@ return {
         "neovim/nvim-lspconfig",
         config = function()
             local icons = require("config.icons")
-
-            -- get access to the lspconfig plugins functions
-            local lspconfig = require("lspconfig")
-
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-            lspconfig.lua_ls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.gopls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.lemminx.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.jsonls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.sqlls.setup({
-                capabilities = capabilities,
-            })
-
-            lspconfig.sqlfmt.setup({
-                capabilities = capabilities,
-            })
-
+            -- сохраним capabilities глобально, чтобы использовать в ftplugin
+            vim.g.lsp_capabilities = capabilities
 
             local default_diagnostic_config = {
                 signs = {
@@ -69,7 +40,7 @@ return {
                         { name = "DiagnosticSignInfo",  text = icons.diagnostics.Information },
                     },
                 },
-                virtual_text = false,
+                virtual_text = true,
                 update_in_insert = false,
                 underline = true,
                 severity_sort = true,
@@ -89,30 +60,25 @@ return {
                 vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
             end
 
-            -- Set vim motion for <Space> + c + h to show code documentation about the code the cursor is currently over if available
-            vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "[C]ode [H]over Documentation" })
-            -- Set vim motion for <Space> + c + d to go where the code/variable under the cursor was defined
-            vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "[C]ode Goto [D]efinition" })
-            -- Set vim motion for <Space> + c + a for display code action suggestions for code diagnostics in both normal and visual mode
-            vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ctions" })
-            -- Set vim motion for <Space> + c + r to display references to the code under the cursor
-            vim.keymap.set(
-                "n",
-                "<leader>cr",
-                require("telescope.builtin").lsp_references,
-                { desc = "[C]ode Goto [R]eferences" }
-            )
-            -- Set vim motion for <Space> + c + i to display implementations to the code under the cursor
-            vim.keymap.set(
-                "n",
-                "<leader>ci",
-                require("telescope.builtin").lsp_implementations,
-                { desc = "[C]ode Goto [I]mplementations" }
-            )
-            -- Set a vim motion for <Space> + c + <Shift>R to smartly rename the code under the cursor
-            vim.keymap.set("n", "<leader>cR", vim.lsp.buf.rename, { desc = "[C]ode [R]ename" })
-            -- Set a vim motion for <Space> + c + <Shift>D to go to where the code/object was declared in the project (class file)
-            vim.keymap.set("n", "<leader>cD", vim.lsp.buf.declaration, { desc = "[C]ode Goto [D]eclaration" })
+            -- Глобальные биндинги по LspAttach, чтобы не развозить их по ftplugin
+            vim.api.nvim_create_autocmd("LspAttach", {
+                callback = function(args)
+                    local bufnr = args.buf
+                    local tbuiltin = require("telescope.builtin")
+
+                    local map = function(mode, lhs, rhs, desc)
+                        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+                    end
+
+                    map("n", "<leader>ch", vim.lsp.buf.hover, "[C]ode [H]over Documentation")
+                    map("n", "<leader>cd", vim.lsp.buf.definition, "[C]ode Goto [D]efinition")
+                    map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ctions")
+                    map("n", "<leader>cr", tbuiltin.lsp_references, "[C]ode Goto [R]eferences")
+                    map("n", "<leader>ci", tbuiltin.lsp_implementations, "[C]ode Goto [I]mplementations")
+                    map("n", "<leader>cR", vim.lsp.buf.rename, "[C]ode [R]ename")
+                    map("n", "<leader>cD", vim.lsp.buf.declaration, "[C]ode Goto [D]eclaration")
+                end,
+            })
         end,
     },
 }
