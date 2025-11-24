@@ -79,6 +79,20 @@ return {
                     map("n", "<leader>cD", vim.lsp.buf.declaration, "[C]ode Goto [D]eclaration")
                 end,
             })
+
+            local servers = {
+                'lua_ls',
+                'lemminx',
+                'jsonls',
+                'sqlls',
+                'rust_analyzer',
+                'gopls',
+            }
+            for _, lsp in ipairs(servers) do
+                require('lspconfig')[lsp].setup {
+                    capabilities = capabilities, -- ваши настройки, если нужно
+                }
+            end
         end,
     },
 }
