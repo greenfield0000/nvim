@@ -27,13 +27,14 @@ return {
                     "angular-language-server",    -- angular
                     "typescript-language-server", -- ts
                     "dockerfile-language-server", -- dockerfile, docker
+                    "yaml-language-server",       -- yaml
                     "sqlls",                      -- sql
                     "marksman",                   -- md
                     -- Linter
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile
                     -- dap
-                    "delve",           -- golang debug
+                    "delve",                      -- golang debug
                     "java-debug-adapter",         -- many lang java, golang, c++, rust
                     -- test
                     "java-test",

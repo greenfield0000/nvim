@@ -86,21 +86,14 @@ return {
                 'rust_analyzer', -- для rust
                 'gopls',         -- для golang
                 'angularls',     -- для ангуляр
+                'marksman',      -- для md
+                'yamlls',        -- для yaml
             }
             for _, lsp in ipairs(servers) do
                 require('lspconfig')[lsp].setup {
                     capabilities = capabilities,
                 }
             end
-
-            -- CUSTOM BLOCKS
-            -- angular
-            -- local nvim_lsp = require('lspconfig')
-            -- nvim_lsp.angularls.setup {
-            --     cmd = { "ngserver", "--stdio" },
-            --     capabilities = capabilities,
-            --     root_dir = nvim_lsp.util.root_pattern("angular.json", "package.json", ".git"),
-            -- }
         end,
     },
 }
