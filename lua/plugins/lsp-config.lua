@@ -81,16 +81,17 @@ return {
             })
 
             local servers = {
-                'lua_ls',
-                'lemminx',
-                'jsonls',
-                'sqlls',
-                'rust_analyzer',
-                'gopls',
+                'lua_ls',                    -- для lua
+                'lemminx',                   -- для xml
+                'jsonls',                    -- для json
+                'sqlls',                     -- для sql
+                'rust_analyzer',             -- для rust
+                'gopls',                     -- для golang
+                'typescript-language-server' -- для typescript
             }
             for _, lsp in ipairs(servers) do
                 require('lspconfig')[lsp].setup {
-                    capabilities = capabilities, -- ваши настройки, если нужно
+                    capabilities = capabilities,
                 }
             end
         end,
