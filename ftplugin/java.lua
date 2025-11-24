@@ -261,10 +261,10 @@ local function start_jdtls()
                 },
                 format = {
                     enabled = true,
-                    settings = {
-                        url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
-                        profile = "GoogleStyle"
-                    }
+                    -- settings = {
+                    --     url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
+                    --     profile = "GoogleStyle"
+                    -- }
                 },
                 completion = {
                     favoriteStaticMembers = {
@@ -309,7 +309,7 @@ local function start_jdtls()
                     }
                 },
                 signatureHelp = {
-                    enabled = false,
+                    enabled = true,
                     description = {
                         enabled = true
                     }
