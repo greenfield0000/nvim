@@ -98,15 +98,13 @@ local on_attach = function(_, bufnr)
     map('n', '<leader>tc', function() require('jdtls').test_class() end, "Test Class")
     map('n', '<leader>tm', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
     map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
-    map('n', '<leader>tdc', function() require('jdtls.dap').test_class() end, "Debug Test Class")
-    map('n', '<leader>tdm', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
-    map('n', '<leader>tl', function() vim.lsp.codelens.run() end, "Run Code Lens")
-    map('n', '<leader>tg', function() require('jdtls').generate_test() end, "Generate Test")
+    map('n', '<leader>tdc', function() require('jdtls.dap').test_class() setup_dap() end, "Debug Test Class")
+    map('n', '<leader>tdm', function() require('jdtls.dap').test_nearest_method() setup_dap() end, "Debug Test Method")
 
     vim.api.nvim_create_autocmd("BufWritePost", {
         buffer = bufnr, callback = function() pcall(vim.lsp.codelens.refresh) end
     })
-    setup_dap()
+    -- setup_dap()
 end
 
 -- === 🎯 ГЛАВНАЯ ФУНКЦИЯ: АВТОЗАПУСК + SMART ATTACH ===
@@ -271,7 +269,7 @@ local function smart_start_jdtls()
                         }
                     }
                 },
-                signatureHelp = { enabled = true, description = { enabled = true } },
+                signatureHelp = { enabled = false, description = { enabled = true } },
                 contentProvider = { preferred = "fernflower" },
                 saveActions = { organizeImports = false },
                 implementationsCodeLens = { enabled = true },
