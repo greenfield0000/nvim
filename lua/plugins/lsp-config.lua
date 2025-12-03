@@ -88,11 +88,14 @@ return {
                 'angularls',     -- для ангуляр
                 'marksman',      -- для md
                 'yamlls',        -- для yaml
+                'jdtls',         -- для java
             }
             for _, lsp in ipairs(servers) do
-                require('lspconfig')[lsp].setup {
-                    capabilities = capabilities,
-                }
+                if lsp ~= 'jdtls' then -- java настраиваем отдельно в ftplugin/java.lua
+                    require('lspconfig')[lsp].setup {
+                        capabilities = capabilities,
+                    }
+                end
             end
         end,
     },

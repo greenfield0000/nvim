@@ -33,6 +33,8 @@ return {
                     -- Linter
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile
+                    -- formatter
+                    "pgformatter",                 -- postgres sql formater
                     -- dap
                     "delve",                      -- golang debug
                     "java-debug-adapter",         -- many lang java, golang, c++, rust
