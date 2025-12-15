@@ -6,6 +6,12 @@ return {
             "saadparwaiz1/cmp_luasnip",
             -- provide vscode like snippets to cmp
             "rafamadriz/friendly-snippets",
+            -- {
+            --     "nvim-lua/jsregexp",
+            --     branch = "master",
+            --     -- Используйте SSH URL для избежания проблем с аутентификацией
+            --     url = "git@github.com:nvim-lua/jsregexp.git"
+            -- }
         }
     },
     -- cmp-nvim-lsp provides language specific completion suggestions to nvim-cmp
@@ -49,7 +55,7 @@ return {
                 },
                 -- setup how we interact with completion menus and options
                 mapping = cmp.mapping.preset.insert({
-                     -- previous suggestion
+                    -- previous suggestion
                     ["<C-k>"] = cmp.mapping.select_prev_item(),
                     -- next suggestion
                     ["<C-j>"] = cmp.mapping.select_next_item(),
@@ -60,7 +66,7 @@ return {
                     -- close completion window
                     ["<C-e>"] = cmp.mapping.abort(),
                     -- confirm completion, only when you explicitly selected an option
-                    ["<CR>"] = cmp.mapping.confirm({ select = false})
+                    ["<CR>"] = cmp.mapping.confirm({ select = false })
                 }),
                 -- Where and how should cmp rank and find completions
                 -- Order matters, cmp will provide lsp suggestions above all else
