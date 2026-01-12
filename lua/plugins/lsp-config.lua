@@ -22,7 +22,7 @@ return {
     {
         "neovim/nvim-lspconfig",
         config = function()
-            local icons = require("config.icons")
+            local icons = require("icons")
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
             -- сохраним capabilities глобально, чтобы использовать в ftplugin
@@ -88,14 +88,11 @@ return {
                 'angularls',     -- для ангуляр
                 'marksman',      -- для md
                 'yamlls',        -- для yaml
-                'jdtls',         -- для java
             }
             for _, lsp in ipairs(servers) do
-                if lsp ~= 'jdtls' then -- java настраиваем отдельно в ftplugin/java.lua
-                    require('lspconfig')[lsp].setup {
-                        capabilities = capabilities,
-                    }
-                end
+                require('lspconfig')[lsp].setup {
+                    capabilities = capabilities,
+                }
             end
         end,
     },
