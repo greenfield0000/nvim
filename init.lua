@@ -33,6 +33,5 @@ local opts = {
 require("options")
 require("keymaps")
 require("autocmds")
-require("lsp")
 
 require("lazy").setup("plugins", opts)
