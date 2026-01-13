@@ -38,7 +38,7 @@ vim.opt.swapfile = false          -- creates a swapfile
 vim.opt.hlsearch = true   -- highlight all matches in search
 vim.opt.ignorecase = true -- ignore case in search
 vim.opt.smartcase = true  -- match case if explicitly stated
-
+vim.opt.cmdheight = 0     -- устанавливает высоту в 2 строки
 -- Базовые настройки
-vim.opt.textwidth = 0  -- Отключаем автоматический перенос
-vim.opt.wrap = false   -- Отключаем перенос строк
+vim.opt.textwidth = 0     -- Отключаем автоматический перенос
+vim.opt.wrap = false      -- Отключаем перенос строк
