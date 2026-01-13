@@ -25,7 +25,7 @@ return {
             vim.keymap.set('n', '<leader>fp', function () require("telescope").extensions.projects.projects() end, { desc = '[f]ind [p]rojects' })
 
             local actions = require("telescope.actions")
-            local icons = require("config.icons")
+            local icons = require("icons")
 
             -- Setup Telescope
             require("telescope").setup({

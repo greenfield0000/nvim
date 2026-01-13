@@ -30,8 +30,8 @@ local opts = {
     },
 }
 
-require("config.options")
-require("config.keymaps")
-require("config.autocmds")
+require("options")
+require("keymaps")
+require("autocmds")
 
 require("lazy").setup("plugins", opts)

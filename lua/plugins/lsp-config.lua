@@ -1,4 +1,3 @@
--- lua/plugins/lsp.lua (или как у тебя называется)
 return {
     {
         "williamboman/mason.nvim",
@@ -7,14 +6,13 @@ return {
                 ui = { border = "rounded" },
             })
         end,
+    }, {
+    "mfussenegger/nvim-jdtls",
+    dependencies = {
+        "mfussenegger/nvim-dap",
+        "ray-x/lsp_signature.nvim",
     },
-    {
-        "mfussenegger/nvim-jdtls",
-        dependencies = {
-            "mfussenegger/nvim-dap",
-            "ray-x/lsp_signature.nvim",
-        },
-    },
+},
     {
         "ray-x/lsp_signature.nvim",
         config = function()
@@ -24,7 +22,7 @@ return {
     {
         "neovim/nvim-lspconfig",
         config = function()
-            local icons = require("config.icons")
+            local icons = require("icons")
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
             -- сохраним capabilities глобально, чтобы использовать в ftplugin
@@ -79,6 +77,23 @@ return {
                     map("n", "<leader>cD", vim.lsp.buf.declaration, "[C]ode Goto [D]eclaration")
                 end,
             })
+
+            local servers = {
+                'lua_ls',        -- для lua
+                'lemminx',       -- для xml
+                'jsonls',        -- для json
+                'sqlls',         -- для sql
+                'rust_analyzer', -- для rust
+                'gopls',         -- для golang
+                'angularls',     -- для ангуляр
+                'marksman',      -- для md
+                'yamlls',        -- для yaml
+            }
+            for _, lsp in ipairs(servers) do
+                require('lspconfig')[lsp].setup {
+                    capabilities = capabilities,
+                }
+            end
         end,
     },
 }

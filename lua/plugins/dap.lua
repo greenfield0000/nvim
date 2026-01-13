@@ -18,6 +18,35 @@ local function get_args(config)
     return config
 end
 
+local function setup_java(dap)
+    -- Java configurations
+    dap.configurations.java = {
+        {
+            type = "java",
+            request = "attach",
+            name = "Attach to Java Process (Port 5005)",
+            hostName = "localhost",
+            port = 5005,
+        },
+        {
+            type = "java",
+            request = "attach",
+            name = "Attach to Java Process (Port 5006)",
+            hostName = "localhost",
+            port = 5006,
+        },
+        {
+            type = "java",
+            request = "attach",
+            name = "Attach to Remote Java Process with custom port",
+            hostName = "localhost",
+            port = function()
+                return tonumber(vim.fn.input('Port: ', '9229'))
+            end,
+        },
+    }
+end
+
 return {
     {
         'mfussenegger/nvim-dap',
@@ -165,32 +194,7 @@ return {
             local dap = require("dap")
             local dapui = require("dapui")
 
-            -- Java configurations
-            dap.configurations.java = {
-                {
-                    type = "java",
-                    request = "attach",
-                    name = "Attach to Java Process (Port 5005)",
-                    hostName = "localhost",
-                    port = 5005,
-                },
-                {
-                    type = "java",
-                    request = "attach",
-                    name = "Attach to Java Process (Port 5006)",
-                    hostName = "localhost",
-                    port = 5006,
-                },
-                {
-                    type = "java",
-                    request = "attach",
-                    name = "Attach to Remote Java Process with custom port",
-                    hostName = "localhost",
-                    port = function()
-                        return tonumber(vim.fn.input('Port: ', '9229'))
-                    end,
-                },
-            }
+            setup_java(dap)   -- java
 
             -- Auto open/close DAP UI
             dap.listeners.after.event_initialized["dapui_config"] = function()

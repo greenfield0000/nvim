@@ -3,7 +3,7 @@ return {
 	config = function()
 		vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle [E]xplorer" })
 
-		local icons = require("config.icons")
+		local icons = require("icons")
 
 		require("nvim-tree").setup({
 			hijack_netrw = true,

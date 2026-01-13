@@ -2,51 +2,26 @@ local home = os.getenv("HOME")
 local jdtls = require("jdtls")
 local fn = vim.fn
 
--- === Определение Java из Maven/Gradle ======================
-local function java_from_build()
-    local pom = fn.getcwd() .. "/pom.xml"
-    if fn.filereadable(pom) == 1 then
-        for line in io.lines(pom) do
-            local v = line:match("<maven%.compiler%.source>(%d+)</maven%.compiler%.source>")
-            if v then
-                local path = home .. "/.sdkman/candidates/java/" .. v .. ".0.0" -- SDKMAN использует версии с .0.0
-                if fn.isdirectory(path) == 1 then return path end
+-- === СОСТОЯНИЕ: 1 JDTLS НА ПРОЕКТ ===
+vim.g.jdtls_state = vim.g.jdtls_state or {
+    active_root = nil,
+    active_workspace = nil,
+    running = false
+}
 
-                -- Попробуем без .0.0
-                path = home .. "/.sdkman/candidates/java/" .. v
-                if fn.isdirectory(path) == 1 then return path end
-            end
-        end
-    end
-
-    local gradle = fn.getcwd() .. "/build.gradle"
-    if fn.filereadable(gradle) == 1 then
-        for line in io.lines(gradle) do
-            local v = line:match("sourceCompatibility%s*=%s*['\"]?(%d+)['\"]?")
-            if v then
-                local path = home .. "/.sdkman/candidates/java/" .. v .. ".0.0"
-                if fn.isdirectory(path) == 1 then return path end
-
-                path = home .. "/.sdkman/candidates/java/" .. v
-                if fn.isdirectory(path) == 1 then return path end
-            end
-        end
-    end
+-- === РАСШИРЕННЫЙ ПОИСК JAVA_HOME из SDKMAN ===
+local function get_java_home()
+    -- Fallback на current
+    local current = home .. "/.sdkman/candidates/java/current"
+    if fn.isdirectory(current) == 1 then return current end
 
     return nil
 end
 
--- === Получаем JAVA_HOME для проекта ========================
-local function get_java_home()
-    return java_from_build() or (home .. "/.sdkman/candidates/java/current")
-end
-
--- === Собираем все JDK из SDKMAN ============================
+-- === Все JDK из SDKMAN ===
 local function get_all_runtimes()
     local runtimes = {}
     local base = home .. "/.sdkman/candidates/java"
-
-    -- Более надежный способ получения версий
     local handle = io.popen('find "' .. base .. '" -maxdepth 1 -type d -name "[0-9]*" -printf "%f\n" 2>/dev/null')
     if handle then
         for version in handle:lines() do
@@ -60,7 +35,7 @@ local function get_all_runtimes()
     return runtimes
 end
 
--- === Определяем OS динамически =============================
+-- === OS детектор ===
 local function detect_os()
     local uname = vim.loop.os_uname().sysname
     if uname == "Darwin" then
@@ -72,11 +47,9 @@ local function detect_os()
     end
 end
 
--- === DAP конфигурация для тестирования ====================
+-- === DAP для тестов ===
 local function setup_dap()
     local dap = require("dap")
-
-    -- Конфигурация для Java
     dap.configurations.java = {
         {
             type = 'java',
@@ -98,124 +71,136 @@ local function setup_dap()
             name = "Run Current Test",
             vmArgs = "-Xmx2048m -XX:+ShowCodeDetailsInExceptionMessages",
             mainClass = "org.junit.platform.console.ConsoleLauncher",
-            args = {
-                "--scan-classpath",
-                "--include-classname",
-                "${file}",
-            },
+            args = { "--scan-classpath", "--include-classname", "${file}" },
             projectName = "${fileBasenameNoExtension}",
         }
     }
 end
 
--- Function that will be ran once the language server is attached
+-- === on_attach ===
 local on_attach = function(_, bufnr)
-    -- Enable jdtls commands to be used in Neovim
     require 'jdtls.setup'.add_commands()
-
-    -- Refresh the codelens
     vim.lsp.codelens.refresh()
 
-    -- Setup signature help
     local status_ok, signature = pcall(require, "lsp_signature")
     if status_ok then
         signature.on_attach({
-            bind = true,
-            padding = "",
-            handler_opts = {
-                border = "rounded",
-            },
-            hint_prefix = "󱄑 ",
+            bind = true, padding = "", handler_opts = { border = "rounded" }, hint_prefix = "󱄑 ",
         }, bufnr)
         require('jdtls').setup_dap({ hotcodereplace = 'auto' })
     end
 
-    -- === Ключевые маппинги для тестирования ===============
     local map = function(mode, lhs, rhs, desc)
-        if desc then
-            desc = "JDTLS: " .. desc
-        end
+        if desc then desc = "JDTLS: " .. desc end
         vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc, buffer = bufnr })
     end
 
-    -- Тестирование
     map('n', '<leader>tc', function() require('jdtls').test_class() end, "Test Class")
     map('n', '<leader>tm', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
     map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
-    -- Отладка тестов
-    map('n', '<leader>tdc', function() require('jdtls.dap').test_class() end, "Debug Test Class")
-    map('n', '<leader>tdm', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
-    -- Code lens для тестов
-    map('n', '<leader>tl', function() vim.lsp.codelens.run() end, "Run Code Lens")
-    -- Генерация тестов
-    map('n', '<leader>tg', function() require('jdtls').generate_test() end, "Generate Test")
+    map('n', '<leader>tdc', function()
+        require('jdtls.dap').test_class()
+        setup_dap()
+    end, "Debug Test Class")
+    map('n', '<leader>tdm', function()
+        require('jdtls.dap').test_nearest_method()
+        setup_dap()
+    end, "Debug Test Method")
 
-    -- Setup a function that automatically runs every time a java file is saved to refresh the code lens
     vim.api.nvim_create_autocmd("BufWritePost", {
-        buffer = bufnr,
-        callback = function()
-            pcall(vim.lsp.codelens.refresh)
-        end
+        buffer = bufnr, callback = function() pcall(vim.lsp.codelens.refresh) end
     })
-
-    -- Инициализируем DAP
-    setup_dap()
+    -- setup_dap()
 end
 
--- === Конфиг JDTLS с поддержкой Lombok =====================
-local function start_jdtls()
-    local java_home = get_java_home()
-    local runtimes = get_all_runtimes()
+-- === 🎯 ГЛАВНАЯ ФУНКЦИЯ: АВТОЗАПУСК + SMART ATTACH ===
+local function smart_start_jdtls()
+    local bufnr = vim.api.nvim_get_current_buf()
 
-    -- Добавляем текущую JAVA_HOME как default runtime
-    local default_runtime = { name = "JavaSDK", path = java_home, default = true }
-    table.insert(runtimes, 1, default_runtime)
+    -- 🚀 АВТОЗАПУСК ДЛЯ ЛЮБОГО .java файла
+    if vim.bo[bufnr].filetype ~= "java" then return end
+
+    -- 🔍 НАЙДИМ ROOT ПРОЕКТА ДЛЯ ТЕКУЩЕГО ФАЙЛА
+    local current_file = vim.api.nvim_buf_get_name(bufnr)
+    local current_root = require("jdtls.setup").find_root({
+        ".git", "mvnw", "gradlew", "pom.xml", "build.gradle"
+    }, current_file)
+
+    if not current_root then
+        vim.notify("No Java project root found for: " .. fn.fnamemodify(current_file, ":t"), vim.log.levels.WARN)
+        return
+    end
+
+    -- ✅ ✅ ✅ ТОТ ЖЕ ПРОЕКТ = ПРОСТО ATTACH (мгновенно!)
+    if vim.g.jdtls_state.active_root == current_root then
+        local clients = vim.lsp.get_active_clients({ name = "jdtls" })
+        if #clients > 0 then
+            vim.lsp.buf_attach_client(bufnr, clients[1].id)
+            return -- ✅ НИЧЕГО НЕ ДЕЛАЕМ - уже работает!
+        end
+    end
+
+    -- 🛑 НОВЫЙ ПРОЕКТ → УБИРАЕМ СТАРЫЙ JDTLS
+    local all_jdtls = vim.lsp.get_active_clients({ name = "jdtls" })
+    for _, client in ipairs(all_jdtls) do
+        pcall(client.stop)
+    end
+
+    -- 🔥 СОХРАНЯЕМ НОВЫЙ ПРОЕКТ
+    local project_name = fn.fnamemodify(current_root, ":p:h:t")
+    vim.g.jdtls_state = {
+        active_root = current_root,
+        active_workspace = project_name,
+        running = false,
+        last_updated = vim.loop.now()
+    }
+
+    vim.notify("🚀 jdtls started: " .. project_name, vim.log.levels.INFO)
+
+    -- === НАСТРОЙКИ JDTLS (ВАШИ ОРИГИНАЛЬНЫЕ) ===
+    local java_home = get_java_home()
+    if not java_home then
+        vim.notify("Java home not found in SDKMAN!", vim.log.levels.ERROR)
+        return
+    end
+
+    local runtimes = get_all_runtimes()
+    table.insert(runtimes, 1, { name = "JavaSDK", path = java_home, default = true })
 
     local jdtls_dir = home .. "/.local/share/nvim/mason/packages/jdtls"
-    local launcher = vim.fn.glob(jdtls_dir .. "/plugins/org.eclipse.equinox.launcher_*.jar", false, true)
-    if #launcher == 0 then
+    local launcher = fn.glob(jdtls_dir .. "/plugins/org.eclipse.equinox.launcher_*.jar", false, true)[1]
+    if not launcher then
         vim.notify("JDTLS launcher not found!", vim.log.levels.ERROR)
-        return java_home
+        return
     end
-    launcher = launcher[1]
 
     local config_os = detect_os()
-    local config_dir = jdtls_dir .. "/config_" .. config_os
-    local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
-    local workspace_dir = home .. "/.workspace/" .. project_name -- Изменен путь для избежания конфликтов
+    local workspace_dir = home .. "/.workspace/" .. project_name
 
-    -- === Авто-подключение lombok =================================
-    local lombok_path = vim.fn.glob(jdtls_dir .. "/lombok.jar")
+    local lombok_path = fn.glob(jdtls_dir .. "/lombok.jar")
     local javaagent_opts = {}
     if lombok_path ~= "" then
         table.insert(javaagent_opts, "-javaagent:" .. lombok_path)
     end
 
-    -- This bundles definition is the same as in the previous section (java-debug installation)
     local bundles = {
-        vim.fn.glob(
+        fn.glob(
             home ..
             "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
             1)
     }
 
-    -- This is the new part
-    local java_test_bundles = vim.split(
-        vim.fn.glob(
-            home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1
-        ), "\n"
-    )
-    local excluded = {
-        "com.microsoft.java.test.runner-jar-with-dependencies.jar",
-        "jacocoagent.jar",
-    }
+    local java_test_bundles = fn.split(
+        fn.glob(home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1), "\n")
+    local excluded = { "com.microsoft.java.test.runner-jar-with-dependencies.jar", "jacocoagent.jar" }
     for _, java_test_jar in ipairs(java_test_bundles) do
-        local fname = vim.fn.fnamemodify(java_test_jar, ":t")
-        if not vim.tbl_contains(excluded, fname) then
-            table.insert(bundles, java_test_jar)
+        if java_test_jar ~= "" then
+            local fname = fn.fnamemodify(java_test_jar, ":t")
+            if not vim.tbl_contains(excluded, fname) then
+                table.insert(bundles, java_test_jar)
+            end
         end
     end
-    -- End of the new part
 
     local cmd = {
         java_home .. "/bin/java",
@@ -229,26 +214,19 @@ local function start_jdtls()
         "--add-opens", "java.base/java.util=ALL-UNNAMED",
         "--add-opens", "java.base/java.lang=ALL-UNNAMED",
         "-jar", launcher,
-        "-configuration", config_dir,
+        "-configuration", jdtls_dir .. "/config_" .. config_os,
         "-data", workspace_dir,
     }
 
-    -- Добавляем javaagent опции в начало если есть
     if #javaagent_opts > 0 then
         for i = #javaagent_opts, 1, -1 do
             table.insert(cmd, 2, javaagent_opts[i])
         end
     end
 
-    local root_dir = require("jdtls.setup").find_root({ ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" })
-    if not root_dir then
-        vim.notify("No Java project root found!", vim.log.levels.WARN)
-        return java_home
-    end
-
     local config = {
         cmd = cmd,
-        root_dir = root_dir,
+        root_dir = current_root,
         init_options = {
             bundles = bundles,
             extendedClientCapabilities = jdtls.extendedClientCapabilities,
@@ -259,13 +237,7 @@ local function start_jdtls()
                     runtimes = runtimes,
                     updateBuildConfiguration = "interactive",
                 },
-                format = {
-                    enabled = true,
-                    -- settings = {
-                    --     url = vim.fn.stdpath("config") .. "/lang_servers/intellij-java-google-style.xml",
-                    --     profile = "GoogleStyle"
-                    -- }
-                },
+                format = { enabled = true },
                 completion = {
                     favoriteStaticMembers = {
                         "org.hamcrest.MatcherAssert.assertThat",
@@ -281,16 +253,11 @@ local function start_jdtls()
                         "java.util.Objects.requireNonNullElse",
                     },
                 },
-                -- === НАСТРОЙКИ ТЕСТИРОВАНИЯ =======================
                 test = {
                     enabled = true,
-                    -- Автоматически обновлять тесты при изменении кода
                     autoTrack = true,
-                    -- Показывать отчет о тестировании
                     showProgress = true,
-                    -- Конфигурация по умолчанию для запуска тестов
                     defaultConfig = "JUnit5",
-                    -- Конфигурации тестов
                     configurations = {
                         {
                             name = "JUnit5",
@@ -308,86 +275,40 @@ local function start_jdtls()
                         }
                     }
                 },
-                signatureHelp = {
-                    enabled = true,
-                    description = {
-                        enabled = true
-                    }
-                },
+                signatureHelp = { enabled = true, description = { enabled = true } },
                 contentProvider = { preferred = "fernflower" },
                 saveActions = { organizeImports = false },
-                implementationsCodeLens = {
-                    enabled = true,
-                },
-                referencesCodeLens = {
-                    enabled = true
-                },
-                inlayHints = {
-                    parameterNames = {
-                        enabled = "all"
-                    }
-                },
+                implementationsCodeLens = { enabled = true },
+                referencesCodeLens = { enabled = true },
+                inlayHints = { parameterNames = { enabled = "all" } },
                 codeGeneration = {
                     useBlocks = true,
                     generateComments = true,
                     insertLocation = true,
-                    toString = {
-                        template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}"
-                    }
+                    toString = { template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}" }
                 },
-                autobuild = {
-                    enabled = true
-                },
-                progressReports = {
-                    enabled = false
-                },
-                maven = {
-                    downloadSources = true,
-                    updateSnapshots = true
-                }
+                autobuild = { enabled = true },
+                progressReports = { enabled = false },
+                maven = { downloadSources = true, updateSnapshots = true }
             }
         },
         on_attach = on_attach,
         capabilities = require('cmp_nvim_lsp').default_capabilities(),
     }
 
-    -- Запускаем JDTLS
     jdtls.start_or_attach(config)
-
-    -- === Автокоманды для тестирования ========================
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = "java",
-        callback = function()
-            -- Авто-обновление code lens при входе в буфер
-            vim.schedule(function()
-                vim.lsp.codelens.refresh()
-            end)
-
-            -- Показывать тестовую панель при запуске тестов
-            local status_ok, jdtls_dap = pcall(require, "jdtls.dap")
-            if status_ok then
-                jdtls_dap.setup_dap_main_class_configs()
-            end
-        end
-    })
-
-    return java_home
+    vim.g.jdtls_state.running = true
 end
 
--- === Основная инициализация ================================
-if vim.bo.filetype == "java" then
-    -- Отложенный запуск чтобы избежать конфликтов
-    vim.defer_fn(function()
-        if not vim.g.current_java_home then
-            vim.g.current_java_home = start_jdtls()
-        else
-            local new_java_home = get_java_home()
-            if vim.g.current_java_home ~= new_java_home then
-                pcall(jdtls.stop)
-                vim.g.current_java_home = start_jdtls()
-            else
-                start_jdtls() -- Просто attach если HOME не изменился
-            end
-        end
-    end, 100)
-end
+-- === 🚀 АВТОЗАПУСК ПРИ ОТКРЫТИИ ЛЮБОГО .java ФАЙЛА ===
+vim.api.nvim_create_autocmd({ "FileType", "BufReadPost", "BufEnter" }, {
+    pattern = "*.java",
+    group = vim.api.nvim_create_augroup("JdtlsAutoStart", { clear = true }),
+    callback = function()
+        vim.defer_fn(smart_start_jdtls, 50)
+    end,
+    desc = "Auto-start jdtls for ANY .java file"
+})
+
+-- === РУЧНЫЕ КОМАНДЫ ===
+vim.api.nvim_create_user_command('JdtlsRestart', smart_start_jdtls, {})

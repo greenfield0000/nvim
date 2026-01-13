@@ -24,19 +24,20 @@ return {
                     "json-lsp",                   -- json
                     "jdtls",                      -- java
                     "lemminx",                    -- xml
-                    -- "buf",                        -- protobuf
                     "angular-language-server",    -- angular
-                    "typescript-language-server", -- angular
+                    "typescript-language-server", -- ts
                     "dockerfile-language-server", -- dockerfile, docker
+                    "yaml-language-server",       -- yaml
                     "sqlls",                      -- sql
                     "marksman",                   -- md
                     -- Linter
-                    -- "ast-grep",                   -- many lang java, golang, c++, rust
-                    "sqlfluff",           -- sql
-                    "checkmake",          -- makefile
+                    "sqlfluff",                   -- sql
+                    "checkmake",                  -- makefile
+                    -- formatter
+                    "pgformatter",                 -- postgres sql formater
                     -- dap
-                    "go-debug-adapter",   -- many lang java, golang, c++, rust
-                    "java-debug-adapter", -- many lang java, golang, c++, rust
+                    "delve",                      -- golang debug
+                    "java-debug-adapter",         -- many lang java, golang, c++, rust
                     -- test
                     "java-test",
                 },
