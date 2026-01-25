@@ -1,17 +1,39 @@
 return {
-    'iamcco/markdown-preview.nvim',
-    ft = { "markdown" },             -- загружать только для markdown файлов
-    build = 'cd app && npm install', -- установка npm зависимостей после клона
-    config = function()
-        vim.g.mkdp_auto_start = 1    -- автостар при открытии markdown
-        vim.g.mkdp_port = "8060"     -- порт по умолчанию
-        vim.g.mkdp_theme = "dark"    -- тема превью (dark, light, auto)
+    -- Основной плагин для работы с Obsidian
+    {
+        'epwalsh/obsidian.nvim',
+        dependencies = {
+            "nvim-lua/plenary.nvim", -- обязательный плагин
+        },
+        event = "BufReadPre *.md",
+        config = function()
+            require('obsidian').setup({
+                dir = '~/obsidian',
+                notes_dir = '', -- директория для заметок (оставьте пустой для корня)
+                markdown_preview_cmd = 'markdown-preview.nvim',
+            })
+        end,
+    },
 
-        local map = function(mode, lhs, rhs, desc)
-            if desc then desc = "Markdown preview: " .. desc end
-            vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc})
-        end
-
-        map('n', '<leader>mp', "<cmd>MarkdownPreview<cr>", "Markdown preview")
-    end,
+    -- Предпросмотр Markdown
+    {
+        'iamcco/markdown-preview.nvim',
+        ft = 'markdown',
+        build = function()
+            pcall(vim.fn['mkdp#util#install'])
+        end,
+    },
+    -- Дополнительные плагины
+    {
+        'nvim-treesitter/nvim-treesitter',
+        build = ':TSUpdate',
+    },
+    {
+        'nvim-autopairs',
+        event = "InsertEnter",
+    },
+    {
+        'hrsh7th/nvim-cmp',
+        event = 'InsertEnter',
+    },
 }

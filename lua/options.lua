@@ -42,3 +42,7 @@ vim.opt.cmdheight = 0     -- устанавливает высоту в 2 стр
 -- Базовые настройки
 vim.opt.textwidth = 0     -- Отключаем автоматический перенос
 vim.opt.wrap = false      -- Отключаем перенос строк
+
+-- obdisian
+vim.opt.conceallevel = 2  -- или 1, если 2 не подойдет
+vim.opt.concealcursor = 'nc'  -- рекомендуемое значение

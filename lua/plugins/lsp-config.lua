@@ -6,13 +6,14 @@ return {
                 ui = { border = "rounded" },
             })
         end,
-    }, {
-    "mfussenegger/nvim-jdtls",
-    dependencies = {
-        "mfussenegger/nvim-dap",
-        "ray-x/lsp_signature.nvim",
     },
-},
+    {
+        "mfussenegger/nvim-jdtls",
+        dependencies = {
+            "mfussenegger/nvim-dap",
+            "ray-x/lsp_signature.nvim",
+        },
+    },
     {
         "ray-x/lsp_signature.nvim",
         config = function()
