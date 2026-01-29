@@ -1,5 +1,6 @@
 return {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
     dependencies = {
         -- ts-autotag использует treesitter для понимания структуры кода, чтобы автоматически закрывать теги tsx
         "windwp/nvim-ts-autotag"
@@ -30,6 +31,7 @@ return {
                 "gitignore",
                 "sql",
             },
+            preview = { treesitter = true },
             -- убедитесь, что подсветка включена
             highlight = { enable = true },
             -- включите автоматическое закрытие тегов tsx

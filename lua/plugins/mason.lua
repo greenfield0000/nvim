@@ -29,7 +29,7 @@ return {
                     "dockerfile-language-server", -- dockerfile, docker
                     "yaml-language-server",       -- yaml
                     "sqlls",                      -- sql
-                    "marksman",                   -- md
+                    -- "marksman",                   -- md (не работает json)
                     -- Linter
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile

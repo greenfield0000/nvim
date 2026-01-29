@@ -87,7 +87,7 @@ return {
                 'rust_analyzer', -- для rust
                 'gopls',         -- для golang
                 'angularls',     -- для ангуляр
-                'marksman',      -- для md
+                -- 'marksman',              -- для md (не работает json)
                 'yamlls',        -- для yaml
             }
             for _, lsp in ipairs(servers) do

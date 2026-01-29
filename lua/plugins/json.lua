@@ -1,6 +1,6 @@
 return {
-    {
-        "VPavliashvili/json-nvim",
-        ft = "json",
-    },
+    -- {
+    --     "VPavliashvili/json-nvim",
+    --     ft = "json",
+    -- },
 }

@@ -3,6 +3,7 @@ return {
         "nvim-telescope/telescope.nvim",
         tag = "0.1.8",
         dependencies = {
+            "nvim-treesitter/nvim-treesitter",
             "nvim-lua/plenary.nvim",
             "nvim-telescope/telescope-ui-select.nvim",
             "nvim-telescope/telescope-fzf-native.nvim",
@@ -22,7 +23,8 @@ return {
             vim.keymap.set("n", "<leader>fs", builtin.git_status, { desc = "[f]ind Git [s]tatus" })
             vim.keymap.set("n", "<leader>fS", builtin.git_stash, { desc = "[f]ind Git [S]tash" })
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[f]ind [h]elp tags' })
-            vim.keymap.set('n', '<leader>fp', function () require("telescope").extensions.projects.projects() end, { desc = '[f]ind [p]rojects' })
+            vim.keymap.set('n', '<leader>fp', function() require("telescope").extensions.projects.projects() end,
+                { desc = '[f]ind [p]rojects' })
 
             local actions = require("telescope.actions")
             local icons = require("icons")
@@ -39,7 +41,7 @@ return {
                     layout_strategy = "horizontal",
                     layout_config = {
                         horizontal = {
-                            preview_width = 0.5,
+                            preview_width = 0.8,
                             mirror = false,
                         },
                         vertical = {
@@ -87,12 +89,22 @@ return {
                 },
                 pickers = {
                     lsp_references = {
-                        fname_width = 100,
+                        theme = "ivy",
+                        fname_width = 200,
                     },
+                    find_files = {
+                        theme = "ivy"
+                    },
+                    live_grep = {
+                        theme = "ivy"
+                    }
                 },
                 extensions = {
                     ["ui-select"] = {
-                        require("telescope.themes").get_dropdown({}),
+                        -- require("telescope.themes").get_dropdown({}),
+                        require("telescope.themes").get_dropdown({
+                            theme = "ivy",
+                        }),
                     },
                     fzf = {
                         fuzzy = true,
