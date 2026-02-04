@@ -170,31 +170,31 @@ return {
                 ensure_installed = { "java-debug-adapter", "java-test" },
                 automatic_installation = true,
                 handlers = {
-                    java = function(config)
-                        config.adapters = {
-                            type = "server",
-                            host = "127.0.0.1",
-                            port = "${port}",
-                            executable = {
-                                command = "java",
-                                args = {
-                                    "-jar",
-                                    vim.fn.stdpath("data") ..
-                                    "/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
-                                    "--port",
-                                    "${port}",
-                                },
-                            },
-                        }
-                        return config
-                    end,
+                    -- java = function(config)
+                    --     config.adapters = {
+                    --         type = "server",
+                    --         host = "127.0.0.1",
+                    --         port = "${port}",
+                    --         executable = {
+                    --             command = "java",
+                    --             args = {
+                    --                 "-jar",
+                    --                 vim.fn.stdpath("data") ..
+                    --                 "/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
+                    --                 "--port",
+                    --                 "${port}",
+                    --             },
+                    --         },
+                    --     }
+                    --     return config
+                    -- end,
                 },
             })
 
             local dap = require("dap")
             local dapui = require("dapui")
 
-            setup_java(dap)   -- java
+            setup_java(dap) -- java
 
             -- Auto open/close DAP UI
             dap.listeners.after.event_initialized["dapui_config"] = function()
