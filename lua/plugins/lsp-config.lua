@@ -10,8 +10,10 @@ return {
     {
         "mfussenegger/nvim-jdtls",
         dependencies = {
+            "williamboman/mason.nvim",
             "mfussenegger/nvim-dap",
             "ray-x/lsp_signature.nvim",
+            "neovim/nvim-lspconfig",
         },
     },
     {
@@ -22,6 +24,9 @@ return {
     },
     {
         "neovim/nvim-lspconfig",
+        dependencies = {
+            "mfussenegger/nvim-jdtls",
+        },
         config = function()
             local icons = require("icons")
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
