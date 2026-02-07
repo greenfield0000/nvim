@@ -233,6 +233,9 @@ local function smart_start_jdtls()
         },
         settings = {
             java = {
+                eclipse = {
+                    downloadSources = true,
+                },
                 configuration = {
                     runtimes = runtimes,
                     updateBuildConfiguration = "interactive",
@@ -288,7 +291,7 @@ local function smart_start_jdtls()
                     toString = { template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}" }
                 },
                 autobuild = { enabled = true },
-                progressReports = { enabled = false },
+                progressReports = { enabled = true },
                 maven = { downloadSources = true, updateSnapshots = true }
             }
         },

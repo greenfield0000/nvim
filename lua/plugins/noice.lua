@@ -52,6 +52,9 @@ return {
                     }
                 },
                 lsp = {
+                    hover = {
+                        enabled = true,
+                    },
                     progress = {
                         enabled = true,
                     },
