@@ -6,8 +6,6 @@ return {
     lazy = true,
     cmd = {
         "Jira",
-        "JiraIssues",
-        "JiraBoards",
     },
     opts = {
         jira = {
@@ -22,7 +20,74 @@ return {
 
             -- === ПОВЕДЕНИЕ ===
             timeout = 10000, -- ms (если поддерживается — игнорируется иначе)
+
+            -- === НАСТРОЙКИ ДОСОК (BOARDS) ===
+            boards  = {
+                -- Список ID досок для загрузки (если не указано — грузятся все доступные)
+                board_ids = {}, -- например: { "10001", "10002" }
+
+                -- Фильтрация задач на доске
+                filters = {
+                    -- Фильтр по статусам (можно указать несколько)
+                    statuses = {},   -- например: { "To Do", "In Progress", "Done" }
+                    -- Фильтр по приоритету
+                    priorities = {}, -- например: { "High", "Medium" }
+                    -- Фильтр по исполнителю (assignee)
+                    assignees = {"rivanov"},  -- например: { "john.doe", "jane.smith" }
+                    -- Фильтр по компонентам
+                    components = {},
+                    -- Пользовательский JQL-фильтр (перекрывает остальные)
+                    jql = "project = REL", -- например: "project = MYPROJ AND status = 'In Progress'"
+                },
+
+                -- Сортировка задач на доске
+                sorting = {
+                    field = "priority", -- поле для сортировки (например, "priority", "created", "updated")
+                    order = "desc",     -- порядок: "asc" или "desc"
+                },
+
+                -- Отображение столбцов
+                columns = {
+                    -- Список столбцов для отображения (по умолчанию — все)
+                    visible = {}, -- например: { "To Do", "In Progress", "Review", "Done" }
+                    -- Ширина столбцов (в символах)
+                    widths = {},  -- например: { ["To Do"] = 30, ["In Progress"] = 40 }
+                },
+
+                -- Поведение при обновлении
+                refresh = {
+                    interval = 60, -- интервал автообновления (в секундах, 0 = отключить)
+                    auto = true,   -- автоматическое обновление при открытии доски
+                },
+
+                -- Кэширование данных доски
+                cache = {
+                    enabled = true, -- включать кэширование
+                    ttl = 300,      -- время жизни кэша (в секундах)
+                },
+
+                -- Интерфейс доски
+                ui = {
+                    compact = false,          -- компактный режим (меньше отступов)
+                    show_avatars = true,      -- показывать аватары исполнителей
+                    highlight_changes = true, -- подсвечивать изменения при обновлении
+                },
+            },
         },
+        -- active_sprint_query = "project = '%s' AND sprint in openSprints() ORDER BY Rank ASC",
+
+        -- Saved JQL queries for the JQL tab
+        -- Use %s as a placeholder for the project key
+        queries = {
+            ["My task on REL"] = "project = '%s' AND assignee = 'rivanov'",
+        },
+
+        -- Project-specific overrides
+        -- Still think about this config, maybe not good enough
+        projects = {
+            ["REL"] = {
+            }
+        }
     },
     config = function(_, opts)
         -- 🔍 Проверка env-переменных
@@ -48,21 +113,6 @@ return {
 
         jira.setup(opts)
 
-        vim.notify("jira.nvim loaded successfully 🚀", vim.log.levels.INFO)
-
-        -- === KEYMAPS ===
-        local map = vim.keymap.set
-        map("n", "<leader>ji", "<cmd>JiraIssues<cr>", { desc = "Jira: Issues" })
-        map("n", "<leader>jb", "<cmd>JiraBoards<cr>", { desc = "Jira: Boards" })
-        map("n", "<leader>jj", "<cmd>Jira<cr>", { desc = "Jira: Main" })
-
-        -- -- === АВТО-ЛОГ ОШИБОК LUA ===
-        -- vim.api.nvim_create_autocmd("LspLog", {
-        --     callback = function()
-        --         vim.notify("Jira LSP log updated", vim.log.levels.DEBUG)
-        --     end,
-        -- })
-        --
         -- === DEV-ХЕЛПЕР ===
         _G.JiraDebug = function()
             vim.print({

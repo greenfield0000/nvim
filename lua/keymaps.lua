@@ -40,3 +40,6 @@ vim.keymap.set("n", "<leader>ct", vim.lsp.buf.type_definition, { desc = "[C]ode 
 vim.keymap.set("n", "<leader>cr", vim.lsp.buf.references, { desc = "[C]ode [R]eferences" })
 vim.keymap.set("n", "<leader>cds", vim.lsp.buf.document_symbol, { desc = "[C]ode [D]ocument [S]ymbol" })
 vim.keymap.set("n", "<leader>csh", vim.lsp.buf.signature_help, { desc = "[C]ode [S]ignature [H]elp" })
+
+-- Jira
+vim.keymap.set("n", "<leader>jj", "<cmd>Jira<cr>", { desc = "Jira: Main" })
