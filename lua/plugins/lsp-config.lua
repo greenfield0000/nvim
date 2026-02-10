@@ -96,9 +96,10 @@ return {
                 'yamlls',        -- для yaml
             }
             for _, lsp in ipairs(servers) do
-                require('lspconfig')[lsp].setup {
+                vim.lsp.config(lsp, {
                     capabilities = capabilities,
-                }
+                    root_markers = { '.git' },
+                })
             end
         end,
     },

@@ -33,11 +33,9 @@ return {
                     -- Фильтр по приоритету
                     priorities = {}, -- например: { "High", "Medium" }
                     -- Фильтр по исполнителю (assignee)
-                    assignees = {"rivanov"},  -- например: { "john.doe", "jane.smith" }
+                    assignees = {},  -- например: { "john.doe", "jane.smith" }
                     -- Фильтр по компонентам
                     components = {},
-                    -- Пользовательский JQL-фильтр (перекрывает остальные)
-                    jql = "project = REL", -- например: "project = MYPROJ AND status = 'In Progress'"
                 },
 
                 -- Сортировка задач на доске
@@ -79,15 +77,8 @@ return {
         -- Saved JQL queries for the JQL tab
         -- Use %s as a placeholder for the project key
         queries = {
-            ["My task on REL"] = "project = '%s' AND assignee = 'rivanov'",
+            ["My task"] = "project = '%s' AND assignee = currentUser()",
         },
-
-        -- Project-specific overrides
-        -- Still think about this config, maybe not good enough
-        projects = {
-            ["REL"] = {
-            }
-        }
     },
     config = function(_, opts)
         -- 🔍 Проверка env-переменных
