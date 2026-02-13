@@ -133,7 +133,7 @@ local function smart_start_jdtls()
 
     -- ✅ ✅ ✅ ТОТ ЖЕ ПРОЕКТ = ПРОСТО ATTACH (мгновенно!)
     if vim.g.jdtls_state.active_root == current_root then
-        local clients = vim.lsp.get_active_clients({ name = "jdtls" })
+        local clients = vim.lsp.get_clients({ name = "jdtls" })
         if #clients > 0 then
             vim.lsp.buf_attach_client(bufnr, clients[1].id)
             return -- ✅ НИЧЕГО НЕ ДЕЛАЕМ - уже работает!

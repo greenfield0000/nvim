@@ -98,7 +98,7 @@ return {
             for _, lsp in ipairs(servers) do
                 vim.lsp.config(lsp, {
                     capabilities = capabilities,
-                    root_markers = { '.git' },
+                    -- root_markers = { '.git' },
                 })
             end
         end,
