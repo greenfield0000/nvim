@@ -233,6 +233,10 @@ local function smart_start_jdtls()
         },
         settings = {
             java = {
+                documentation = {
+                    enabled = true,
+                    includeLibraryDocumentation = true,
+                },
                 eclipse = {
                     downloadSources = true,
                 },
