@@ -18,6 +18,61 @@ local function get_args(config)
     return config
 end
 
+
+local function setup_common(dap)
+    local dapui = require("dapui")
+    -- Auto open/close DAP UI
+    dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+    end
+    dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+    end
+    dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+    end
+
+    -- Initialize DAP UI
+    dapui.setup()
+end
+
+local function setup_golang(dap)
+    -- Set up nvim-dap-go
+    require("dap-go").setup({
+        -- Optional: customize delve settings
+        delve = {
+            path = "dlv",            -- Path to dlv executable
+            initialize_timeout_sec = 20, -- Timeout for dlv to start
+            port = "${port}",        -- Use random port by default
+            args = {},               -- Additional args to dlv
+            build_flags = "",        -- Build flags (e.g., "-tags=integration")
+            detached = true,         -- Run dlv in detached mode
+        },
+        -- Optional: add custom dap configurations
+        dap_configurations = {
+            {
+                type = "go",
+                name = "Attach remote",
+                mode = "remote",
+                request = "attach",
+            },
+        },
+    })
+
+    -- Optional: Fix for REPL output issues in some versions
+    -- See: https://github.com/mfussenegger/nvim-dap/issues/1454
+    -- Add this if you experience missing debug output
+    dap.configurations.go = vim.list_extend(dap.configurations.go or {}, {
+        {
+            type = "go",
+            name = "Debug (outputMode remote)",
+            request = "launch",
+            program = "${file}",
+            outputMode = "remote", -- Workaround for REPL output issues
+        },
+    })
+end
+
 local function setup_java(dap)
     -- Java configurations
     dap.configurations.java = {
@@ -129,7 +184,10 @@ return {
     -- fancy UI for the debugger
     {
         'rcarriga/nvim-dap-ui',
-        dependencies = { 'nvim-neotest/nvim-nio' },
+        dependencies = {
+            "leoluz/nvim-dap-go",
+            'nvim-neotest/nvim-nio',
+        },
         -- stylua: ignore
         keys = {
             { "<leader>du", function() require("dapui").toggle({}) end, desc = "Dap UI" },
@@ -169,46 +227,13 @@ return {
             require("mason-nvim-dap").setup({
                 ensure_installed = { "java-debug-adapter", "java-test" },
                 automatic_installation = true,
-                handlers = {
-                    -- java = function(config)
-                    --     config.adapters = {
-                    --         type = "server",
-                    --         host = "127.0.0.1",
-                    --         port = "${port}",
-                    --         executable = {
-                    --             command = "java",
-                    --             args = {
-                    --                 "-jar",
-                    --                 vim.fn.stdpath("data") ..
-                    --                 "/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
-                    --                 "--port",
-                    --                 "${port}",
-                    --             },
-                    --         },
-                    --     }
-                    --     return config
-                    -- end,
-                },
             })
 
             local dap = require("dap")
-            local dapui = require("dapui")
 
-            setup_java(dap) -- java
-
-            -- Auto open/close DAP UI
-            dap.listeners.after.event_initialized["dapui_config"] = function()
-                dapui.open()
-            end
-            dap.listeners.before.event_terminated["dapui_config"] = function()
-                dapui.close()
-            end
-            dap.listeners.before.event_exited["dapui_config"] = function()
-                dapui.close()
-            end
-
-            -- Initialize DAP UI
-            dapui.setup()
+            setup_java(dap)   -- java
+            setup_golang(dap) -- golang
+            setup_common(dap)
         end,
     },
 }
