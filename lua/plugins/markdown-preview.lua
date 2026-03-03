@@ -4,6 +4,10 @@ return {
         'epwalsh/obsidian.nvim',
         dependencies = {
             "nvim-lua/plenary.nvim", -- обязательный плагин
+            'nvim-treesitter/nvim-treesitter',
+            'hrsh7th/nvim-cmp',
+            'nvim-autopairs',
+            'iamcco/markdown-preview.nvim',
         },
         event = "BufReadPre *.md",
         config = function()
@@ -14,7 +18,6 @@ return {
             })
         end,
     },
-
     -- Предпросмотр Markdown
     {
         'iamcco/markdown-preview.nvim',
@@ -22,18 +25,5 @@ return {
         build = function()
             pcall(vim.fn['mkdp#util#install'])
         end,
-    },
-    -- Дополнительные плагины
-    {
-        'nvim-treesitter/nvim-treesitter',
-        build = ':TSUpdate',
-    },
-    {
-        'nvim-autopairs',
-        event = "InsertEnter",
-    },
-    {
-        'hrsh7th/nvim-cmp',
-        event = 'InsertEnter',
-    },
+    }
 }

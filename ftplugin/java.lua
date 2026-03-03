@@ -123,7 +123,7 @@ local function smart_start_jdtls()
     -- 🔍 НАЙДИМ ROOT ПРОЕКТА ДЛЯ ТЕКУЩЕГО ФАЙЛА
     local current_file = vim.api.nvim_buf_get_name(bufnr)
     local current_root = require("jdtls.setup").find_root({
-        ".git", "mvnw", "gradlew", "pom.xml", "build.gradle"
+        ".git", "gradlew", "build.gradle"
     }, current_file)
 
     if not current_root then
@@ -165,7 +165,7 @@ local function smart_start_jdtls()
     end
 
     local runtimes = get_all_runtimes()
-    table.insert(runtimes, 1, { name = "JavaSDK", path = java_home, default = true })
+    -- table.insert(runtimes, 1, { name = "JavaSDK", path = java_home, default = true })
 
     local jdtls_dir = home .. "/.local/share/nvim/mason/packages/jdtls"
     local launcher = fn.glob(jdtls_dir .. "/plugins/org.eclipse.equinox.launcher_*.jar", false, true)[1]
@@ -233,6 +233,9 @@ local function smart_start_jdtls()
         },
         settings = {
             java = {
+                search = {
+                    scope = "main"
+                },
                 documentation = {
                     enabled = true,
                     includeLibraryDocumentation = true,

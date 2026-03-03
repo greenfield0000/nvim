@@ -1,6 +1,6 @@
 local colorcolumn_settings = {
     java = "120",
-    kotlin = "120", 
+    kotlin = "120",
     scala = "120",
     python = "88",
     javascript = "100",
@@ -14,6 +14,7 @@ local colorcolumn_settings = {
     rust = "100",
     html = "120",
     css = "120",
+    markdown = "150",
     -- добавьте другие языки по необходимости
 }
 
