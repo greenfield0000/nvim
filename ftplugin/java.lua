@@ -82,13 +82,13 @@ local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
     vim.lsp.codelens.refresh()
 
-    local status_ok, signature = pcall(require, "lsp_signature")
-    if status_ok then
-        signature.on_attach({
-            bind = true, padding = "", handler_opts = { border = "rounded" }, hint_prefix = "󱄑 ",
-        }, bufnr)
-        require('jdtls').setup_dap({ hotcodereplace = 'auto' })
-    end
+    -- local status_ok, signature = pcall(require, "lsp_signature")
+    -- if status_ok then
+    --     signature.on_attach({
+    --         bind = true, padding = "", handler_opts = { border = "rounded" }, hint_prefix = "󱄑 ",
+    --     }, bufnr)
+    --     require('jdtls').setup_dap({ hotcodereplace = 'auto' })
+    -- end
 
     local map = function(mode, lhs, rhs, desc)
         if desc then desc = "JDTLS: " .. desc end
@@ -123,7 +123,7 @@ local function smart_start_jdtls()
     -- 🔍 НАЙДИМ ROOT ПРОЕКТА ДЛЯ ТЕКУЩЕГО ФАЙЛА
     local current_file = vim.api.nvim_buf_get_name(bufnr)
     local current_root = require("jdtls.setup").find_root({
-        ".git", "gradlew", "build.gradle"
+        ".git", "gradlew", "build.gradle", "pom.xml"
     }, current_file)
 
     if not current_root then
@@ -136,7 +136,7 @@ local function smart_start_jdtls()
         local clients = vim.lsp.get_clients({ name = "jdtls" })
         if #clients > 0 then
             vim.lsp.buf_attach_client(bufnr, clients[1].id)
-            return -- ✅ НИЧЕГО НЕ ДЕЛАЕМ - уже работает!
+            return
         end
     end
 
@@ -285,7 +285,7 @@ local function smart_start_jdtls()
                         }
                     }
                 },
-                signatureHelp = { enabled = true, description = { enabled = true } },
+                signatureHelp = { enabled = true, description = { enabled = false } },
                 contentProvider = { preferred = "fernflower" },
                 saveActions = { organizeImports = false },
                 implementationsCodeLens = { enabled = true },
