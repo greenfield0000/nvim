@@ -16,31 +16,6 @@ return {
             "neovim/nvim-lspconfig",
         },
     },
-    -- {
-    --     "ray-x/lsp_signature.nvim",
-    --     config = function()
-    --         require("lsp_signature").setup(
-    --             {
-    --                 bind = true,
-    --                 doc_lines = 2,
-    --                 max_height = 12,
-    --                 max_width = 80,
-    --                 handler_opts = {
-    --                     border = "rounded",
-    --                 },
-    --                 always_trigger = true,
-    --                 hint_prefix = "🡢 ",
-    --                 -- Дополнительные опции:
-    --                 floating_window = true, -- использовать всплывающее окно
-    --                 floating_window_above_cursor = false, -- окно над курсором
-    --                 fix_pos = false,    -- фиксировать позицию окна
-    --                 hint_inside_word = true, -- показывать подсказки внутри слова
-    --                 extra_hover_info = true, -- дополнительная информация при hover
-    --                 zindex = 50,        -- z‑index окна
-    --             }
-    --         )
-    --     end,
-    -- },
     {
         "neovim/nvim-lspconfig",
         dependencies = {
@@ -93,13 +68,13 @@ return {
                         vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
                     end
 
-                    -- map("n", "<leader>ch", vim.lsp.buf.hover, "[C]ode [H]over Documentation")
-                    -- map("n", "<leader>cd", vim.lsp.buf.definition, "[C]ode Goto [D]efinition")
-                    -- map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ctions")
-                    -- map("n", "<leader>cr", tbuiltin.lsp_references, "[C]ode Goto [R]eferences")
-                    -- map("n", "<leader>ci", tbuiltin.lsp_implementations, "[C]ode Goto [I]mplementations")
-                    -- map("n", "<leader>cR", vim.lsp.buf.rename, "[C]ode [R]ename")
-                    -- map("n", "<leader>cD", vim.lsp.buf.declaration, "[C]ode Goto [D]eclaration")
+                    map("n", "<leader>ch", vim.lsp.buf.hover, "[C]ode [H]over Documentation")
+                    map("n", "<leader>cd", vim.lsp.buf.definition, "[C]ode Goto [D]efinition")
+                    map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ctions")
+                    map("n", "<leader>cr", tbuiltin.lsp_references, "[C]ode Goto [R]eferences")
+                    map("n", "<leader>ci", tbuiltin.lsp_implementations, "[C]ode Goto [I]mplementations")
+                    map("n", "<leader>cR", vim.lsp.buf.rename, "[C]ode [R]ename")
+                    map("n", "<leader>cD", vim.lsp.buf.declaration, "[C]ode Goto [D]eclaration")
                 end,
             })
 

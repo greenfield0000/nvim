@@ -191,7 +191,9 @@ local function smart_start_jdtls()
     }
 
     local java_test_bundles = fn.split(
-        fn.glob(home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1), "\n")
+        fn.glob(home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1),
+        "\n"
+    )
     local excluded = { "com.microsoft.java.test.runner-jar-with-dependencies.jar", "jacocoagent.jar" }
     for _, java_test_jar in ipairs(java_test_bundles) do
         if java_test_jar ~= "" then
@@ -285,7 +287,7 @@ local function smart_start_jdtls()
                         }
                     }
                 },
-                signatureHelp = { enabled = true, description = { enabled = false } },
+                signatureHelp = { enabled = false, description = { enabled = false } },
                 contentProvider = { preferred = "fernflower" },
                 saveActions = { organizeImports = false },
                 implementationsCodeLens = { enabled = true },
