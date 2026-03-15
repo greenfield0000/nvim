@@ -6,7 +6,6 @@ return {
         local icons = require("icons")
 
         require("nvim-tree").setup({
-            use_libuv_file_watcher = true,
             hijack_netrw = true,
             auto_reload_on_write = true,
             sync_root_with_cwd = true,
