@@ -6,6 +6,11 @@ return {
         local icons = require("icons")
 
         require("nvim-tree").setup({
+            filesystem_watchers = {
+                enable = true,
+                debounce_delay = 50,
+                ignore_dirs = { "node_modules", ".git" },
+            },
             hijack_netrw = true,
             auto_reload_on_write = true,
             sync_root_with_cwd = true,

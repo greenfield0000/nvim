@@ -29,6 +29,7 @@ return {
                     "dockerfile-language-server", -- dockerfile, docker
                     "yaml-language-server",       -- yaml
                     "sqlls",                      -- sql
+                    "jdtls",                      -- java jdtls
                     "marksman",                   -- md (не работает json)
                     -- Linter
                     "sqlfluff",                   -- sql
