@@ -33,7 +33,25 @@ local function setup_common(dap)
     end
 
     -- Initialize DAP UI
-    dapui.setup()
+    dapui.setup({
+        layouts = {
+            {
+                elements = {
+                    "scopes",
+                    "watches",
+                },
+                size = 40,
+                position = "right"
+            },
+            {
+                elements = {
+                    "console"
+                },
+                size = 0.30,
+                position = "bottom"
+            }
+        }
+    })
 end
 
 local function setup_golang(dap)
@@ -41,12 +59,12 @@ local function setup_golang(dap)
     require("dap-go").setup({
         -- Optional: customize delve settings
         delve = {
-            path = "dlv",            -- Path to dlv executable
+            path = "dlv",                -- Path to dlv executable
             initialize_timeout_sec = 20, -- Timeout for dlv to start
-            port = "${port}",        -- Use random port by default
-            args = {},               -- Additional args to dlv
-            build_flags = "",        -- Build flags (e.g., "-tags=integration")
-            detached = true,         -- Run dlv in detached mode
+            port = "${port}",            -- Use random port by default
+            args = {},                   -- Additional args to dlv
+            build_flags = "",            -- Build flags (e.g., "-tags=integration")
+            detached = true,             -- Run dlv in detached mode
         },
         -- Optional: add custom dap configurations
         dap_configurations = {
@@ -181,44 +199,13 @@ return {
         end,
     },
 
-    -- fancy UI for the debugger
-    {
-        'rcarriga/nvim-dap-ui',
-        dependencies = {
-            "leoluz/nvim-dap-go",
-            'nvim-neotest/nvim-nio',
-        },
-        -- stylua: ignore
-        keys = {
-            { "<leader>du", function() require("dapui").toggle({}) end, desc = "Dap UI" },
-            { "<leader>de", function() require("dapui").eval() end,     desc = "Eval",  mode = { "n", "v" } },
-        },
-        opts = {
-            controls = {
-                enabled = false,
-            },
-        },
-        config = function(_, opts)
-            local dap = require 'dap'
-            local dapui = require 'dapui'
-            dapui.setup(opts)
-            dap.listeners.after.event_initialized['dapui_config'] = function()
-                dapui.open {}
-            end
-            dap.listeners.before.event_terminated['dapui_config'] = function()
-                dapui.close {}
-            end
-            dap.listeners.before.event_exited['dapui_config'] = function()
-                dapui.close {}
-            end
-        end,
-    },
-
     -- mason.nvim integration
     -- Complete setup with nvim-dap-ui
     {
         "jay-babu/mason-nvim-dap.nvim",
         dependencies = {
+            "leoluz/nvim-dap-go",
+            'nvim-neotest/nvim-nio',
             "williamboman/mason.nvim",
             "mfussenegger/nvim-dap",
             "rcarriga/nvim-dap-ui",

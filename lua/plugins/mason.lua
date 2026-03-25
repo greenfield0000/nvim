@@ -22,6 +22,7 @@ return {
                     "lua-language-server",        -- lua
                     "gopls",                      -- golang
                     "json-lsp",                   -- json
+                    "css-lsp",                    -- css, scss
                     "vacuum",                     -- swagger
                     "lemminx",                    -- xml
                     "angular-language-server",    -- angular
@@ -30,7 +31,7 @@ return {
                     "yaml-language-server",       -- yaml
                     "sqlls",                      -- sql
                     "jdtls",                      -- java jdtls
-                    "marksman",                   -- md (не работает json)
+                    -- "marksman",                   -- md (не нравится как работает json из-за него)
                     -- Linter
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile

@@ -86,6 +86,7 @@ return {
                 'rust_analyzer', -- для rust
                 'gopls',         -- для golang
                 'angularls',     -- для ангуляр
+                'css_lsp',     -- для css
                 -- 'marksman',              -- для md (не работает json)
                 'yamlls',        -- для yaml
             }
