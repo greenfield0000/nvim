@@ -7,10 +7,10 @@ return {
             -- provide vscode like snippets to cmp
             "rafamadriz/friendly-snippets",
             -- {
-                -- "nvim-lua/jsregexp",
-                -- branch = "master",
-                -- Используйте SSH URL для избежания проблем с аутентификацией
-                -- url = "git@github.com:nvim-lua/jsregexp.git"
+            -- "nvim-lua/jsregexp",
+            -- branch = "master",
+            -- Используйте SSH URL для избежания проблем с аутентификацией
+            -- url = "git@github.com:nvim-lua/jsregexp.git"
             -- }
         }
     },
@@ -78,7 +78,8 @@ return {
                     { name = 'nvim_lsp' },
                     { name = 'luasnip' },
                     { name = 'buffer' },
-                    { name = 'path' }
+                    { name = 'path' },
+                    { name = 'dap' }
                 })
             })
         end

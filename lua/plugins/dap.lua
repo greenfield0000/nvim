@@ -50,7 +50,19 @@ local function setup_common(dap)
                 size = 0.30,
                 position = "bottom"
             }
-        }
+        },
+        -- Настройки для watch
+        watches = {
+            auto_update = true,
+            completion = {
+                enabled = true,
+                delay = 300,
+            },
+            format = {
+                max_string_length = 100,
+                show_type = true,
+            },
+        },
     })
 end
 
@@ -209,6 +221,7 @@ return {
             "williamboman/mason.nvim",
             "mfussenegger/nvim-dap",
             "rcarriga/nvim-dap-ui",
+            "rcarriga/cmp-dap"
         },
         config = function()
             require("mason-nvim-dap").setup({
