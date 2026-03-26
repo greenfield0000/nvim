@@ -211,6 +211,7 @@ local function smart_start_jdtls()
         "-Declipse.product=org.eclipse.jdt.ls.core.product",
         "-Dlog.protocol=true",
         "-Dlog.level=ALL",
+        -- '-Dmaven.repo.local=' .. vim.fn.expand("~/.m2/repository"),
         "-Xms1g",
         "--add-modules=ALL-SYSTEM",
         "--add-opens", "java.base/java.util=ALL-UNNAMED",
@@ -226,17 +227,62 @@ local function smart_start_jdtls()
         end
     end
 
+    local cap = jdtls.extendedClientCapabilities
+    -- cap.progressReportProvider = true
+    -- cap.classFileContentsSupport = true
+
     local config = {
         cmd = cmd,
         root_dir = current_root,
         init_options = {
             bundles = bundles,
-            extendedClientCapabilities = jdtls.extendedClientCapabilities,
+            extendedClientCapabilities = cap,
         },
         settings = {
             java = {
+                decompiler = {
+                    preferred = "fernflower",
+                    fernflower = {
+                        -- Форматирование
+                        indent = "    ",
+                        indentSize = 4,
+
+                        -- Комментарии и документация
+                        showJavadoc = true, -- Показывать JavaDoc
+                        keepComments = true, -- Сохранять комментарии
+
+                        -- Логика декомпиляции
+                        resolveAnonymousClasses = true,
+                        hideDefaultConstructor = true,
+                        removeSynthetic = true,
+                        deobfuscate = true,
+
+                        -- Отладка
+                        showBytecode = false,
+                        dumpText = true,
+                    },
+                },
+                -- Включаем поддержку ссылок в документации
+                signatures = {
+                    enabled = true,
+                    description = {
+                        enabled = true,
+                    },
+                },
+                -- Настройка для переходов
+                references = {
+                    includeSource = true,
+                },
+                -- Настройка навигации
+                codeLens = {
+                    references = true,
+                    implementations = true,
+                },
                 search = {
-                    scope = "main"
+                    scope = "main",
+                    typeHierarchy = {
+                        lazyLoad = true,
+                    }
                 },
                 documentation = {
                     enabled = true,
@@ -288,7 +334,9 @@ local function smart_start_jdtls()
                     }
                 },
                 signatureHelp = { enabled = false, description = { enabled = false } },
-                contentProvider = { preferred = "fernflower" },
+                contentProvider = {
+                    preferred = "fernflower"
+                },
                 saveActions = { organizeImports = false },
                 implementationsCodeLens = { enabled = true },
                 referencesCodeLens = { enabled = true },
@@ -301,7 +349,17 @@ local function smart_start_jdtls()
                 },
                 autobuild = { enabled = true },
                 progressReports = { enabled = true },
-                maven = { downloadSources = true, updateSnapshots = true }
+                maven = {
+                    userSettings = vim.fn.expand("~/.m2/settings.xml"),
+                    downloadSources = true,
+                    updateSnapshots = true
+                },
+                gradle = {
+                    enabled = false,
+                },
+                project = {
+                    referencedLibraries = vim.fn.expand("~/.m2/repository") .. "/**/*.jar",
+                }
             }
         },
         on_attach = on_attach,

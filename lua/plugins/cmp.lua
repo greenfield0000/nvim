@@ -1,17 +1,12 @@
 return {
     {
         "L3MON4D3/LuaSnip",
+        run = "make install_jsregexp",
         dependencies = {
             -- feed luasnip suggestions to cmp
             "saadparwaiz1/cmp_luasnip",
             -- provide vscode like snippets to cmp
             "rafamadriz/friendly-snippets",
-            -- {
-            -- "nvim-lua/jsregexp",
-            -- branch = "master",
-            -- Используйте SSH URL для избежания проблем с аутентификацией
-            -- url = "git@github.com:nvim-lua/jsregexp.git"
-            -- }
         }
     },
     -- cmp-nvim-lsp provides language specific completion suggestions to nvim-cmp
