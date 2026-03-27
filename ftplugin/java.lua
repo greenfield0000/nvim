@@ -82,13 +82,13 @@ local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
     vim.lsp.codelens.refresh()
 
-    local status_ok, signature = pcall(require, "lsp_signature")
-    if status_ok then
-        signature.on_attach({
-            bind = true, padding = "", handler_opts = { border = "rounded" }, hint_prefix = "󱄑 ",
-        }, bufnr)
-        require('jdtls').setup_dap({ hotcodereplace = 'auto' })
-    end
+    -- local status_ok, signature = pcall(require, "lsp_signature")
+    -- if status_ok then
+    --     signature.on_attach({
+    --         bind = true, padding = "", handler_opts = { border = "rounded" }, hint_prefix = "󱄑 ",
+    --     }, bufnr)
+    --     require('jdtls').setup_dap({ hotcodereplace = 'auto' })
+    -- end
 
     local map = function(mode, lhs, rhs, desc)
         if desc then desc = "JDTLS: " .. desc end
@@ -123,7 +123,7 @@ local function smart_start_jdtls()
     -- 🔍 НАЙДИМ ROOT ПРОЕКТА ДЛЯ ТЕКУЩЕГО ФАЙЛА
     local current_file = vim.api.nvim_buf_get_name(bufnr)
     local current_root = require("jdtls.setup").find_root({
-        ".git", "gradlew", "build.gradle"
+        ".git", "gradlew", "build.gradle", "pom.xml"
     }, current_file)
 
     if not current_root then
@@ -136,7 +136,7 @@ local function smart_start_jdtls()
         local clients = vim.lsp.get_clients({ name = "jdtls" })
         if #clients > 0 then
             vim.lsp.buf_attach_client(bufnr, clients[1].id)
-            return -- ✅ НИЧЕГО НЕ ДЕЛАЕМ - уже работает!
+            return
         end
     end
 
@@ -191,7 +191,9 @@ local function smart_start_jdtls()
     }
 
     local java_test_bundles = fn.split(
-        fn.glob(home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1), "\n")
+        fn.glob(home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1),
+        "\n"
+    )
     local excluded = { "com.microsoft.java.test.runner-jar-with-dependencies.jar", "jacocoagent.jar" }
     for _, java_test_jar in ipairs(java_test_bundles) do
         if java_test_jar ~= "" then
@@ -209,6 +211,7 @@ local function smart_start_jdtls()
         "-Declipse.product=org.eclipse.jdt.ls.core.product",
         "-Dlog.protocol=true",
         "-Dlog.level=ALL",
+        -- '-Dmaven.repo.local=' .. vim.fn.expand("~/.m2/repository"),
         "-Xms1g",
         "--add-modules=ALL-SYSTEM",
         "--add-opens", "java.base/java.util=ALL-UNNAMED",
@@ -224,17 +227,62 @@ local function smart_start_jdtls()
         end
     end
 
+    local cap = jdtls.extendedClientCapabilities
+    -- cap.progressReportProvider = true
+    -- cap.classFileContentsSupport = true
+
     local config = {
         cmd = cmd,
         root_dir = current_root,
         init_options = {
             bundles = bundles,
-            extendedClientCapabilities = jdtls.extendedClientCapabilities,
+            extendedClientCapabilities = cap,
         },
         settings = {
             java = {
+                decompiler = {
+                    preferred = "fernflower",
+                    fernflower = {
+                        -- Форматирование
+                        indent = "    ",
+                        indentSize = 4,
+
+                        -- Комментарии и документация
+                        showJavadoc = true, -- Показывать JavaDoc
+                        keepComments = true, -- Сохранять комментарии
+
+                        -- Логика декомпиляции
+                        resolveAnonymousClasses = true,
+                        hideDefaultConstructor = true,
+                        removeSynthetic = true,
+                        deobfuscate = true,
+
+                        -- Отладка
+                        showBytecode = false,
+                        dumpText = true,
+                    },
+                },
+                -- Включаем поддержку ссылок в документации
+                signatures = {
+                    enabled = true,
+                    description = {
+                        enabled = true,
+                    },
+                },
+                -- Настройка для переходов
+                references = {
+                    includeSource = true,
+                },
+                -- Настройка навигации
+                codeLens = {
+                    references = true,
+                    implementations = true,
+                },
                 search = {
-                    scope = "main"
+                    scope = "main",
+                    typeHierarchy = {
+                        lazyLoad = true,
+                    }
                 },
                 documentation = {
                     enabled = true,
@@ -285,8 +333,10 @@ local function smart_start_jdtls()
                         }
                     }
                 },
-                signatureHelp = { enabled = true, description = { enabled = true } },
-                contentProvider = { preferred = "fernflower" },
+                signatureHelp = { enabled = false, description = { enabled = false } },
+                contentProvider = {
+                    preferred = "fernflower"
+                },
                 saveActions = { organizeImports = false },
                 implementationsCodeLens = { enabled = true },
                 referencesCodeLens = { enabled = true },
@@ -299,7 +349,17 @@ local function smart_start_jdtls()
                 },
                 autobuild = { enabled = true },
                 progressReports = { enabled = true },
-                maven = { downloadSources = true, updateSnapshots = true }
+                maven = {
+                    userSettings = vim.fn.expand("~/.m2/settings.xml"),
+                    downloadSources = true,
+                    updateSnapshots = true
+                },
+                gradle = {
+                    enabled = false,
+                },
+                project = {
+                    referencedLibraries = vim.fn.expand("~/.m2/repository") .. "/**/*.jar",
+                }
             }
         },
         on_attach = on_attach,

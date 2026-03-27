@@ -23,8 +23,7 @@ return {
             vim.keymap.set("n", "<leader>fs", builtin.git_status, { desc = "[f]ind Git [s]tatus" })
             vim.keymap.set("n", "<leader>fS", builtin.git_stash, { desc = "[f]ind Git [S]tash" })
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[f]ind [h]elp tags' })
-            vim.keymap.set('n', '<leader>fp', function() require("telescope").extensions.projects.projects() end,
-                { desc = '[f]ind [p]rojects' })
+            vim.keymap.set('n', '<leader>fp', function() require("telescope").extensions.projects.projects() end,{ desc = '[f]ind [p]rojects' })
 
             local actions = require("telescope.actions")
             local icons = require("icons")
@@ -90,7 +89,7 @@ return {
                 pickers = {
                     lsp_references = {
                         theme = "ivy",
-                        fname_width = 200,
+                        -- fname_width = 200,
                     },
                     find_files = {
                         theme = "ivy"
@@ -101,10 +100,10 @@ return {
                 },
                 extensions = {
                     ["ui-select"] = {
-                        -- require("telescope.themes").get_dropdown({}),
-                        require("telescope.themes").get_dropdown({
-                            theme = "ivy",
-                        }),
+                        require("telescope.themes").get_dropdown({}),
+                        -- require("telescope.themes").get_dropdown({
+                        --     theme = "ivy",
+                        -- }),
                     },
                     fzf = {
                         fuzzy = true,

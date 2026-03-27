@@ -16,31 +16,6 @@ return {
             "neovim/nvim-lspconfig",
         },
     },
-    -- {
-    --     "ray-x/lsp_signature.nvim",
-    --     config = function()
-    --         require("lsp_signature").setup(
-    --             {
-    --                 bind = true,
-    --                 doc_lines = 2,
-    --                 max_height = 12,
-    --                 max_width = 80,
-    --                 handler_opts = {
-    --                     border = "rounded",
-    --                 },
-    --                 always_trigger = true,
-    --                 hint_prefix = "🡢 ",
-    --                 -- Дополнительные опции:
-    --                 floating_window = true, -- использовать всплывающее окно
-    --                 floating_window_above_cursor = false, -- окно над курсором
-    --                 fix_pos = false,    -- фиксировать позицию окна
-    --                 hint_inside_word = true, -- показывать подсказки внутри слова
-    --                 extra_hover_info = true, -- дополнительная информация при hover
-    --                 zindex = 50,        -- z‑index окна
-    --             }
-    --         )
-    --     end,
-    -- },
     {
         "neovim/nvim-lspconfig",
         dependencies = {
@@ -111,7 +86,6 @@ return {
                 'rust_analyzer', -- для rust
                 'gopls',         -- для golang
                 'angularls',     -- для ангуляр
-                -- 'marksman',              -- для md (не работает json)
                 'yamlls',        -- для yaml
             }
 

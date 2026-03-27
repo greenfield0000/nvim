@@ -22,19 +22,22 @@ return {
                     "lua-language-server",        -- lua
                     "gopls",                      -- golang
                     "json-lsp",                   -- json
-                    -- "jdtls",                      -- java
+                    "css-lsp",                    -- css, scss
+                    "vacuum",                     -- swagger
                     "lemminx",                    -- xml
                     "angular-language-server",    -- angular
                     "typescript-language-server", -- ts
                     "dockerfile-language-server", -- dockerfile, docker
                     "yaml-language-server",       -- yaml
                     "sqlls",                      -- sql
-                    -- "marksman",                   -- md (не работает json)
+                    "jdtls",                      -- java jdtls
+                    -- "marksman",                   -- md (не нравится как работает json из-за него)
                     -- Linter
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile
                     -- formatter
                     "pgformatter",                -- postgres sql formater
+                    "prettierd",                  -- yaml
                     -- dap
                     "delve",                      -- golang debug
                     "java-debug-adapter",         -- many lang java, golang, c++, rust

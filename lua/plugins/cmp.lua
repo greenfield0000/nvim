@@ -1,17 +1,12 @@
 return {
     {
         "L3MON4D3/LuaSnip",
+        run = "make install_jsregexp",
         dependencies = {
             -- feed luasnip suggestions to cmp
             "saadparwaiz1/cmp_luasnip",
             -- provide vscode like snippets to cmp
             "rafamadriz/friendly-snippets",
-            -- {
-            --     "nvim-lua/jsregexp",
-            --     branch = "master",
-            --     -- Используйте SSH URL для избежания проблем с аутентификацией
-            --     url = "git@github.com:nvim-lua/jsregexp.git"
-            -- }
         }
     },
     -- cmp-nvim-lsp provides language specific completion suggestions to nvim-cmp
@@ -20,14 +15,18 @@ return {
     },
     -- nvim-cmp provides auto completion and auto completion dropdown ui
     {
+
         "hrsh7th/nvim-cmp",
+
         event = "InsertEnter",
+
         dependencies = {
             -- buffer based completion options
             "hrsh7th/cmp-buffer",
             -- path based completion options
             "hrsh7th/cmp-path",
         },
+
         config = function()
             -- Gain access to the functions of the cmp plugin
             local cmp = require("cmp")
@@ -74,9 +73,11 @@ return {
                     { name = 'nvim_lsp' },
                     { name = 'luasnip' },
                     { name = 'buffer' },
-                    { name = 'path' }
+                    { name = 'path' },
+                    { name = 'dap' }
                 })
             })
         end
+
     }
 }
