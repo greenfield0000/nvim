@@ -21,13 +21,15 @@ vim.g.loaded_netrwPlugin = 1
 vim.opt.backup = false            -- disable backup file creation
 vim.opt.clipboard = "unnamedplus" -- enable system clipboard access
 vim.opt.conceallevel = 0          -- show concealed characters in markdown files
-vim.opt.fileencoding = "utf-8"    -- set file encoding to UTF-8
+vim.opt.fileencoding = "UTF-8"    -- set file encoding to UTF-8opt
+vim.opt.encoding = "UTF-8"        -- set file encoding to UTF-8opt
 vim.opt.mouse = "a"               -- enable mouse support
 vim.opt.showmode = false          -- hide mode display
 vim.opt.splitbelow = true         -- force horizontal splits below current window
 vim.opt.splitright = true         -- force vertical splits right of current window
 vim.opt.termguicolors = true      -- enable term GUI colors
-vim.opt.timeoutlen = 1000         -- set timeout for mapped sequences
+vim.opt.synmaxcol = 300           -- ???
+vim.opt.timeoutlen = 500          -- set timeout for mapped sequences
 vim.opt.undofile = true           -- enable persistent undo
 vim.opt.updatetime = 100          -- set faster completion
 vim.opt.writebackup = false       -- prevent editing of files being edited elsewhere
@@ -35,14 +37,18 @@ vim.opt.cursorline = true         -- highlight current line
 vim.opt.swapfile = false          -- creates a swapfile
 
 -- Searching Behaviors
-vim.opt.hlsearch = true   -- highlight all matches in search
-vim.opt.ignorecase = true -- ignore case in search
-vim.opt.smartcase = true  -- match case if explicitly stated
-vim.opt.cmdheight = 0     -- устанавливает высоту в 2 строки
+vim.opt.hlsearch = true       -- highlight all matches in search
+vim.opt.ignorecase = true     -- ignore case in search
+vim.opt.smartcase = true      -- match case if explicitly stated
+vim.opt.incsearch = true      -- match case if explicitly stated
+vim.opt.cmdheight = 0         -- устанавливает высоту в 2 строки
 -- Базовые настройки
-vim.opt.textwidth = 0     -- Отключаем автоматический перенос
-vim.opt.wrap = false      -- Отключаем перенос строк
+vim.opt.textwidth = 0         -- Отключаем автоматический перенос
+vim.opt.wrap = false          -- Отключаем перенос строк
+vim.opt.maxmempattern = 20000 -- Отключаем перенос строк
 
 -- obdisian
-vim.opt.conceallevel = 2  -- или 1, если 2 не подойдет
-vim.opt.concealcursor = 'nc'  -- рекомендуемое значение
+vim.opt.conceallevel = 2     -- или 1, если 2 не подойдет
+vim.opt.concealcursor = 'nc' -- рекомендуемое значение
+
+vim.opt.backspace = "indent,eol,start"
