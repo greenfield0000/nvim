@@ -10,6 +10,10 @@ return {
     -- при сборке плагина запустите команду TSUpdate, чтобы убедиться, что все наши серверы установлены и обновлены
     build = ':TSUpdate',
     config = function()
+        -- setup
+        local treesitter = require("nvim-treesitter")
+        treesitter.setup({})
+
         -- получаем доступ к функциям конфигурации treesitter
         local ts_config = require("nvim-treesitter.configs")
 
@@ -28,8 +32,6 @@ return {
                 "css",
                 "json",
                 "tsx",
-                -- "markdown",
-                -- "markdown_inline",
                 "gitignore",
                 "sql",
             },

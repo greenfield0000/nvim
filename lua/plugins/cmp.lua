@@ -5,26 +5,19 @@ return {
         dependencies = {
             -- feed luasnip suggestions to cmp
             "saadparwaiz1/cmp_luasnip",
-            -- provide vscode like snippets to cmp
-            "rafamadriz/friendly-snippets",
         }
-    },
-    -- cmp-nvim-lsp provides language specific completion suggestions to nvim-cmp
-    {
-        "hrsh7th/cmp-nvim-lsp",
     },
     -- nvim-cmp provides auto completion and auto completion dropdown ui
     {
 
         "hrsh7th/nvim-cmp",
-
         event = "InsertEnter",
-
         dependencies = {
             -- buffer based completion options
             "hrsh7th/cmp-buffer",
             -- path based completion options
             "hrsh7th/cmp-path",
+            "hrsh7th/cmp-nvim-lsp",
         },
 
         config = function()
@@ -78,6 +71,5 @@ return {
                 })
             })
         end
-
     }
 }

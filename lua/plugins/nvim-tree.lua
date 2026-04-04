@@ -19,6 +19,9 @@ return {
                 relativenumber = true,
                 side = "right"
             },
+            filters = {
+                dotfiles = false,
+            },
             renderer = {
                 add_trailing = true,
                 group_empty = false,

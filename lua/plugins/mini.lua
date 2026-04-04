@@ -1,5 +1,22 @@
 return {
-    -- Get rid of whitespace
+    {
+        "echasnovski/mini.nvim",
+        version = "*",
+        config = function()
+            require("mini.ai").setup({})
+            require("mini.comment").setup({})
+            require("mini.move").setup({})
+            require("mini.surround").setup({})
+            require("mini.cursorword").setup({})
+            -- require("mini.indentscope").setup({})
+            require("mini.pairs").setup({})
+            require("mini.trailspace").setup({})
+            require("mini.bufremove").setup({})
+            -- require("mini.notify").setup({})
+            require("mini.icons").setup({})
+            require("mini.animate").setup({})
+        end
+    },
     {
         "echasnovski/mini.trailspace",
         event = { "BufReadPost", "BufNewFile" },
@@ -15,7 +32,7 @@ return {
             vim.api.nvim_create_autocmd("CursorMoved", {
                 pattern = "*",
                 callback = function()
-                    require("mini.trailspace").unhighlight()
+                    -- require("mini.trailspace").unhighlight()
                 end,
             })
         end,
@@ -31,5 +48,5 @@ return {
             vim.keymap.set({ "n", "x" }, "sj", function() miniSplitJoin.join() end, { desc = "Join arguments" })
             vim.keymap.set({ "n", "x" }, "sk", function() miniSplitJoin.split() end, { desc = "Split arguments" })
         end,
-    },
+    }
 }

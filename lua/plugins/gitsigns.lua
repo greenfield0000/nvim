@@ -8,6 +8,7 @@ return {
     lazy = false,
     config = function()
         require('gitsigns').setup {
+            signcolumn = true,
             signs = {
                 add          = { text = '+' }, -- {text = '│'},
                 change       = { text = '*' }, -- {text = '│'},
