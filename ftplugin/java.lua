@@ -248,7 +248,7 @@ local function smart_start_jdtls()
                         indentSize = 4,
 
                         -- Комментарии и документация
-                        showJavadoc = true, -- Показывать JavaDoc
+                        showJavadoc = true,  -- Показывать JavaDoc
                         keepComments = true, -- Сохранять комментарии
 
                         -- Логика декомпиляции
@@ -271,6 +271,7 @@ local function smart_start_jdtls()
                 },
                 -- Настройка для переходов
                 references = {
+                    includeDecompiledSources = true,
                     includeSource = true,
                 },
                 -- Настройка навигации
@@ -333,7 +334,7 @@ local function smart_start_jdtls()
                         }
                     }
                 },
-                signatureHelp = { enabled = false, description = { enabled = false } },
+                signatureHelp = { enabled = true, description = { enabled = true } },
                 contentProvider = {
                     preferred = "fernflower"
                 },
@@ -382,3 +383,24 @@ vim.api.nvim_create_autocmd({ "FileType", "BufReadPost", "BufEnter" }, {
 
 -- === РУЧНЫЕ КОМАНДЫ ===
 vim.api.nvim_create_user_command('JdtlsRestart', smart_start_jdtls, {})
+
+vim.api.nvim_create_user_command("JdtlsDownloadJavaSources", function()
+    local project_root = vim.fn.getcwd()
+
+    if vim.fn.filereadable(project_root .. "/pom.xml") == 1 then
+        vim.notify("📥 Downloading Maven sources...", "info", { title = "Java Sources" })
+        vim.fn.jobstart("mvn dependency:sources -q -Pnexus -Pplatform -Dmaven.wagon.http.ssl.insecure=true", {
+            cwd = project_root,
+            on_exit = function(_, code)
+                if code == 0 then
+                    vim.notify("✅ Sources downloaded! Restarting LSP...", "info", { title = "Java Sources" })
+                    vim.lsp.buf_restart()
+                else
+                    vim.notify("❌ Failed to download sources", "error", { title = "Java Sources" })
+                end
+            end
+        })
+    else
+        vim.notify("❌ No Maven/Gradle project found", "error", { title = "Java Sources" })
+    end
+end, {})
