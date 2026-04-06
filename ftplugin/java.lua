@@ -80,7 +80,7 @@ end
 -- === on_attach ===
 local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
-    vim.lsp.codelens.refresh()
+    -- vim.lsp.codelens.refresh()
 
     -- local status_ok, signature = pcall(require, "lsp_signature")
     -- if status_ok then
@@ -123,7 +123,10 @@ local function smart_start_jdtls()
     -- 🔍 НАЙДИМ ROOT ПРОЕКТА ДЛЯ ТЕКУЩЕГО ФАЙЛА
     local current_file = vim.api.nvim_buf_get_name(bufnr)
     local current_root = require("jdtls.setup").find_root({
-        ".git", "gradlew", "build.gradle", "pom.xml"
+        ".git",
+        "gradlew",
+        "build.gradle",
+        "pom.xml"
     }, current_file)
 
     if not current_root then
@@ -228,8 +231,6 @@ local function smart_start_jdtls()
     end
 
     local cap = jdtls.extendedClientCapabilities
-    -- cap.progressReportProvider = true
-    -- cap.classFileContentsSupport = true
 
     local config = {
         cmd = cmd,
@@ -240,6 +241,12 @@ local function smart_start_jdtls()
         },
         settings = {
             java = {
+                implementationCodeLens = {
+                    enabled = true,
+                },
+                referencesCodeLens = {
+                    enabled = true,
+                },
                 decompiler = {
                     preferred = "fernflower",
                     fernflower = {
@@ -273,11 +280,6 @@ local function smart_start_jdtls()
                 references = {
                     includeDecompiledSources = true,
                     includeSource = true,
-                },
-                -- Настройка навигации
-                codeLens = {
-                    references = true,
-                    implementations = true,
                 },
                 search = {
                     scope = "main",
@@ -339,8 +341,6 @@ local function smart_start_jdtls()
                     preferred = "fernflower"
                 },
                 saveActions = { organizeImports = false },
-                implementationsCodeLens = { enabled = true },
-                referencesCodeLens = { enabled = true },
                 inlayHints = { parameterNames = { enabled = "all" } },
                 codeGeneration = {
                     useBlocks = true,
