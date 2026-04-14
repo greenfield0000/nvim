@@ -27,7 +27,7 @@ return {
             local luasnip = require("luasnip")
 
             -- Lazily load the vscode like snippets
-            require("luasnip.loaders.from_vscode").lazy_load()
+            -- require("luasnip.loaders.from_vscode").lazy_load()
 
             -- All the cmp setup function to configure our completion experience
             cmp.setup({
@@ -65,7 +65,7 @@ return {
                 sources = cmp.config.sources({
                     { name = 'nvim_lsp' },
                     { name = 'luasnip' },
-                    { name = 'buffer' },
+                    -- { name = 'buffer' },
                     { name = 'path' },
                     { name = 'dap' }
                 })

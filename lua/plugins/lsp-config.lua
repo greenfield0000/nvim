@@ -87,17 +87,18 @@ return {
                 'gopls',         -- для golang
                 'angularls',     -- для ангуляр
                 'yamlls',        -- для yaml
+                -- 'marksman'       -- markdown
             }
 
             local lspconf = require("lspconfig")
 
             for _, serv in ipairs(servers) do
-                lspconf[serv].setup({
-                    capabilities = capabilities,
-                })
-                -- vim.lsp.config('*', {
+                -- lspconf[serv].setup({
                 --     capabilities = capabilities,
                 -- })
+                vim.lsp.config('*', {
+                    capabilities = capabilities,
+                })
             end
         end,
     },

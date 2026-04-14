@@ -80,7 +80,7 @@ end
 -- === on_attach ===
 local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
-    -- vim.lsp.codelens.refresh()
+    vim.lsp.codelens.refresh()
 
     -- local status_ok, signature = pcall(require, "lsp_signature")
     -- if status_ok then
@@ -241,11 +241,10 @@ local function smart_start_jdtls()
         },
         settings = {
             java = {
-                implementationCodeLens = {
-                    enabled = true,
-                },
+                -- implementationCodeLens = "all",
+                implementationCodeLens = "none",
                 referencesCodeLens = {
-                    enabled = true,
+                    enabled = false,
                 },
                 decompiler = {
                     preferred = "fernflower",
@@ -336,7 +335,10 @@ local function smart_start_jdtls()
                         }
                     }
                 },
-                signatureHelp = { enabled = true, description = { enabled = true } },
+                signatureHelp = {
+                    enabled = true,
+                    description = { enabled = true }
+                },
                 contentProvider = {
                     preferred = "fernflower"
                 },
