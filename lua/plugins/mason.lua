@@ -31,13 +31,14 @@ return {
                     "sqlls",                      -- sql
                     "jdtls",                      -- java jdtls
                     "marksman",                   -- md
+                    "html-lsp",                   -- html
                     -- Linter
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile
                     -- formatter
                     "pgformatter",                -- postgres sql formater
-                    "jq",                -- json
-                    -- "prettierd",                  -- yaml
+                    "jq",                         -- json
+                    "prettierd",                  -- yaml
                     -- dap
                     "delve",                      -- golang debug
                     "java-debug-adapter",         -- many lang java, golang, c++, rust
