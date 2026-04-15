@@ -89,7 +89,9 @@ return {
                 'yamlls',        -- для yaml
                 'marksman',      -- markdown
                 'html',          -- markdown
-                'ts_ls'          -- typescript
+                'ts_ls',         -- typescript
+                'dotls',         -- dot
+                'dockerls',      -- docker
             }
 
             local lspconf = require("lspconfig")

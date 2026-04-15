@@ -32,6 +32,7 @@ return {
                     "jdtls",                      -- java jdtls
                     "marksman",                   -- md
                     "html-lsp",                   -- html
+                    "dot-language-server",        -- dot (quarkus deployment grapth)
                     -- Linter
                     "sqlfluff",                   -- sql
                     "checkmake",                  -- makefile
