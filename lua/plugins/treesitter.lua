@@ -1,26 +1,20 @@
 return {
     "nvim-treesitter/nvim-treesitter",
-    lazy = false,
     branch = "main",
-    commit = "42fc28ba918343ebfd5565147a42a26580579482",
+    build = ":TSUpdate",
+    lazy = false,
+
     dependencies = {
-        -- ts-autotag использует treesitter для понимания структуры кода, чтобы автоматически закрывать теги tsx
-        "windwp/nvim-ts-autotag"
+        "windwp/nvim-ts-autotag",
     },
-    -- при сборке плагина запустите команду TSUpdate, чтобы убедиться, что все наши серверы установлены и обновлены
-    build = ':TSUpdate',
+
     config = function()
-        -- setup
-        local treesitter = require("nvim-treesitter")
-        treesitter.setup({})
+        -- включаем autotag отдельно
+        require("nvim-ts-autotag").setup()
 
-        -- получаем доступ к функциям конфигурации treesitter
-        local ts_config = require("nvim-treesitter.configs")
-
-        -- вызываем функцию настройки treesitter с параметрами для настройки нашего опыта
-        ts_config.setup({
-            -- убедитесь, что у нас установлены необходимые парсеры
-            ensure_installed = {
+        -- включаем highlight вручную
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = {
                 "vim",
                 "go",
                 "vimdoc",
@@ -35,13 +29,19 @@ return {
                 "gitignore",
                 "sql",
             },
-            preview = { treesitter = false },
-            -- убедитесь, что подсветка включена
-            highlight = { enable = true },
-            -- включите автоматическое закрытие тегов tsx
-            autotag = {
-                enable = true
-            }
+            callback = function()
+                pcall(vim.treesitter.start)
+            end,
         })
-    end
+
+        -- -- авто-установка парсеров (новый API)
+        -- vim.api.nvim_create_autocmd("FileType", {
+        --     callback = function(args)
+        --         local lang = vim.treesitter.language.get_lang(args.match)
+        --         if lang and not vim.treesitter.language.inspect(lang) then
+        --             vim.cmd("TSInstall " .. lang)
+        --         end
+        --     end,
+        -- })
+    end,
 }

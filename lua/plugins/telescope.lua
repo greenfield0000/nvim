@@ -1,29 +1,31 @@
 return {
     {
         "nvim-telescope/telescope.nvim",
-        tag = "0.1.8",
+        version = "*",
         dependencies = {
-            "nvim-treesitter/nvim-treesitter",
             "nvim-lua/plenary.nvim",
-            "nvim-telescope/telescope-ui-select.nvim",
             "nvim-telescope/telescope-fzf-native.nvim",
+            "nvim-telescope/telescope-live-grep-args.nvim",
+            "nvim-telescope/telescope-ui-select.nvim",
+            "nvim-treesitter/nvim-treesitter",
         },
         config = function()
             local builtin = require("telescope.builtin")
 
             -- Key mappings
-            vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "[f]ind [f]iles" })
-            vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "[f]ind by [g]rep" })
-            vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "[f]ind [d]iagnostics" })
-            vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[f]inder [r]esume" })
             vim.keymap.set("n", "<leader>f.", builtin.oldfiles, { desc = '[f]ind Recent Files ("." for repeat)' })
+            vim.keymap.set("n", "<leader>fB", builtin.git_branches, { desc = "[f]ind Git [B]ranch" })
+            vim.keymap.set("n", "<leader>fS", builtin.git_stash, { desc = "[f]ind Git [S]tash" })
             vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "[f]ind Existing [b]uffers" })
             vim.keymap.set("n", "<leader>fc", builtin.colorscheme, { desc = "[f]ind [c]olorscheme" })
-            vim.keymap.set("n", "<leader>fB", builtin.git_branches, { desc = "[f]ind Git [B]ranch" })
+            vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "[f]ind [d]iagnostics" })
+            vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "[f]ind [f]iles" })
+            vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "[f]ind by [g]rep" })
+            vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[f]inder [r]esume" })
             vim.keymap.set("n", "<leader>fs", builtin.git_status, { desc = "[f]ind Git [s]tatus" })
-            vim.keymap.set("n", "<leader>fS", builtin.git_stash, { desc = "[f]ind Git [S]tash" })
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[f]ind [h]elp tags' })
-            vim.keymap.set('n', '<leader>fp', function() require("telescope").extensions.projects.projects() end,{ desc = '[f]ind [p]rojects' })
+            vim.keymap.set('n', '<leader>fp', function() require("telescope").extensions.projects.projects() end,
+                { desc = '[f]ind [p]rojects' })
 
             local actions = require("telescope.actions")
             local icons = require("icons")
@@ -115,8 +117,9 @@ return {
             })
 
             -- Load extensions
-            require("telescope").load_extension("ui-select")
+            pcall(require("telescope").load_extension, "ui-select")
             pcall(require("telescope").load_extension, "fzf")
+            pcall(require("telescope").load_extension, "live_grep_args")
         end,
     },
 }

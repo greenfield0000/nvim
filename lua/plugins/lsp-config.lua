@@ -1,26 +1,10 @@
 return {
     {
-        "williamboman/mason.nvim",
-        config = function()
-            require("mason").setup({
-                ui = { border = "rounded" },
-            })
-        end,
-    },
-    {
-        "mfussenegger/nvim-jdtls",
-        dependencies = {
-            "williamboman/mason.nvim",
-            "mfussenegger/nvim-dap",
-            "ray-x/lsp_signature.nvim",
-            "neovim/nvim-lspconfig",
-        },
-    },
-    {
         "neovim/nvim-lspconfig",
         dependencies = {
-            "mfussenegger/nvim-jdtls",
+            "williamboman/mason.nvim",
         },
+
         config = function()
             local icons = require("icons")
             local capabilities = require("cmp_nvim_lsp").default_capabilities()

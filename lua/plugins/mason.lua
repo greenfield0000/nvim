@@ -3,6 +3,7 @@ return {
         "williamboman/mason.nvim",
         config = function()
             require("mason").setup({
+                border = "rounded",
                 ui = {
                     icons = {
                         package_installed = "✓",
