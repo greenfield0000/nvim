@@ -1,33 +1,18 @@
-local function setup_marksman()
-  vim.bo.conceallevel = 2
+local util = require("lspconfig.util")
 
-  vim.bo.formatoptions = vim.bo.formatoptions
-    :gsub('t', '')
-    :gsub('c', '')
-    vim.bo.formatoptions = vim.bo.formatoptions .. 'croql'
-
-  vim.bo.comments = 'fb:*,fb:-,fb:+,n:>'
-  vim.bo.commentstring = '<!--%s-->'
-
-  local client = vim.lsp.start({
-    name = 'marksman',
-    cmd = { 'marksman', 'server' },
-    cmd_env = {},
-    init_options = {},
+vim.lsp.start({
+    name = "marksman",
+    cmd = { "marksman" },
+    root_dir = util.root_pattern(".git", "package.json", "Cargo.toml", "go.mod", "pom.xml"),
+    filetypes = { "markdown" },
+    single_file_support = true,
     on_attach = function(client, bufnr)
-      local opts = { buffer = bufnr }
-      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-      vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-      vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-      vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-      vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-      vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-    end
-  })
-
-  if client then
-    vim.lsp.buf_attach_client(0, client)
-  end
-end
-
-setup_marksman()
+        local opts = { buffer = bufnr, silent = true }
+        vim.keymap.set("n", "gd", vim.lsp.buf.goto_definition, opts)
+        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+        vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+        vim.keymap.set("n", "<leader>f", vim.lsp.buf.format, opts)
+    end,
+})

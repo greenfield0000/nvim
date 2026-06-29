@@ -28,6 +28,8 @@ return {
                 "tsx",
                 "gitignore",
                 "sql",
+                "markdown",
+                "markdown_inline"
             },
             callback = function()
                 pcall(vim.treesitter.start)
