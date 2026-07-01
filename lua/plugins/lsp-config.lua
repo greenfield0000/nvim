@@ -59,6 +59,10 @@ return {
                     map("n", "<leader>ci", tbuiltin.lsp_implementations, "[C]ode Goto [I]mplementations")
                     map("n", "<leader>cR", vim.lsp.buf.rename, "[C]ode [R]ename")
                     map("n", "<leader>cD", vim.lsp.buf.declaration, "[C]ode Goto [D]eclaration")
+                    map({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, "[C]ode [F]ormat")
+                    map("n", "<leader>ct", vim.lsp.buf.type_definition, "[C]ode Goto [T]ype definition")
+                    map("n", "<leader>cds", vim.lsp.buf.document_symbol, "[C]ode [D]ocument [S]ymbol")
+                    map("n", "<leader>csh", vim.lsp.buf.signature_help, "[C]ode [S]ignature [H]elp")
                 end,
             })
 

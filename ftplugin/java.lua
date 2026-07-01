@@ -47,36 +47,6 @@ local function detect_os()
     end
 end
 
--- === DAP для тестов ===
-local function setup_dap()
-    local dap = require("dap")
-    dap.configurations.java = {
-        {
-            type = 'java',
-            request = 'attach',
-            name = "Debug (Attach) - Remote",
-            hostName = "127.0.0.1",
-            port = 5005,
-        },
-        {
-            type = 'java',
-            request = 'launch',
-            name = "Launch Java File",
-            mainClass = "${file}",
-            projectName = "${fileBasenameNoExtension}",
-        },
-        {
-            type = 'java',
-            request = 'launch',
-            name = "Run Current Test",
-            vmArgs = "-Xmx2048m -XX:+ShowCodeDetailsInExceptionMessages",
-            mainClass = "org.junit.platform.console.ConsoleLauncher",
-            args = { "--scan-classpath", "--include-classname", "${file}" },
-            projectName = "${fileBasenameNoExtension}",
-        }
-    }
-end
-
 -- === on_attach ===
 local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
@@ -100,11 +70,9 @@ local on_attach = function(_, bufnr)
     map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
     map('n', '<leader>tdc', function()
         require('jdtls.dap').test_class()
-        setup_dap()
     end, "Debug Test Class")
     map('n', '<leader>tdm', function()
         require('jdtls.dap').test_nearest_method()
-        setup_dap()
     end, "Debug Test Method")
 
     vim.api.nvim_create_autocmd("BufWritePost", {
@@ -186,26 +154,20 @@ local function smart_start_jdtls()
         table.insert(javaagent_opts, "-javaagent:" .. lombok_path)
     end
 
-    local bundles = {
-        fn.glob(
-            home ..
-            "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
-            1)
-    }
+    local mason_java = home .. "/.local/share/nvim/mason/packages"
 
-    local java_test_bundles = fn.split(
-        fn.glob(home .. "/.local/share/nvim/mason/packages/java-test/extension/server/*.jar", 1),
-        "\n"
-    )
-    local excluded = { "com.microsoft.java.test.runner-jar-with-dependencies.jar", "jacocoagent.jar" }
-    for _, java_test_jar in ipairs(java_test_bundles) do
-        if java_test_jar ~= "" then
-            local fname = fn.fnamemodify(java_test_jar, ":t")
-            if not vim.tbl_contains(excluded, fname) then
-                table.insert(bundles, java_test_jar)
-            end
+    local bundles = {}
+
+    local function add_jar(dir, pattern)
+        local jar = fn.glob(dir .. "/" .. pattern, 1, 1)
+        if type(jar) == "table" and #jar > 0 then
+            table.insert(bundles, jar[1])
         end
     end
+
+    add_jar(mason_java .. "/java-debug-adapter/extension/server", "com.microsoft.java.debug.plugin-*.jar")
+    add_jar(mason_java .. "/java-test/extension/server", "com.microsoft.java.test.plugin-*.jar")
+    add_jar(mason_java .. "/vscode-java-dependency/extension/server", "com.microsoft.jdtls.ext.core-*.jar")
 
     local cmd = {
         java_home .. "/bin/java",
