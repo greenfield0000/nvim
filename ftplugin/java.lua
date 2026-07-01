@@ -52,14 +52,6 @@ local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
     vim.lsp.codelens.refresh()
 
-    -- local status_ok, signature = pcall(require, "lsp_signature")
-    -- if status_ok then
-    --     signature.on_attach({
-    --         bind = true, padding = "", handler_opts = { border = "rounded" }, hint_prefix = "󱄑 ",
-    --     }, bufnr)
-    --     require('jdtls').setup_dap({ hotcodereplace = 'auto' })
-    -- end
-
     local map = function(mode, lhs, rhs, desc)
         if desc then desc = "JDTLS: " .. desc end
         vim.keymap.set(mode, lhs, rhs, { silent = true, desc = desc, buffer = bufnr })
@@ -68,17 +60,13 @@ local on_attach = function(_, bufnr)
     map('n', '<leader>tc', function() require('jdtls').test_class() end, "Test Class")
     map('n', '<leader>tm', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
     map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
-    map('n', '<leader>tdc', function()
-        require('jdtls.dap').test_class()
-    end, "Debug Test Class")
-    map('n', '<leader>tdm', function()
-        require('jdtls.dap').test_nearest_method()
-    end, "Debug Test Method")
+    map('n', '<leader>tg', function() require('jdtls.tests').generate() end, "Generate Test")
+    map('n', '<leader>tdc', function() require('jdtls.dap').test_class() end, "Debug Test Class")
+    map('n', '<leader>tdm', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
 
     vim.api.nvim_create_autocmd("BufWritePost", {
         buffer = bufnr, callback = function() pcall(vim.lsp.codelens.refresh) end
     })
-    -- setup_dap()
 end
 
 -- === 🎯 ГЛАВНАЯ ФУНКЦИЯ: АВТОЗАПУСК + SMART ATTACH ===
@@ -166,8 +154,21 @@ local function smart_start_jdtls()
     end
 
     add_jar(mason_java .. "/java-debug-adapter/extension/server", "com.microsoft.java.debug.plugin-*.jar")
-    add_jar(mason_java .. "/java-test/extension/server", "com.microsoft.java.test.plugin-*.jar")
     add_jar(mason_java .. "/vscode-java-dependency/extension/server", "com.microsoft.jdtls.ext.core-*.jar")
+
+    local java_test_jars = fn.glob(mason_java .. "/java-test/extension/server/*.jar", 1, 1)
+    local java_test_excluded = {
+        "com.microsoft.java.test.runner-jar-with-dependencies.jar",
+        "jacocoagent.jar",
+    }
+    if type(java_test_jars) == "table" then
+        for _, jar in ipairs(java_test_jars) do
+            local fname = fn.fnamemodify(jar, ":t")
+            if not vim.tbl_contains(java_test_excluded, fname) then
+                table.insert(bundles, jar)
+            end
+        end
+    end
 
     local cmd = {
         java_home .. "/bin/java",
