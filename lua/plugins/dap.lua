@@ -53,7 +53,7 @@ local function setup_common(dap)
         },
         -- Настройки для watch
         watches = {
-            auto_update = true,
+            auto_update = false,
             completion = {
                 enabled = true,
                 delay = 300,
@@ -234,6 +234,29 @@ return {
             setup_java(dap)   -- java
             setup_golang(dap) -- golang
             setup_common(dap)
+
+            -- Подключаем jdtls.dap (слушатели, hotcodereplace)
+            local jdtls_dap = require("jdtls.dap")
+            jdtls_dap.setup_dap({})
+
+            -- Сохраняем оригинальный адаптер от jdtls (для launch/test debug)
+            local original_adapter = dap.adapters.java
+
+            -- Оптимизация: для attach подключаемся напрямую к target,
+            -- минуя локальный адаптер jdtls. Один hop вместо двух.
+            dap.adapters.java = function(callback, config)
+                if config.request == "attach" then
+                    local host = config.hostName or "127.0.0.1"
+                    local port = type(config.port) == "function" and config.port() or config.port
+                    callback({
+                        type = "server",
+                        host = host,
+                        port = port,
+                    })
+                else
+                    original_adapter(callback, config)
+                end
+            end
         end,
     },
 }
