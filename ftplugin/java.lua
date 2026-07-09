@@ -50,7 +50,7 @@ end
 -- === on_attach ===
 local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
-    vim.lsp.codelens.refresh()
+    vim.lsp.codelens.enable(true, { bufnr = bufnr })
 
     local map = function(mode, lhs, rhs, desc)
         if desc then desc = "JDTLS: " .. desc end
@@ -65,7 +65,7 @@ local on_attach = function(_, bufnr)
     map('n', '<leader>tdm', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
 
     vim.api.nvim_create_autocmd("BufWritePost", {
-        buffer = bufnr, callback = function() pcall(vim.lsp.codelens.refresh) end
+        buffer = bufnr, callback = function() pcall(vim.lsp.codelens.enable, true, { bufnr = bufnr }) end
     })
 end
 
@@ -100,7 +100,7 @@ local function smart_start_jdtls()
     end
 
     -- 🛑 НОВЫЙ ПРОЕКТ → УБИРАЕМ СТАРЫЙ JDTLS
-    local all_jdtls = vim.lsp.get_active_clients({ name = "jdtls" })
+    local all_jdtls = vim.lsp.get_clients({ name = "jdtls" })
     for _, client in ipairs(all_jdtls) do
         pcall(client.stop)
     end
@@ -258,7 +258,7 @@ local function smart_start_jdtls()
                 },
                 configuration = {
                     runtimes = runtimes,
-                    updateBuildConfiguration = "interactive",
+                    updateBuildConfiguration = "automatic",
                 },
                 format = { enabled = true },
                 completion = {
@@ -323,9 +323,7 @@ local function smart_start_jdtls()
                 gradle = {
                     enabled = false,
                 },
-                project = {
-                    referencedLibraries = vim.fn.expand("~/.m2/repository") .. "/**/*.jar",
-                }
+                project = {}
             }
         },
         on_attach = on_attach,
@@ -351,21 +349,29 @@ vim.api.nvim_create_user_command('JdtlsRestart', smart_start_jdtls, {})
 
 vim.api.nvim_create_user_command("JdtlsDownloadJavaSources", function()
     local project_root = vim.fn.getcwd()
+    local cmd
 
     if vim.fn.filereadable(project_root .. "/pom.xml") == 1 then
-        vim.notify("📥 Downloading Maven sources...", "info", { title = "Java Sources" })
-        vim.fn.jobstart("mvn dependency:sources -q -Pnexus -Pplatform -Dmaven.wagon.http.ssl.insecure=true", {
-            cwd = project_root,
-            on_exit = function(_, code)
-                if code == 0 then
-                    vim.notify("✅ Sources downloaded! Restarting LSP...", "info", { title = "Java Sources" })
-                    vim.lsp.buf_restart()
-                else
-                    vim.notify("❌ Failed to download sources", "error", { title = "Java Sources" })
-                end
-            end
-        })
+        local mvn_base = "mvn dependency:sources -q -Dmaven.wagon.http.ssl.insecure=true"
+        cmd = mvn_base .. " || " .. mvn_base .. " -Pnexus -Pplatform"
+    elseif vim.fn.filereadable(project_root .. "/build.gradle") == 1
+        or vim.fn.filereadable(project_root .. "/build.gradle.kts") == 1 then
+        cmd = "./gradlew downloadSources 2>/dev/null || gradle dependencies 2>/dev/null || true"
     else
         vim.notify("❌ No Maven/Gradle project found", "error", { title = "Java Sources" })
+        return
     end
+
+    vim.notify("📥 Downloading sources...", "info", { title = "Java Sources" })
+    vim.fn.jobstart(cmd, {
+        cwd = project_root,
+        on_exit = function(_, code)
+            if code == 0 then
+                vim.notify("✅ Sources downloaded! Restarting LSP...", "info", { title = "Java Sources" })
+                vim.lsp.buf_restart()
+            else
+                vim.notify("⚠️ Source download finished with code " .. code .. ". Some sources may be missing.", "warn", { title = "Java Sources" })
+            end
+        end
+    })
 end, {})

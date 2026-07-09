@@ -20,6 +20,7 @@ return {
                 "vimdoc",
                 "lua",
                 "java",
+                "javadoc",
                 "javascript",
                 "typescript",
                 "html",

@@ -186,11 +186,11 @@ return {
             )
 
             local dap_icons = {
-                Stopped = { '󰁕 ', 'DiagnosticWarn', 'DapStoppedLine' },
-                Breakpoint = ' ',
+                Stopped = { ' ', 'DiagnosticWarn', 'DapStoppedLine' },
+                Breakpoint = ' ',
                 BreakpointCondition = ' ',
                 BreakpointRejected = { ' ', 'DiagnosticError' },
-                LogPoint = '.>',
+                LogPoint = ' ',
             }
             for name, sign in pairs(dap_icons) do
                 sign = type(sign) == 'table' and sign or { sign }
@@ -235,28 +235,9 @@ return {
             setup_golang(dap) -- golang
             setup_common(dap)
 
-            -- Подключаем jdtls.dap (слушатели, hotcodereplace)
+            -- Подключаем jdtls.dap (слушатели, hotcodereplace, адаптер)
             local jdtls_dap = require("jdtls.dap")
             jdtls_dap.setup_dap({})
-
-            -- Сохраняем оригинальный адаптер от jdtls (для launch/test debug)
-            local original_adapter = dap.adapters.java
-
-            -- Оптимизация: для attach подключаемся напрямую к target,
-            -- минуя локальный адаптер jdtls. Один hop вместо двух.
-            dap.adapters.java = function(callback, config)
-                if config.request == "attach" then
-                    local host = config.hostName or "127.0.0.1"
-                    local port = type(config.port) == "function" and config.port() or config.port
-                    callback({
-                        type = "server",
-                        host = host,
-                        port = port,
-                    })
-                else
-                    original_adapter(callback, config)
-                end
-            end
         end,
     },
 }
