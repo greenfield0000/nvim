@@ -20,6 +20,7 @@ return {
                 "vimdoc",
                 "lua",
                 "java",
+                "javadoc",
                 "javascript",
                 "typescript",
                 "html",
@@ -28,6 +29,8 @@ return {
                 "tsx",
                 "gitignore",
                 "sql",
+                "markdown",
+                "markdown_inline"
             },
             callback = function()
                 pcall(vim.treesitter.start)

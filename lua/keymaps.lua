@@ -29,17 +29,5 @@ vim.keymap.set("n", "<leader>wh", ":split<cr>", { desc = "[W]indow Split [H]oriz
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left in visual mode" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right in visual mode" })
 
--- Code
-vim.keymap.set({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, { desc = "[C]ode [F]ormat" })
-vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "[C]ode [H]over Documentation" })
-vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "[C]ode Goto [D]efinition" })
-vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ctions" })
-vim.keymap.set("n", "<leader>cR", vim.lsp.buf.rename, { desc = "[C]ode [R]ename" })
-vim.keymap.set("n", "<leader>ci", vim.lsp.buf.implementation, { desc = "[C]ode Goto [I]mplementation" })
-vim.keymap.set("n", "<leader>ct", vim.lsp.buf.type_definition, { desc = "[C]ode Goto [T]ype definition" })
-vim.keymap.set("n", "<leader>cr", vim.lsp.buf.references, { desc = "[C]ode [R]eferences" })
-vim.keymap.set("n", "<leader>cds", vim.lsp.buf.document_symbol, { desc = "[C]ode [D]ocument [S]ymbol" })
-vim.keymap.set("n", "<leader>csh", vim.lsp.buf.signature_help, { desc = "[C]ode [S]ignature [H]elp" })
-
 -- Jira
 vim.keymap.set("n", "<leader>jj", "<cmd>Jira<cr>", { desc = "Jira: Main" })

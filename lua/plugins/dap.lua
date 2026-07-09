@@ -53,7 +53,7 @@ local function setup_common(dap)
         },
         -- Настройки для watch
         watches = {
-            auto_update = true,
+            auto_update = false,
             completion = {
                 enabled = true,
                 delay = 300,
@@ -186,11 +186,11 @@ return {
             )
 
             local dap_icons = {
-                Stopped = { '󰁕 ', 'DiagnosticWarn', 'DapStoppedLine' },
-                Breakpoint = ' ',
+                Stopped = { ' ', 'DiagnosticWarn', 'DapStoppedLine' },
+                Breakpoint = ' ',
                 BreakpointCondition = ' ',
                 BreakpointRejected = { ' ', 'DiagnosticError' },
-                LogPoint = '.>',
+                LogPoint = ' ',
             }
             for name, sign in pairs(dap_icons) do
                 sign = type(sign) == 'table' and sign or { sign }
@@ -234,6 +234,10 @@ return {
             setup_java(dap)   -- java
             setup_golang(dap) -- golang
             setup_common(dap)
+
+            -- Подключаем jdtls.dap (слушатели, hotcodereplace, адаптер)
+            local jdtls_dap = require("jdtls.dap")
+            jdtls_dap.setup_dap({})
         end,
     },
 }

@@ -6,20 +6,30 @@ return {
         "JoosepAlviste/nvim-ts-context-commentstring",
     },
     config = function()
-        -- Set a vim motion to <Space> + / to comment the line under the cursor in normal mode
         vim.keymap.set("n", "<leader>/", "<Plug>(comment_toggle_linewise_current)", { desc = "Comment Line" })
-        -- Set a vim motion to <Space> + / to comment all the lines selected in visual mode
         vim.keymap.set("v", "<leader>/", "<Plug>(comment_toggle_linewise_visual)", { desc = "Comment Selected" })
 
-        -- gain access to the comment plugins functions
         local comment = require("Comment")
-        -- gain access to tsx commenting plugins functions
-        local ts_context_comment_string = require("ts_context_commentstring.integrations.comment_nvim")
+        local ts_context_commentstring = require("ts_context_commentstring.integrations.comment_nvim")
+        local ts_hook = ts_context_commentstring.create_pre_hook()
 
-        -- setup the comment plugin to use ts_context_comment_string to check if we are attempting to comment out a tsx element
-        -- if we are use ts_context_comment_string to comment it out
         comment.setup({
-            pre_hook = ts_context_comment_string.create_pre_hook(),
+            pre_hook = function(ctx)
+                local ok, result = pcall(ts_hook, ctx)
+                if ok and result then
+                    return result
+                end
+                if vim.bo.commentstring and vim.bo.commentstring ~= '' then
+                    return vim.bo.commentstring
+                end
+                local ft_ok, ft_result = pcall(function()
+                    return require("Comment.ft").get(vim.bo.filetype, ctx.ctype)
+                end)
+                if ft_ok and ft_result then
+                    vim.bo.commentstring = ft_result
+                    return ft_result
+                end
+            end,
         })
     end,
 }

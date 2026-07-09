@@ -11,22 +11,20 @@ return {}
 --     opts = {
 --         jira = {
 --             -- === АУТЕНТИФИКАЦИЯ ===
---             base    = vim.env.JIRA_URL,
---             email   = vim.env.JIRA_EMAIL,
---             token   = vim.env.JIRA_TOKEN,
---             type    = "basic", -- или "pat"
---
+--             api_version = "3", -- API version: "2" or "3" (default: "3")
+--             logging     = true,
+--             base        = vim.env.JIRA_URL,
+--             email       = vim.env.JIRA_EMAIL,
+--             token       = vim.env.JIRA_TOKEN,
+--             type        = "basic", -- или "pat"
 --             -- === ЛИМИТЫ ===
---             limit   = 200,
---
+--             limit       = 200,
 --             -- === ПОВЕДЕНИЕ ===
---             timeout = 10000, -- ms (если поддерживается — игнорируется иначе)
---
+--             timeout     = 10000, -- ms (если поддерживается — игнорируется иначе)
 --             -- === НАСТРОЙКИ ДОСОК (BOARDS) ===
---             boards  = {
+--             boards      = {
 --                 -- Список ID досок для загрузки (если не указано — грузятся все доступные)
 --                 board_ids = {}, -- например: { "10001", "10002" }
---
 --                 -- Фильтрация задач на доске
 --                 filters = {
 --                     -- Фильтр по статусам (можно указать несколько)
@@ -115,4 +113,54 @@ return {}
 --             })
 --         end
 --     end,
+-- }
+
+
+-- return {
+--     "emrearmagan/atlas.nvim",
+--
+--     cmd = {
+--         "Jira",
+--     },
+--
+--     dependencies = {
+--         "nvim-lua/plenary.nvim",
+--         "MunifTanjim/nui.nvim",
+--
+--         -- Для красивого отображения markdown
+--         "MeanderingProgrammer/render-markdown.nvim",
+--
+--         -- Просмотр diff (используется Atlas)
+--         "sindrets/diffview.nvim",
+--     },
+--
+--     opts = {
+--         issues = {
+--             max_results = 100,
+--             with_relationships = true,
+--
+--             providers = {
+--                 jira = {
+--                     api_version = "3", -- API version: "2" or "3" (default: "3")
+--                     limit = 200, -- Global limit of tasks per view (default: 200)
+--                     logging = false,
+--                     base_url = vim.env.JIRA_URL,
+--                     email = vim.env.JIRA_EMAIL,
+--                     token = vim.env.JIRA_TOKEN,
+--                     auth_method = "basic",
+--                     -- Для Jira Server / Data Center
+--                     api_type = "server",
+--                     cache_ttl = 300,
+--                     views = {
+--                         {
+--                             name = "My Tasks",
+--                             key = "M",
+--                             layout = "plain",
+--                             jql = "assignee = currentUser() ORDER BY updated DESC",
+--                         },
+--                     },
+--                 },
+--             },
+--         },
+--     },
 -- }
