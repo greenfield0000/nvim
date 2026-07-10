@@ -61,8 +61,6 @@ local on_attach = function(_, bufnr)
     map('n', '<leader>tm', function() require('jdtls').test_nearest_method() end, "Test Nearest Method")
     map('n', '<leader>tp', function() require('jdtls').pick_test() end, "Pick Test")
     map('n', '<leader>tg', function() require('jdtls.tests').generate() end, "Generate Test")
-    map('n', '<leader>tdc', function() require('jdtls.dap').test_class() end, "Debug Test Class")
-    map('n', '<leader>tdm', function() require('jdtls.dap').test_nearest_method() end, "Debug Test Method")
 
     vim.api.nvim_create_autocmd("BufWritePost", {
         buffer = bufnr, callback = function() pcall(vim.lsp.codelens.enable, true, { bufnr = bufnr }) end
