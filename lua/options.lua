@@ -1,5 +1,6 @@
 -- Left column and similar settings
 vim.opt.number = true         -- display line numbers
+vim.opt.laststatus = 3
 vim.opt.relativenumber = true -- display relative line numbers
 vim.opt.numberwidth = 2       -- set width of line number column
 vim.opt.signcolumn = "yes"    -- always show sign column

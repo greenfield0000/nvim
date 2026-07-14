@@ -7,6 +7,7 @@ return {
         -- call the setup function with properties to define how our lualine will look
         require("lualine").setup({
             options = {
+                global_status = true,
                 -- Use web devicons if you have a nerdfont installed
                 icons_enabled = true,
                 -- Set the theme to tokyonight, lualine documentation has other themes available as well
@@ -17,15 +18,16 @@ return {
                 section_separators = { left = "", right = "" },
                 -- disable the status line and winbar
                 disabled_filetypes = {
-                    statusline = {},
+                    statusline = {
+                        "neo-tree", -- Скроет lualine под деревом файлов
+                        "dbui", -- Скроет под плагином баз данных Dadbod
+                        "toggleterm", -- Скроет под встроенным терминалом
+                        "help" -- Скроет в окнах справки
+                    },
                     winbar = {},
                 },
-                -- Don't focus lualine on NvimTree
-                ignore_focus = { "NvimTree" },
                 -- Always divide lualine in the middle
                 always_divide_middle = true,
-                -- Disable global status
-                globalstatus = false,
                 -- Refresh every 1000 miliseconds
                 refresh = {
                     statusline = 1000,
