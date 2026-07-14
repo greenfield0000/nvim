@@ -91,6 +91,10 @@ return {
                 -- Внешний вид в стиле LazyVim
                 default_component_configs = {
                     indent = {
+                        with_expanders = true, -- ОБЯЗАТЕЛЬНО: включает стрелочки
+                        expander_collapsed = "", -- Стрелочка, когда папка ЗАКРЫТА
+                        expander_expanded = "", -- Стрелочка, когда папка ОТКРЫТА
+                        expander_highlight = "NeoTreeExpander", -- Цвет стрелочки
                         with_markers = true,
                         indent_marker = "│",
                         last_indent_marker = "└",
