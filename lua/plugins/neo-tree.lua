@@ -44,6 +44,11 @@ return {
                 },
                 -- Добавляет счетчик измененных Git-файлов рядом с папками
                 enable_git_status = true,
+                git_status_async_options = {
+                    batch_size = 1000,
+                    batch_delay = 10,
+                    max_lines = 5000,
+                },
                 close_if_last_window = true, -- Закрывать дерево, если оно осталось одно
                 window = {
                     position = "right",
@@ -67,18 +72,22 @@ return {
                 -- Настройки самого файлового дерева
                 filesystem = {
                     follow_current_file = {
-                        enabled = true, -- Авто-фокус на текущий открытый файл
+                        enabled = false,
                         leave_dirs_open = true,
                     },
                     filtered_items = {
                         visible = false, -- ПОКАЗЫВАТЬ скрытые файлы (.env, .gitignore)
-                        hide_dotfiles = false,
+                        hide_dotfiles = true,
                         hide_gitignored = true,
                         hide_by_name = {
-                            ".git", -- Скрываем только саму папку репозитория, чтобы не мешала
+                            ".git",
                             ".DS_Store",
                             ".settings",
                             "target",
+                            "node_modules",
+                            ".cache",
+                            ".m2",
+                            ".gradle",
                         },
                     },
                     -- Настройка поиска (Клавиша / или f в дереве)
