@@ -29,6 +29,15 @@ vim.api.nvim_create_autocmd("FileType", {
     end
 })
 
+vim.api.nvim_create_autocmd("TermLeave", {
+    callback = function()
+        vim.schedule(function()
+            require("neo-tree.sources.manager").refresh("filesystem")
+        end)
+    end,
+    desc = "Refresh Neo-tree after terminal use",
+})
+
 vim.api.nvim_create_autocmd("FileType", {
     pattern = { "dapui_watches", "dapui_repl" },
     callback = function()
