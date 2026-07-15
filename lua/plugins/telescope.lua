@@ -32,7 +32,6 @@ return {
                 local telescope_conf = require("telescope.config").values
                 local history = require("project_nvim.utils.history")
                 local project = require("project_nvim.project")
-                local config = require("project_nvim.config")
 
                 local results = history.get_recent_projects()
 
@@ -50,10 +49,10 @@ return {
                         results = results,
                         entry_maker = function(entry)
                             return {
-                                display = vim.fn.fnamemodify(entry, ":t") .. "  " .. entry,
+                                display = vim.fn.fnamemodify(entry, ":t") .. "  (" .. entry .. ")",
                                 name = vim.fn.fnamemodify(entry, ":t"),
                                 value = entry,
-                                ordinal = vim.fn.fnamemodify(entry, ":t") .. " " .. entry,
+                                ordinal = vim.fn.fnamemodify(entry, ":t") .. "  (" .. entry .. ")",
                             }
                         end,
                     }),

@@ -56,18 +56,6 @@ return {
                         -- vim.o.columns возвращает количество символов (колонок) всего экрана Neovim
                         return math.floor(vim.o.columns / 2)
                     end,
-                    -- mappings = {
-                    --     ["<tab>"] = function(state)
-                    --         local node = state.tree:get_node()
-                    --         if node.type == "directory" then
-                    --             -- Если это папка, раскрываем или закрываем её
-                    --             require("neo-tree.sources.filesystem.commands").toggle_node(state)
-                    --         else
-                    --             -- Если это файл, открываем его
-                    --             require("neo-tree.sources.common.commands").open(state)
-                    --         end
-                    --     end,
-                    -- }
                 },
                 -- Настройки самого файлового дерева
                 filesystem = {
