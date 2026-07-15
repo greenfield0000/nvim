@@ -90,6 +90,8 @@ return {
 
                 -- Внешний вид в стиле LazyVim
                 default_component_configs = {
+                    file_size = { enabled = false },
+                    last_modified = { enabled = false },
                     indent = {
                         with_expanders = true, -- ОБЯЗАТЕЛЬНО: включает стрелочки
                         expander_collapsed = "", -- Стрелочка, когда папка ЗАКРЫТА
