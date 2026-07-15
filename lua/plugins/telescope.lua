@@ -24,8 +24,47 @@ return {
             vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[f]inder [r]esume" })
             vim.keymap.set("n", "<leader>fs", builtin.git_status, { desc = "[f]ind Git [s]tatus" })
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[f]ind [h]elp tags' })
-            vim.keymap.set('n', '<leader>fp', function() require("telescope").extensions.projects.projects() end,
-                { desc = '[f]ind [p]rojects' })
+            vim.keymap.set('n', '<leader>fp', function()
+                local actions = require("telescope.actions")
+                local action_state = require("telescope.actions.state")
+                local finders = require("telescope.finders")
+                local pickers = require("telescope.pickers")
+                local telescope_conf = require("telescope.config").values
+                local history = require("project_nvim.utils.history")
+                local project = require("project_nvim.project")
+                local config = require("project_nvim.config")
+
+                local results = history.get_recent_projects()
+
+                local function change_working_directory(prompt_bufnr)
+                    local selection = action_state.get_selected_entry(prompt_bufnr)
+                    if selection then
+                        project.set_pwd(selection.value, "telescope")
+                    end
+                    actions.close(prompt_bufnr)
+                end
+
+                pickers.new({}, {
+                    prompt_title = "Recent Projects",
+                    finder = finders.new_table({
+                        results = results,
+                        entry_maker = function(entry)
+                            return {
+                                display = vim.fn.fnamemodify(entry, ":t") .. "  " .. entry,
+                                name = vim.fn.fnamemodify(entry, ":t"),
+                                value = entry,
+                                ordinal = vim.fn.fnamemodify(entry, ":t") .. " " .. entry,
+                            }
+                        end,
+                    }),
+                    previewer = false,
+                    sorter = telescope_conf.generic_sorter({}),
+                    attach_mappings = function(prompt_bufnr, map)
+                        actions.select_default:replace(change_working_directory)
+                        return true
+                    end,
+                }):find()
+            end, { desc = '[f]ind [p]rojects' })
 
             local actions = require("telescope.actions")
             local icons = require("icons")

@@ -46,6 +46,7 @@ return {
                 enable_git_status = true,
                 close_if_last_window = true, -- Закрывать дерево, если оно осталось одно
                 window = {
+                    position = "right",
                     width = function()
                         -- vim.o.columns возвращает количество символов (колонок) всего экрана Neovim
                         return math.floor(vim.o.columns / 2)
