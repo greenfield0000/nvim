@@ -39,8 +39,61 @@ return {
                     local selection = action_state.get_selected_entry(prompt_bufnr)
                     if selection then
                         project.set_pwd(selection.value, "telescope")
+                        actions.close(prompt_bufnr)
+                        require("neo-tree.command").execute({ action = "show", dir = selection.value })
+                        return
                     end
                     actions.close(prompt_bufnr)
+                end
+
+                local function refresh_picker(prompt_bufnr)
+                    action_state.get_current_picker(prompt_bufnr):refresh(
+                        finders.new_table({
+                            results = history.get_recent_projects(),
+                            entry_maker = function(entry)
+                                return {
+                                    display = vim.fn.fnamemodify(entry, ":t") .. "  (" .. entry .. ")",
+                                    name = vim.fn.fnamemodify(entry, ":t"),
+                                    value = entry,
+                                    ordinal = vim.fn.fnamemodify(entry, ":t") .. "  (" .. entry .. ")",
+                                }
+                            end,
+                        }),
+                        { reset_prompt = true }
+                    )
+                end
+
+                local function delete_project(prompt_bufnr)
+                    local selection = action_state.get_selected_entry(prompt_bufnr)
+                    if not selection then return end
+                    local choice = vim.fn.confirm("Delete '" .. selection.value .. "' from project list?", "&Yes\n&No", 2)
+                    if choice == 1 then
+                        history.delete_project(selection)
+                        refresh_picker(prompt_bufnr)
+                    end
+                end
+
+                local function delete_all_except_current(prompt_bufnr)
+                    local cwd = vim.fn.getcwd()
+                    local to_remove = {}
+                    for _, v in ipairs(history.recent_projects) do
+                        if v ~= cwd then
+                            table.insert(to_remove, v)
+                        end
+                    end
+                    if #to_remove == 0 then
+                        vim.notify("No other projects to delete", vim.log.levels.INFO)
+                        return
+                    end
+                    local choice = vim.fn.confirm(
+                        "Delete " .. #to_remove .. " projects (keep current)?", "&Yes\n&No", 2
+                    )
+                    if choice == 1 then
+                        for _, v in ipairs(to_remove) do
+                            history.delete_project({ value = v })
+                        end
+                        refresh_picker(prompt_bufnr)
+                    end
                 end
 
                 pickers.new({}, {
@@ -60,6 +113,10 @@ return {
                     sorter = telescope_conf.generic_sorter({}),
                     attach_mappings = function(prompt_bufnr, map)
                         actions.select_default:replace(change_working_directory)
+                        map("n", "d", delete_project)
+                        map("i", "<c-d>", delete_project)
+                        map("n", "D", delete_all_except_current)
+                        map("i", "<c-D>", delete_all_except_current)
                         return true
                     end,
                 }):find()

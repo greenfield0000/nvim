@@ -47,6 +47,15 @@ local function detect_os()
     end
 end
 
+-- === Путь к пакетам mason под любую ОС ===
+local function mason_dir()
+    if detect_os() == "win" then
+        return home .. "/AppData/Local/nvim-data/mason/packages"
+    else
+        return home .. "/.local/share/nvim/mason/packages"
+    end
+end
+
 -- === on_attach ===
 local on_attach = function(_, bufnr)
     require 'jdtls.setup'.add_commands()
@@ -82,6 +91,7 @@ local function smart_start_jdtls()
         "build.gradle",
         "pom.xml"
     }, current_file)
+    if current_root then current_root = vim.fn.resolve(current_root) end
 
     if not current_root then
         vim.notify("No Java project root found for: " .. fn.fnamemodify(current_file, ":t"), vim.log.levels.WARN)
@@ -104,15 +114,9 @@ local function smart_start_jdtls()
     end
 
     -- 🔥 СОХРАНЯЕМ НОВЫЙ ПРОЕКТ
-    local project_name = fn.fnamemodify(current_root, ":p:h:t")
-    vim.g.jdtls_state = {
-        active_root = current_root,
-        active_workspace = project_name,
-        running = false,
-        last_updated = vim.loop.now()
-    }
+    local project_name = fn.fnamemodify(current_root, ":t")
 
-    vim.notify("🚀 jdtls started: " .. project_name, vim.log.levels.INFO)
+    vim.notify("🚀 jdtls starting: " .. project_name, vim.log.levels.INFO)
 
     -- === НАСТРОЙКИ JDTLS (ВАШИ ОРИГИНАЛЬНЫЕ) ===
     local java_home = get_java_home()
@@ -124,7 +128,7 @@ local function smart_start_jdtls()
     local runtimes = get_all_runtimes()
     -- table.insert(runtimes, 1, { name = "JavaSDK", path = java_home, default = true })
 
-    local jdtls_dir = home .. "/.local/share/nvim/mason/packages/jdtls"
+    local jdtls_dir = mason_dir() .. "/jdtls"
     local launcher = fn.glob(jdtls_dir .. "/plugins/org.eclipse.equinox.launcher_*.jar", false, true)[1]
     if not launcher then
         vim.notify("JDTLS launcher not found!", vim.log.levels.ERROR)
@@ -140,9 +144,19 @@ local function smart_start_jdtls()
         table.insert(javaagent_opts, "-javaagent:" .. lombok_path)
     end
 
-    local mason_java = home .. "/.local/share/nvim/mason/packages"
+    local mason_java = mason_dir()
 
     local bundles = {}
+
+    -- Совместимый asm для java-test (нужен [9.9.0, 9.10.0))
+    local asm_jar = mason_java .. "/java-test/extension/server/org.objectweb.asm_9.9.1.jar"
+    if fn.filereadable(asm_jar) == 0 then
+        vim.fn.system({
+            "curl", "-fsSL", "-o", asm_jar,
+            "https://repo1.maven.org/maven2/org/ow2/asm/asm/9.9.1/asm-9.9.1.jar"
+        })
+    end
+    table.insert(bundles, asm_jar)
 
     local function add_jar(dir, pattern)
         local jar = fn.glob(dir .. "/" .. pattern, 1, 1)
@@ -328,16 +342,25 @@ local function smart_start_jdtls()
         capabilities = require('cmp_nvim_lsp').default_capabilities(),
     }
 
+    -- 🔥 СОХРАНЯЕМ НОВЫЙ ПРОЕКТ
+    vim.g.jdtls_state = {
+        active_root = current_root,
+        active_workspace = project_name,
+        running = true,
+        last_updated = vim.loop.now()
+    }
+
     jdtls.start_or_attach(config)
-    vim.g.jdtls_state.running = true
 end
 
 -- === 🚀 АВТОЗАПУСК ПРИ ОТКРЫТИИ ЛЮБОГО .java ФАЙЛА ===
+local jdtls_timer
 vim.api.nvim_create_autocmd({ "FileType", "BufReadPost", "BufEnter" }, {
     pattern = "*.java",
     group = vim.api.nvim_create_augroup("JdtlsAutoStart", { clear = true }),
     callback = function()
-        vim.defer_fn(smart_start_jdtls, 50)
+        if jdtls_timer then pcall(jdtls_timer.close, jdtls_timer) end
+        jdtls_timer = vim.defer_fn(smart_start_jdtls, 100)
     end,
     desc = "Auto-start jdtls for ANY .java file"
 })
