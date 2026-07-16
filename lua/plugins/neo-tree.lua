@@ -10,7 +10,7 @@ return {
         cmd = "Neotree",
         keys = {
             -- Хоткей как в LazyVim: Space + e открывает/закрывает дерево
-            { "<leader>e", "<cmd>Neotree toggle right<cr>", desc = "NeoTree (Root Dir)" },
+            { "<leader>e", "<cmd>Neotree toggle right<cr>", desc = "Neo-tree: файловое дерево" },
         },
         config = function()
             require("neo-tree").setup({
@@ -60,7 +60,7 @@ return {
                 -- Настройки самого файлового дерева
                 filesystem = {
                     follow_current_file = {
-                        enabled = false,
+                        enabled = true,
                         leave_dirs_open = true,
                     },
                     filtered_items = {

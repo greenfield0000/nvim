@@ -13,17 +13,17 @@ return {
             local builtin = require("telescope.builtin")
 
             -- Key mappings
-            vim.keymap.set("n", "<leader>f.", builtin.oldfiles, { desc = '[f]ind Recent Files ("." for repeat)' })
-            vim.keymap.set("n", "<leader>fB", builtin.git_branches, { desc = "[f]ind Git [B]ranch" })
-            vim.keymap.set("n", "<leader>fS", builtin.git_stash, { desc = "[f]ind Git [S]tash" })
-            vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "[f]ind Existing [b]uffers" })
-            vim.keymap.set("n", "<leader>fc", builtin.colorscheme, { desc = "[f]ind [c]olorscheme" })
-            vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "[f]ind [d]iagnostics" })
-            vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "[f]ind [f]iles" })
-            vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "[f]ind by [g]rep" })
-            vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[f]inder [r]esume" })
-            vim.keymap.set("n", "<leader>fs", builtin.git_status, { desc = "[f]ind Git [s]tatus" })
-            vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[f]ind [h]elp tags' })
+            vim.keymap.set("n", "<leader>f.", builtin.oldfiles, { desc = 'Недавние файлы' })
+            vim.keymap.set("n", "<leader>fB", builtin.git_branches, { desc = "Git ветки" })
+            vim.keymap.set("n", "<leader>fS", builtin.git_stash, { desc = "Git stash" })
+            vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Открытые буферы" })
+            vim.keymap.set("n", "<leader>fc", builtin.colorscheme, { desc = "Цветовые схемы" })
+            vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Диагностики" })
+            vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Поиск файлов" })
+            vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Поиск по содержимому (grep)" })
+            vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "Повторить последний поиск" })
+            vim.keymap.set("n", "<leader>fs", builtin.git_status, { desc = "Git status" })
+            vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Поиск help тегов' })
             vim.keymap.set('n', '<leader>fp', function()
                 local actions = require("telescope.actions")
                 local action_state = require("telescope.actions.state")
@@ -63,7 +63,7 @@ return {
                         return true
                     end,
                 }):find()
-            end, { desc = '[f]ind [p]rojects' })
+            end, { desc = 'Проекты' })
 
             local actions = require("telescope.actions")
             local icons = require("icons")
@@ -136,7 +136,10 @@ return {
                     },
                     live_grep = {
                         theme = "ivy"
-                    }
+                    },
+                    diagnostics = {
+                        sort_by = "severity",
+                    },
                 },
                 extensions = {
                     ["ui-select"] = {
