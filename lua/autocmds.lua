@@ -50,3 +50,26 @@ vim.api.nvim_create_autocmd("FileType", {
         })
     end,
 })
+
+local function close_deleted_buffers()
+    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buflisted then
+            local bufname = vim.api.nvim_buf_get_name(bufnr)
+            if bufname ~= "" and not (vim.uv or vim.loop).fs_stat(bufname) then
+                vim.schedule(function()
+                    if vim.api.nvim_buf_is_valid(bufnr) then
+                        vim.api.nvim_buf_delete(bufnr, { force = true })
+                    end
+                end)
+            end
+        end
+    end
+end
+
+local events = { "BufEnter", "FocusGained", "CursorHold", "VimResume" }
+for _, event in ipairs(events) do
+    vim.api.nvim_create_autocmd(event, {
+        callback = close_deleted_buffers,
+        desc = "Close buffer if file was deleted",
+    })
+end
