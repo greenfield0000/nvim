@@ -52,17 +52,17 @@ return {
                         vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
                     end
 
-                    map("n", "<leader>ch", vim.lsp.buf.hover, "[C]ode [H]over Documentation")
-                    map("n", "<leader>cd", vim.lsp.buf.definition, "[C]ode Goto [D]efinition")
-                    map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ctions")
-                    map("n", "<leader>cr", tbuiltin.lsp_references, "[C]ode Goto [R]eferences")
-                    map("n", "<leader>ci", tbuiltin.lsp_implementations, "[C]ode Goto [I]mplementations")
-                    map("n", "<leader>cR", vim.lsp.buf.rename, "[C]ode [R]ename")
-                    map("n", "<leader>cD", vim.lsp.buf.declaration, "[C]ode Goto [D]eclaration")
-                    map({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, "[C]ode [F]ormat")
-                    map("n", "<leader>ct", vim.lsp.buf.type_definition, "[C]ode Goto [T]ype definition")
-                    map("n", "<leader>cds", vim.lsp.buf.document_symbol, "[C]ode [D]ocument [S]ymbol")
-                    map("n", "<leader>csh", vim.lsp.buf.signature_help, "[C]ode [S]ignature [H]elp")
+                    map("n", "<leader>ch", vim.lsp.buf.hover, "LSP: Hover документация")
+                    map("n", "<leader>cd", vim.lsp.buf.definition, "LSP: Перейти к definition")
+                    map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "LSP: Code actions")
+                    map("n", "<leader>cr", tbuiltin.lsp_references, "LSP: Найти references")
+                    map("n", "<leader>ci", tbuiltin.lsp_implementations, "LSP: Найти implementations")
+                    map("n", "<leader>cR", vim.lsp.buf.rename, "LSP: Rename symbol")
+                    map("n", "<leader>cD", vim.lsp.buf.declaration, "LSP: Перейти к declaration")
+                    map({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, "LSP: Format кода")
+                    map("n", "<leader>ct", vim.lsp.buf.type_definition, "LSP: Перейти к type definition")
+                    map("n", "<leader>cds", vim.lsp.buf.document_symbol, "LSP: Document symbol")
+                    map("n", "<leader>csh", vim.lsp.buf.signature_help, "LSP: Signature help")
                 end,
             })
 

@@ -6,8 +6,8 @@ return {
         "JoosepAlviste/nvim-ts-context-commentstring",
     },
     config = function()
-        vim.keymap.set("n", "<leader>/", "<Plug>(comment_toggle_linewise_current)", { desc = "Comment Line" })
-        vim.keymap.set("v", "<leader>/", "<Plug>(comment_toggle_linewise_visual)", { desc = "Comment Selected" })
+        vim.keymap.set("n", "<leader>/", "<Plug>(comment_toggle_linewise_current)", { desc = "Закомментировать/раскомментировать строку" })
+        vim.keymap.set("v", "<leader>/", "<Plug>(comment_toggle_linewise_visual)", { desc = "Закомментировать/раскомментировать выделенное" })
 
         local comment = require("Comment")
         local ts_context_commentstring = require("ts_context_commentstring.integrations.comment_nvim")

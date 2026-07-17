@@ -15,10 +15,10 @@ return { {
         },
     },
     keys = {
-        { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>",              desc = "Diagnostics (Trouble)" },
-        { "<leader>cs", "<cmd>Trouble symbols toggle<cr>",                  desc = "Symbols (Trouble)" },
-        { "<leader>xL", "<cmd>Trouble loclist toggle<cr>",                  desc = "Location List (Trouble)" },
-        { "<leader>xQ", "<cmd>Trouble qflist toggle<cr>",                   desc = "Quickfix List (Trouble)" },
+        { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>",              desc = "Trouble: диагностики" },
+        { "<leader>cs", "<cmd>Trouble symbols toggle<cr>",                  desc = "Trouble: символы" },
+        { "<leader>xL", "<cmd>Trouble loclist toggle<cr>",                  desc = "Trouble: location list" },
+        { "<leader>xQ", "<cmd>Trouble qflist toggle<cr>",                   desc = "Trouble: quickfix list" },
         {
             "[q",
             function()
@@ -31,7 +31,7 @@ return { {
                     end
                 end
             end,
-            desc = "Previous Trouble/Quickfix Item",
+            desc = "Предыдущий Trouble/Quickfix",
         },
         {
             "]q",
@@ -45,7 +45,7 @@ return { {
                     end
                 end
             end,
-            desc = "Next Trouble/Quickfix Item",
+            desc = "Следующий Trouble/Quickfix",
         },
     },
 }, }

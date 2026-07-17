@@ -26,7 +26,7 @@ return {
             miniTrailspace.setup({
                 only_in_normal_buffers = true,
             })
-            vim.keymap.set("n", "<leader>cw", function() miniTrailspace.trim() end, { desc = "Erase Whitespace" })
+            vim.keymap.set("n", "<leader>cw", function() miniTrailspace.trim() end, { desc = "Удалить пробелы в конце строк" })
 
             -- Ensure highlight never reappears by removing it on CursorMoved
             vim.api.nvim_create_autocmd("CursorMoved", {
@@ -45,8 +45,8 @@ return {
             miniSplitJoin.setup({
                 mappings = { toggle = "" }, -- Disable default mapping
             })
-            vim.keymap.set({ "n", "x" }, "sj", function() miniSplitJoin.join() end, { desc = "Join arguments" })
-            vim.keymap.set({ "n", "x" }, "sk", function() miniSplitJoin.split() end, { desc = "Split arguments" })
+            vim.keymap.set({ "n", "x" }, "sj", function() miniSplitJoin.join() end, { desc = "Соединить аргументы в одну строку" })
+            vim.keymap.set({ "n", "x" }, "sk", function() miniSplitJoin.split() end, { desc = "Разбить аргументы по строкам" })
         end,
     }
 }

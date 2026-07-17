@@ -4,30 +4,21 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Remove search highlights after searching
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Remove search highlights" })
-
--- Exit Vim's terminal mode
--- vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-
--- OPTIONAL: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Сбросить подсветку поиска" })
 
 -- Better window navigation
-vim.keymap.set("n", "<C-h>", ":wincmd h<cr>", { desc = "Move focus to the left window" })
-vim.keymap.set("n", "<C-l>", ":wincmd l<cr>", { desc = "Move focus to the right window" })
-vim.keymap.set("n", "<C-j>", ":wincmd j<cr>", { desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<C-k>", ":wincmd k<cr>", { desc = "Move focus to the upper window" })
+vim.keymap.set("n", "<C-h>", ":wincmd h<cr>", { desc = "Фокус на левое окно" })
+vim.keymap.set("n", "<C-l>", ":wincmd l<cr>", { desc = "Фокус на правое окно" })
+vim.keymap.set("n", "<C-j>", ":wincmd j<cr>", { desc = "Фокус на нижнее окно" })
+vim.keymap.set("n", "<C-k>", ":wincmd k<cr>", { desc = "Фокус на верхнее окно" })
 
 -- Easily split windows
-vim.keymap.set("n", "<leader>wv", ":vsplit<cr>", { desc = "[W]indow Split [V]ertical" })
-vim.keymap.set("n", "<leader>wh", ":split<cr>", { desc = "[W]indow Split [H]orizontal" })
+vim.keymap.set("n", "<leader>wv", ":vsplit<cr>", { desc = "Сплит окна [V]ertical" })
+vim.keymap.set("n", "<leader>wh", ":split<cr>", { desc = "Сплит окна [H]orizontal" })
 
 -- Stay in indent mode
-vim.keymap.set("v", "<", "<gv", { desc = "Indent left in visual mode" })
-vim.keymap.set("v", ">", ">gv", { desc = "Indent right in visual mode" })
+vim.keymap.set("v", "<", "<gv", { desc = "Отступ влево (visual mode)" })
+vim.keymap.set("v", ">", ">gv", { desc = "Отступ вправо (visual mode)" })
 
 -- Jira
-vim.keymap.set("n", "<leader>jj", "<cmd>Jira<cr>", { desc = "Jira: Main" })
+vim.keymap.set("n", "<leader>jj", "<cmd>Jira<cr>", { desc = "Jira: Главное меню" })

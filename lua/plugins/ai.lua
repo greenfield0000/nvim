@@ -35,12 +35,12 @@ return {
             })
 
             local map = vim.keymap.set
-            map({ "n", "v" }, "<leader>ac", "<cmd>GpChatToggle<CR>", { desc = "gp.nvim: Toggle Chat" })
-            map({ "n", "v" }, "<leader>an", "<cmd>GpChatNew<CR>", { desc = "gp.nvim: New Chat" })
-            map({ "n", "v" }, "<leader>ar", "<cmd>GpRewrite<CR>", { desc = "gp.nvim: Rewrite" })
-            map({ "n", "v" }, "<leader>ai", "<cmd>GpInline<CR>", { desc = "gp.nvim: Inline edit" })
-            map({ "n", "v" }, "<leader>aa", "<cmd>GpAppend<CR>", { desc = "gp.nvim: Append below" })
-            map({ "n", "v" }, "<leader>ap", "<cmd>GpPopup<CR>", { desc = "gp.nvim: Popup response" })
+            map({ "n", "v" }, "<leader>ac", "<cmd>GpChatToggle<CR>", { desc = "AI: Переключить чат" })
+            map({ "n", "v" }, "<leader>an", "<cmd>GpChatNew<CR>", { desc = "AI: Новый чат" })
+            map({ "n", "v" }, "<leader>ar", "<cmd>GpRewrite<CR>", { desc = "AI: Rewrite выделенного" })
+            map({ "n", "v" }, "<leader>ai", "<cmd>GpInline<CR>", { desc = "AI: Inline edit" })
+            map({ "n", "v" }, "<leader>aa", "<cmd>GpAppend<CR>", { desc = "AI: Добавить ниже" })
+            map({ "n", "v" }, "<leader>ap", "<cmd>GpPopup<CR>", { desc = "AI: Ответ в popup" })
         end,
     },
 }
