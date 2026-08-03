@@ -66,10 +66,10 @@ local function close_deleted_buffers()
     end
 end
 
-local events = { "BufEnter", "FocusGained", "CursorHold", "VimResume" }
-for _, event in ipairs(events) do
-    vim.api.nvim_create_autocmd(event, {
-        callback = close_deleted_buffers,
-        desc = "Close buffer if file was deleted",
-    })
-end
+-- local events = { "BufEnter", "FocusGained", "CursorHold", "VimResume" }
+-- for _, event in ipairs(events) do
+--     vim.api.nvim_create_autocmd(event, {
+--         callback = close_deleted_buffers,
+--         desc = "Close buffer if file was deleted",
+--     })
+-- end

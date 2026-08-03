@@ -356,7 +356,7 @@ end
 -- === 🚀 АВТОЗАПУСК ПРИ ОТКРЫТИИ ЛЮБОГО .java ФАЙЛА ===
 local jdtls_timer
 vim.api.nvim_create_autocmd({ "FileType", "BufReadPost", "BufEnter" }, {
-    pattern = "*.java",
+    pattern = { "*.java", "java" },
     group = vim.api.nvim_create_augroup("JdtlsAutoStart", { clear = true }),
     callback = function()
         if jdtls_timer then pcall(jdtls_timer.close, jdtls_timer) end

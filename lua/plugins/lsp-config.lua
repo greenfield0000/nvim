@@ -46,17 +46,39 @@ return {
             vim.api.nvim_create_autocmd("LspAttach", {
                 callback = function(args)
                     local bufnr = args.buf
-                    local tbuiltin = require("telescope.builtin")
+                    local ok, tbuiltin = pcall(require, "telescope.builtin")
+                    if not ok then tbuiltin = nil end
 
                     local map = function(mode, lhs, rhs, desc)
                         vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
                     end
 
+                    local function lsp_refs()
+                        if tbuiltin then tbuiltin.lsp_references()
+                        else vim.lsp.buf.references() end
+                    end
+                    local function lsp_impl()
+                        if tbuiltin then tbuiltin.lsp_implementations()
+                        else vim.lsp.buf.implementation() end
+                    end
+
+                    -- Стандартные LSP маппинги для навигации
+                    map("n", "gd", vim.lsp.buf.definition, "LSP: Goto definition")
+                    map("n", "K", vim.lsp.buf.hover, "LSP: Hover документация")
+                    map("n", "gr", lsp_refs, "LSP: Найти references")
+                    map("n", "gi", lsp_impl, "LSP: Найти implementations")
+                    map("n", "gD", vim.lsp.buf.declaration, "LSP: Goto declaration")
+                    map("n", "<C-]>", vim.lsp.buf.definition, "LSP: Goto definition")
+                    map("n", "gl", vim.diagnostic.open_float, "LSP: Показать диагностику")
+                    map("n", "[d", vim.diagnostic.goto_prev, "LSP: Предыдущая диагностика")
+                    map("n", "]d", vim.diagnostic.goto_next, "LSP: Следующая диагностика")
+
+                    -- Прежние маппинги через leader
                     map("n", "<leader>ch", vim.lsp.buf.hover, "LSP: Hover документация")
                     map("n", "<leader>cd", vim.lsp.buf.definition, "LSP: Перейти к definition")
                     map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "LSP: Code actions")
-                    map("n", "<leader>cr", tbuiltin.lsp_references, "LSP: Найти references")
-                    map("n", "<leader>ci", tbuiltin.lsp_implementations, "LSP: Найти implementations")
+                    map("n", "<leader>cr", lsp_refs, "LSP: Найти references")
+                    map("n", "<leader>ci", lsp_impl, "LSP: Найти implementations")
                     map("n", "<leader>cR", vim.lsp.buf.rename, "LSP: Rename symbol")
                     map("n", "<leader>cD", vim.lsp.buf.declaration, "LSP: Перейти к declaration")
                     map({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, "LSP: Format кода")
@@ -82,8 +104,10 @@ return {
                 'dockerls',      -- docker
             }
 
-            local lspconf = require("lspconfig")
             for _, serv in ipairs(servers) do
+                local cfg = vim.lsp.config[serv] or {}
+                cfg.capabilities = vim.tbl_deep_extend("force", cfg.capabilities or {}, capabilities)
+                vim.lsp.config[serv] = cfg
                 vim.lsp.enable(serv)
             end
         end,

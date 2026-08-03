@@ -54,7 +54,7 @@ return {
                     ["<C-b>"] = cmp.mapping.scroll_docs(-4),
                     ["<C-f>"] = cmp.mapping.scroll_docs(4),
                     -- show completion suggestions
-                    ["<C-Space"] = cmp.mapping.complete(),
+                    ["<C-Space>"] = cmp.mapping.complete(),
                     -- close completion window
                     ["<C-e>"] = cmp.mapping.abort(),
                     -- confirm completion, only when you explicitly selected an option

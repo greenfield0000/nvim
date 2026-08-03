@@ -52,11 +52,10 @@ return {
                 map('n', '<leader>gu', gitsigns.undo_stage_hunk, { desc = "Undo stage hunk"})
                 map('n', '<leader>gR', gitsigns.reset_buffer, { desc = "Reset весь buffer"})
                 map('n', '<leader>gp', gitsigns.preview_hunk, { desc = "Preview hunk"})
-                map('n', '<leader>gb', function() gitsigns.blame_line { full = true } end, { desc = "Blame строки"})
                 map('n', '<leader>gb', gitsigns.toggle_current_line_blame, { desc = "Blame строки (тоггл)"})
                 map('n', '<leader>gd', gitsigns.diffthis, { desc = "Diff файла"})
                 map('n', '<leader>gD', function() gitsigns.diffthis('~') end, { desc = "Diff c предыдущим коммитом"})
-                map('n', '<leader>gd', gitsigns.toggle_deleted, { desc = "Показать/скрыть удалённые строки"})
+                map('n', '<leader>gtd', gitsigns.toggle_deleted, { desc = "Показать/скрыть удалённые строки"})
                 map('n', '<leader>gfh', function() require("telescope.builtin").git_bcommits() end, { desc = "История файла" })
                 -- Text object
                 map({ 'o', 'x' }, 'gh', ':<C-U>Gitsigns select_hunk<CR>', { desc = "Text object: hunk" })
