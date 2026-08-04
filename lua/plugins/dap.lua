@@ -40,12 +40,12 @@ local function setup_common(dap)
                     "scopes",
                     "watches",
                 },
-                size = 40,
+                size = 90,
                 position = "right"
             },
             {
                 elements = {
-                    "console"
+                    "stacks"
                 },
                 size = 0.30,
                 position = "bottom"
@@ -151,25 +151,25 @@ return {
 
         -- stylua: ignore
         keys = {
-            { "<leader>da", function() require("dap").continue({ before = get_args }) end,                        desc = "DAP: запустить с аргументами" },
-            { "<leader>db", function() require("dap").toggle_breakpoint() end,                                    desc = "DAP: тоггл breakpoint" },
+            { "<leader>da", function() require("dap").continue({ before = get_args }) end, desc = "DAP: запустить с аргументами" },
+            { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "DAP: тоггл breakpoint" },
             { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = "DAP: breakpoint c условием" },
-            { "<leader>dC", function() require("dap").run_to_cursor() end,                                        desc = "DAP: выполнить до курсора" },
-            { "<leader>dc", function() require("dap").continue() end,                                             desc = "DAP: запуск/продолжить" },
-            { "<leader>de", function() require("dapui").eval() end,                                               desc = "DAP: evaluate" },
-            { "<leader>dg", function() require("dap").goto_() end,                                                desc = "DAP: переход на строку" },
-            { "<leader>di", function() require("dap").step_into() end,                                            desc = "DAP: шаг внутрь" },
-            { "<leader>dj", function() require("dap").down() end,                                                 desc = "DAP: вниз по стеку" },
-            { "<leader>dk", function() require("dap").up() end,                                                   desc = "DAP: вверх по стеку" },
-            { "<leader>dl", function() require("dap").run_last() end,                                             desc = "DAP: повторить последний запуск" },
-            { "<leader>do", function() require("dap").step_over() end,                                            desc = "DAP: шаг через" },
-            { "<leader>dO", function() require("dap").step_out() end,                                             desc = "DAP: шаг наружу" },
-            { "<leader>dP", function() require("dap").pause() end,                                                desc = "DAP: пауза" },
-            { "<leader>dr", function() require("dap").repl.toggle() end,                                          desc = "DAP: тоггл REPL" },
-            { "<leader>ds", function() require("dap").session() end,                                              desc = "DAP: информация о session" },
-            { "<leader>dt", function() require("dap").terminate() end,                                            desc = "DAP: завершить" },
-            { "<leader>du", function() require("dapui").toggle() end,                                             desc = "DAP: тоггл DAP UI" },
-            { "<leader>dw", function() require("dap.ui.widgets").hover() end,                                     desc = "DAP: виджеты" },
+            { "<leader>dC", function() require("dap").run_to_cursor() end, desc = "DAP: выполнить до курсора" },
+            { "<leader>dc", function() require("dap").continue() end, desc = "DAP: запуск/продолжить" },
+            { "<leader>de", function() require("dapui").eval() end, desc = "DAP: evaluate" },
+            { "<leader>dg", function() require("dap").goto_() end, desc = "DAP: переход на строку" },
+            { "<leader>di", function() require("dap").step_into() end, desc = "DAP: шаг внутрь" },
+            { "<leader>dj", function() require("dap").down() end, desc = "DAP: вниз по стеку" },
+            { "<leader>dk", function() require("dap").up() end, desc = "DAP: вверх по стеку" },
+            { "<leader>dl", function() require("dap").run_last() end, desc = "DAP: повторить последний запуск" },
+            { "<leader>do", function() require("dap").step_over() end, desc = "DAP: шаг через" },
+            { "<leader>dO", function() require("dap").step_out() end, desc = "DAP: шаг наружу" },
+            { "<leader>dP", function() require("dap").pause() end, desc = "DAP: пауза" },
+            { "<leader>dr", function() require("dap").repl.toggle() end, desc = "DAP: тоггл REPL" },
+            { "<leader>ds", function() require("dap").session() end, desc = "DAP: информация о session" },
+            { "<leader>dt", function() require("dap").terminate() end, desc = "DAP: завершить" },
+            { "<leader>du", function() require("dapui").toggle() end, desc = "DAP: тоггл DAP UI" },
+            { "<leader>dw", function() require("dap.ui.widgets").hover() end, desc = "DAP: виджеты" },
         },
 
         config = function()
