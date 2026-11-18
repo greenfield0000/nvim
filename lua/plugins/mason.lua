@@ -3,8 +3,8 @@ return {
         "williamboman/mason.nvim",
         config = function()
             require("mason").setup({
-                border = "rounded",
                 ui = {
+                    border = "rounded",
                     icons = {
                         package_installed = "✓",
                         package_pending = "➜",
@@ -30,7 +30,7 @@ return {
                     "dockerfile-language-server", -- dockerfile, docker
                     "yaml-language-server",       -- yaml
                     "sqlls",                      -- sql
-                    "jdtls",                      -- java jdtls
+                    { "jdtls", version = "v1.60.0" }, -- java jdtls
                     "marksman",                   -- md
                     "html-lsp",                   -- html
                     "dot-language-server",        -- dot (quarkus deployment grapth)

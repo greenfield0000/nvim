@@ -65,7 +65,7 @@ return {
                         ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
                     },
                     signature = {
-                        auto_open = { enabled = false }, -- disable auto signature help on insert mode
+                        enabled = false,
                     },
                 },
                 routes = {
@@ -90,9 +90,6 @@ return {
                     checker = true,
                 },
                 popupmenu = {
-                    enabled = true,
-                },
-                signature = {
                     enabled = true,
                 },
             })

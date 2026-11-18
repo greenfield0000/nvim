@@ -2,7 +2,7 @@ return {
     -- #gitsigns: shows git related infos in the gutter (*****)
     'lewis6991/gitsigns.nvim',
     enabled = true,
-    requires = {
+    dependencies = {
         'nvim-lua/plenary.nvim'
     },
     lazy = false,

@@ -173,12 +173,6 @@ return {
         },
 
         config = function()
-            -- load mason-nvim-dap here, after all adapters have been setup
-            local mason_nvim_dap = require('lazy.core.config').spec.plugins['mason-nvim-dap.nvim']
-            local Plugin = require 'lazy.core.plugin'
-            local mason_nvim_dap_opts = Plugin.values(mason_nvim_dap, 'opts', false)
-            require('mason-nvim-dap').setup(mason_nvim_dap_opts)
-
             vim.api.nvim_set_hl(
                 0,
                 'DapStoppedLine',
@@ -225,7 +219,7 @@ return {
         },
         config = function()
             require("mason-nvim-dap").setup({
-                ensure_installed = { "java-debug-adapter", "java-test" },
+                ensure_installed = { "javadbg", "javatest" },
                 automatic_installation = true,
             })
 

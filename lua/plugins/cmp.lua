@@ -1,7 +1,7 @@
 return {
     {
         "L3MON4D3/LuaSnip",
-        run = "make install_jsregexp",
+        build = "make install_jsregexp",
         dependencies = {
             -- feed luasnip suggestions to cmp
             "saadparwaiz1/cmp_luasnip",
@@ -37,7 +37,7 @@ return {
                     -- menuone: automatically select the first option of the menu
                     -- preview: automatically display the completion candiate as you navigate the menu
                     -- noselect: prevent neovim from automatically selecting a completion option while navigating the menu
-                    competeopt = "menu,menuone,preview,noselect"
+                    completeopt = "menu,menuone,preview,noselect"
                 },
                 -- setup snippet support based on the active lsp and the current text of the file
                 snippet = {

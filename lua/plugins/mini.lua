@@ -9,33 +9,16 @@ return {
             require("mini.surround").setup({})
             require("mini.cursorword").setup({})
             -- require("mini.indentscope").setup({})
-            require("mini.pairs").setup({})
-            require("mini.trailspace").setup({})
+            local miniTrailspace = require("mini.trailspace")
+            miniTrailspace.setup({
+                only_in_normal_buffers = true,
+            })
+            vim.keymap.set("n", "<leader>cw", function() miniTrailspace.trim() end, { desc = "Удалить пробелы в конце строк" })
             require("mini.bufremove").setup({})
             -- require("mini.notify").setup({})
             require("mini.icons").setup({})
             require("mini.animate").setup({})
         end
-    },
-    {
-        "echasnovski/mini.trailspace",
-        event = { "BufReadPost", "BufNewFile" },
-        config = function()
-            local miniTrailspace = require("mini.trailspace")
-
-            miniTrailspace.setup({
-                only_in_normal_buffers = true,
-            })
-            vim.keymap.set("n", "<leader>cw", function() miniTrailspace.trim() end, { desc = "Удалить пробелы в конце строк" })
-
-            -- Ensure highlight never reappears by removing it on CursorMoved
-            vim.api.nvim_create_autocmd("CursorMoved", {
-                pattern = "*",
-                callback = function()
-                    -- require("mini.trailspace").unhighlight()
-                end,
-            })
-        end,
     },
     -- Split & join
     {

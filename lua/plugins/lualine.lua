@@ -7,7 +7,7 @@ return {
         -- call the setup function with properties to define how our lualine will look
         require("lualine").setup({
             options = {
-                global_status = true,
+                globalstatus = true,
                 -- Use web devicons if you have a nerdfont installed
                 icons_enabled = true,
                 -- Set the theme to tokyonight, lualine documentation has other themes available as well

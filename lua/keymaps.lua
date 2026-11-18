@@ -19,6 +19,3 @@ vim.keymap.set("n", "<leader>wh", ":split<cr>", { desc = "Сплит окна [H
 -- Stay in indent mode
 vim.keymap.set("v", "<", "<gv", { desc = "Отступ влево (visual mode)" })
 vim.keymap.set("v", ">", ">gv", { desc = "Отступ вправо (visual mode)" })
-
--- Jira
-vim.keymap.set("n", "<leader>jj", "<cmd>Jira<cr>", { desc = "Jira: Главное меню" })

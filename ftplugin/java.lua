@@ -22,15 +22,27 @@ end
 local function get_all_runtimes()
     local runtimes = {}
     local base = home .. "/.sdkman/candidates/java"
-    local handle = io.popen('find "' .. base .. '" -maxdepth 1 -type d -name "[0-9]*" -printf "%f\n" 2>/dev/null')
-    if handle then
-        for version in handle:lines() do
-            local path = base .. "/" .. version
-            if version ~= "current" then
-                table.insert(runtimes, { name = "JavaSE-" .. version, path = path })
+    local current = fn.resolve(base .. "/current")
+    local by_major = {}
+    local paths = fn.glob(base .. "/*", false, true)
+    table.sort(paths)
+
+    for _, path in ipairs(paths) do
+        local major = tonumber(fn.fnamemodify(path, ":t"):match("^(%d+)"))
+        if major and fn.isdirectory(path) == 1 and fn.executable(path .. "/bin/java") == 1 then
+            if not by_major[major] or fn.resolve(path) == current then
+                by_major[major] = {
+                    name = major == 8 and "JavaSE-1.8" or "JavaSE-" .. major,
+                    path = path,
+                }
             end
         end
-        handle:close()
+    end
+
+    local majors = vim.tbl_keys(by_major)
+    table.sort(majors)
+    for _, major in ipairs(majors) do
+        table.insert(runtimes, by_major[major])
     end
     return runtimes
 end
@@ -78,6 +90,7 @@ end
 
 -- === 🎯 ГЛАВНАЯ ФУНКЦИЯ: АВТОЗАПУСК + SMART ATTACH ===
 local function smart_start_jdtls()
+    if vim.g.jdtls_restarting then return end
     local bufnr = vim.api.nvim_get_current_buf()
 
     -- 🚀 АВТОЗАПУСК ДЛЯ ЛЮБОГО .java файла
@@ -136,7 +149,8 @@ local function smart_start_jdtls()
     end
 
     local config_os = detect_os()
-    local workspace_dir = home .. "/.workspace/" .. project_name
+    local workspace_hash = fn.sha256(current_root):sub(1, 12)
+    local workspace_dir = home .. "/.workspace/" .. project_name .. "-" .. workspace_hash
 
     local lombok_path = fn.glob(jdtls_dir .. "/lombok.jar")
     local javaagent_opts = {}
@@ -147,21 +161,34 @@ local function smart_start_jdtls()
     local mason_java = mason_dir()
 
     local bundles = {}
+    local bundle_paths = {}
+    local function add_bundle(path)
+        if fn.filereadable(path) == 1 and not bundle_paths[path] then
+            table.insert(bundles, path)
+            bundle_paths[path] = true
+        end
+    end
 
     -- Совместимый asm для java-test (нужен [9.9.0, 9.10.0))
     local asm_jar = mason_java .. "/java-test/extension/server/org.objectweb.asm_9.9.1.jar"
     if fn.filereadable(asm_jar) == 0 then
+        local download_path = asm_jar .. ".download-" .. fn.getpid()
         vim.fn.system({
-            "curl", "-fsSL", "-o", asm_jar,
+            "curl", "-fsSL", "--connect-timeout", "5", "--max-time", "20", "-o", download_path,
             "https://repo1.maven.org/maven2/org/ow2/asm/asm/9.9.1/asm-9.9.1.jar"
         })
+        local download_ok = vim.v.shell_error == 0 and fn.filereadable(download_path) == 1
+        if not download_ok or fn.rename(download_path, asm_jar) ~= 0 then
+            fn.delete(download_path)
+            vim.notify('Не удалось скачать ASM 9.9.1 для java-test; запуск JDTLS продолжится без этого JAR', vim.log.levels.WARN)
+        end
     end
-    table.insert(bundles, asm_jar)
+    add_bundle(asm_jar)
 
     local function add_jar(dir, pattern)
         local jar = fn.glob(dir .. "/" .. pattern, 1, 1)
         if type(jar) == "table" and #jar > 0 then
-            table.insert(bundles, jar[1])
+            add_bundle(jar[1])
         end
     end
 
@@ -177,7 +204,7 @@ local function smart_start_jdtls()
         for _, jar in ipairs(java_test_jars) do
             local fname = fn.fnamemodify(jar, ":t")
             if not vim.tbl_contains(java_test_excluded, fname) then
-                table.insert(bundles, jar)
+                add_bundle(jar)
             end
         end
     end
@@ -339,7 +366,10 @@ local function smart_start_jdtls()
             }
         },
         on_attach = on_attach,
-        capabilities = require('cmp_nvim_lsp').default_capabilities(),
+        capabilities = vim.tbl_deep_extend('force',
+            require('cmp_nvim_lsp').default_capabilities(),
+            require('lsp-file-operations').default_capabilities()
+        ),
     }
 
     -- 🔥 СОХРАНЯЕМ НОВЫЙ ПРОЕКТ
@@ -366,9 +396,52 @@ vim.api.nvim_create_autocmd({ "FileType", "BufReadPost", "BufEnter" }, {
 })
 
 -- === РУЧНЫЕ КОМАНДЫ ===
-vim.api.nvim_create_user_command('JdtlsRestart', smart_start_jdtls, {})
+vim.api.nvim_create_user_command('JdtlsRestart', function()
+    if vim.g.jdtls_restarting then return end
+    local bufnr = vim.api.nvim_get_current_buf()
+    if vim.bo[bufnr].filetype ~= 'java' then
+        vim.notify('Открой Java-файл для перезапуска JDTLS', vim.log.levels.WARN)
+        return
+    end
+
+    if jdtls_timer then pcall(jdtls_timer.close, jdtls_timer) end
+    local clients = vim.lsp.get_clients({ name = 'jdtls', bufnr = bufnr })
+    if #clients == 0 then
+        smart_start_jdtls()
+        return
+    end
+
+    vim.g.jdtls_restarting = true
+    for _, client in ipairs(clients) do
+        client:stop()
+    end
+
+    local attempts = 0
+    local function restart_when_stopped()
+        for _, client in ipairs(clients) do
+            if vim.lsp.get_client_by_id(client.id) then
+                attempts = attempts + 1
+                if attempts >= 100 then
+                    vim.g.jdtls_restarting = false
+                    vim.notify('JDTLS не завершился за 10 секунд; повтори перезапуск позже', vim.log.levels.ERROR)
+                    return
+                end
+                vim.defer_fn(restart_when_stopped, 100)
+                return
+            end
+        end
+
+        vim.g.jdtls_state = { running = false }
+        vim.g.jdtls_restarting = false
+        if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].filetype == 'java' then
+            vim.api.nvim_buf_call(bufnr, smart_start_jdtls)
+        end
+    end
+    vim.defer_fn(restart_when_stopped, 100)
+end, { desc = 'Перезапустить JDTLS текущего Java-буфера' })
 
 vim.api.nvim_create_user_command("JdtlsDownloadJavaSources", function()
+    local bufnr = vim.api.nvim_get_current_buf()
     local project_root = vim.fn.getcwd()
     local cmd
 
@@ -387,12 +460,20 @@ vim.api.nvim_create_user_command("JdtlsDownloadJavaSources", function()
     vim.fn.jobstart(cmd, {
         cwd = project_root,
         on_exit = function(_, code)
-            if code == 0 then
-                vim.notify("✅ Sources downloaded! Restarting LSP...", "info", { title = "Java Sources" })
-                vim.lsp.buf_restart()
-            else
-                vim.notify("⚠️ Source download finished with code " .. code .. ". Some sources may be missing.", "warn", { title = "Java Sources" })
-            end
+            vim.schedule(function()
+                if code == 0 then
+                    if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].filetype == 'java' then
+                        vim.notify("✅ Sources downloaded! Restarting LSP...", "info", { title = "Java Sources" })
+                        vim.api.nvim_buf_call(bufnr, function()
+                            vim.cmd('JdtlsRestart')
+                        end)
+                    else
+                        vim.notify("✅ Sources downloaded. Java buffer closed; LSP restart skipped.", "info", { title = "Java Sources" })
+                    end
+                else
+                    vim.notify("⚠️ Source download finished with code " .. code .. ". Some sources may be missing.", "warn", { title = "Java Sources" })
+                end
+            end)
         end
     })
 end, {})

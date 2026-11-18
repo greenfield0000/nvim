@@ -22,51 +22,44 @@ return {
                         {
                             "name",
                             use_git_status_colors = true,
+                            highlight_opened_files = true,
                         },
-                        -- { "file_size" }, -- ЗАКОММЕНТИРУЙТЕ или удалите эту строку!
-                        -- { "type" },      -- Если отображается тип файла, его тоже можно убрать
+                        { "clipboard" },
+                        { "modified" },
                         { "git_status" },
                         { "diagnostics" },
                     },
                 },
-                diagnostics = {
-                    enable = true,
-                    show_on_dirs = true, -- Показывать значок ошибки на родительской папке, если внутри неё есть ошибка
-                    show_on_open_dirs = true,
-                    debounce = 150,      -- Задержка обновления (в мс), чтобы Neovim не лагал при печати
-                    signs = {
-                        -- Настройка иконок (можете заменить на свои)
-                        hint = "  ",
-                        info = " ",
-                        warn = " ",
-                        error = "   ",
-                    },
-                },
-                -- Добавляет счетчик измененных Git-файлов рядом с папками
+                enable_diagnostics = true,
+                -- Показывать Git-статусы файлов и папок
                 enable_git_status = true,
                 git_status_async_options = {
                     batch_size = 1000,
                     batch_delay = 10,
-                    max_lines = 5000,
+                    max_lines = 100000,
                 },
                 close_if_last_window = true, -- Закрывать дерево, если оно осталось одно
                 window = {
                     position = "right",
                     width = function()
-                        -- vim.o.columns возвращает количество символов (колонок) всего экрана Neovim
-                        return math.floor(vim.o.columns / 2)
+                        local preferred = math.max(35, math.floor(vim.o.columns / 4))
+                        return math.min(60, preferred, math.max(1, vim.o.columns - 20))
                     end,
                 },
                 -- Настройки самого файлового дерева
                 filesystem = {
+                    group_empty_dirs = true,
+                    find_by_full_path_words = true,
+                    use_libuv_file_watcher = true,
                     follow_current_file = {
                         enabled = true,
                         leave_dirs_open = true,
                     },
                     filtered_items = {
-                        visible = false, -- ПОКАЗЫВАТЬ скрытые файлы (.env, .gitignore)
+                        visible = false, -- H временно показывает скрытые элементы
                         hide_dotfiles = true,
                         hide_gitignored = true,
+                        always_show = { ".gitignore", ".editorconfig" },
                         hide_by_name = {
                             ".git",
                             ".DS_Store",
@@ -77,12 +70,6 @@ return {
                             ".m2",
                             ".gradle",
                         },
-                    },
-                    -- Настройка поиска (Клавиша / или f в дереве)
-                    search_by_name = {
-                        fuzzy = true,
-                        -- Включаем авто-раскрытие папок, внутри которых есть совпадения
-                        expanded_by_default = true,
                     },
                 },
 
@@ -125,7 +112,7 @@ return {
                             hint = "  ",
                             info = " ",
                             warn = " ",
-                            error = "   ",
+                            error = " ",
                         },
                         highlights = {
                             hint = "DiagnosticSignHint",
@@ -136,10 +123,6 @@ return {
                     },
                 },
             })
-            vim.cmd([[
-                highlight NeoTreeFileIconActive guifg=#ff007c
-                highlight NeoTreeFileNameActive gui=bold guifg=#ffffff
-            ]])
         end,
     },
     {

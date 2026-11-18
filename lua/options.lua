@@ -21,7 +21,6 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.backup = false            -- disable backup file creation
 vim.opt.clipboard = "unnamedplus" -- enable system clipboard access
-vim.opt.conceallevel = 0          -- show concealed characters in markdown files
 vim.opt.fileencoding = "UTF-8"    -- set file encoding to UTF-8opt
 vim.opt.encoding = "UTF-8"        -- set file encoding to UTF-8opt
 vim.opt.mouse = "a"               -- enable mouse support

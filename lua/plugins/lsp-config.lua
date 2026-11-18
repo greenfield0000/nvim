@@ -3,11 +3,16 @@ return {
         "neovim/nvim-lspconfig",
         dependencies = {
             "williamboman/mason.nvim",
+            "hrsh7th/cmp-nvim-lsp",
+            "antosha417/nvim-lsp-file-operations",
         },
 
         config = function()
             local icons = require("icons")
-            local capabilities = require("cmp_nvim_lsp").default_capabilities()
+            local capabilities = vim.tbl_deep_extend("force",
+                require("cmp_nvim_lsp").default_capabilities(),
+                require("lsp-file-operations").default_capabilities()
+            )
 
             -- сохраним capabilities глобально, чтобы использовать в ftplugin
             vim.g.lsp_capabilities = capabilities
@@ -84,7 +89,6 @@ return {
                     map({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, "LSP: Format кода")
                     map("n", "<leader>ct", vim.lsp.buf.type_definition, "LSP: Перейти к type definition")
                     map("n", "<leader>cds", vim.lsp.buf.document_symbol, "LSP: Document symbol")
-                    map("n", "<leader>csh", vim.lsp.buf.signature_help, "LSP: Signature help")
                 end,
             })
 
@@ -93,12 +97,11 @@ return {
                 'lemminx',       -- для xml
                 'jsonls',        -- для json
                 'sqlls',         -- для sql
-                'rust_analyzer', -- для rust
                 'gopls',         -- для golang
-                'angularls',     -- для ангуляр
                 'yamlls',        -- для yaml
                 'marksman',      -- markdown
                 'html',          -- markdown
+                'cssls',         -- CSS, SCSS, Less
                 'ts_ls',         -- typescript
                 'dotls',         -- dot
                 'dockerls',      -- docker

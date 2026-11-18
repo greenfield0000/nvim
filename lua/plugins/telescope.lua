@@ -4,7 +4,10 @@ return {
         version = "*",
         dependencies = {
             "nvim-lua/plenary.nvim",
-            "nvim-telescope/telescope-fzf-native.nvim",
+            {
+                "nvim-telescope/telescope-fzf-native.nvim",
+                build = "make",
+            },
             "nvim-telescope/telescope-live-grep-args.nvim",
             "nvim-telescope/telescope-ui-select.nvim",
             "nvim-treesitter/nvim-treesitter",
@@ -33,7 +36,20 @@ return {
                 local history = require("project_nvim.utils.history")
                 local project = require("project_nvim.project")
 
-                local results = history.get_recent_projects()
+                local function get_sorted_projects()
+                    local projects = vim.list_extend({}, history.get_recent_projects())
+                    table.sort(projects, function(a, b)
+                        local name_a = vim.fn.fnamemodify(a, ":t"):lower()
+                        local name_b = vim.fn.fnamemodify(b, ":t"):lower()
+                        if name_a == name_b then
+                            return a < b
+                        end
+                        return name_a < name_b
+                    end)
+                    return projects
+                end
+
+                local results = get_sorted_projects()
 
                 local function change_working_directory(prompt_bufnr)
                     local selection = action_state.get_selected_entry(prompt_bufnr)
@@ -49,7 +65,7 @@ return {
                 local function refresh_picker(prompt_bufnr)
                     action_state.get_current_picker(prompt_bufnr):refresh(
                         finders.new_table({
-                            results = history.get_recent_projects(),
+                            results = get_sorted_projects(),
                             entry_maker = function(entry)
                                 return {
                                     display = vim.fn.fnamemodify(entry, ":t") .. "  (" .. entry .. ")",
@@ -113,10 +129,8 @@ return {
                     sorter = telescope_conf.generic_sorter({}),
                     attach_mappings = function(prompt_bufnr, map)
                         actions.select_default:replace(change_working_directory)
-                        map("n", "d", delete_project)
-                        map("i", "<c-d>", delete_project)
+                        map("n", "dd", delete_project)
                         map("n", "D", delete_all_except_current)
-                        map("i", "<c-D>", delete_all_except_current)
                         return true
                     end,
                 }):find()

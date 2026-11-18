@@ -37,11 +37,8 @@ return {
                         cursorline = true,
                         cursorlineopt = "both",
                     },
-                    -- Правильная конфигурация для builtin select
-                    win_config = {
-                        width = 0.8,
-                        height = 0.8,
-                    },
+                    max_width = 0.8,
+                    max_height = 0.8,
                 },
                 telescope = {
                     -- Конфигурация для telescope (если установлен)
