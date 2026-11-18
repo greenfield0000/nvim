@@ -19,12 +19,17 @@ return {
 
             local default_diagnostic_config = {
                 signs = {
-                    active = true,
-                    values = {
-                        { name = "DiagnosticSignError", text = icons.diagnostics.Error },
-                        { name = "DiagnosticSignWarn",  text = icons.diagnostics.Warning },
-                        { name = "DiagnosticSignHint",  text = icons.diagnostics.Hint },
-                        { name = "DiagnosticSignInfo",  text = icons.diagnostics.Information },
+                    text = {
+                        [vim.diagnostic.severity.ERROR] = icons.diagnostics.Error,
+                        [vim.diagnostic.severity.WARN] = icons.diagnostics.Warning,
+                        [vim.diagnostic.severity.HINT] = icons.diagnostics.Hint,
+                        [vim.diagnostic.severity.INFO] = icons.diagnostics.Information,
+                    },
+                    numhl = {
+                        [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+                        [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+                        [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+                        [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
                     },
                 },
                 virtual_text = true,
@@ -42,10 +47,6 @@ return {
             }
 
             vim.diagnostic.config(default_diagnostic_config)
-
-            for _, sign in ipairs(vim.tbl_get(vim.diagnostic.config(), "signs", "values") or {}) do
-                vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
-            end
 
             -- Глобальные биндинги по LspAttach, чтобы не развозить их по ftplugin
             vim.api.nvim_create_autocmd("LspAttach", {
@@ -88,7 +89,7 @@ return {
                     map("n", "<leader>cD", vim.lsp.buf.declaration, "LSP: Перейти к declaration")
                     map({ "n", "v" }, "<leader>cf", vim.lsp.buf.format, "LSP: Format кода")
                     map("n", "<leader>ct", vim.lsp.buf.type_definition, "LSP: Перейти к type definition")
-                    map("n", "<leader>cds", vim.lsp.buf.document_symbol, "LSP: Document symbol")
+                    map("n", "<leader>cS", vim.lsp.buf.document_symbol, "LSP: Document symbol")
                 end,
             })
 

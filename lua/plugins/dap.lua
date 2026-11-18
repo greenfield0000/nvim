@@ -51,18 +51,6 @@ local function setup_common(dap)
                 position = "bottom"
             }
         },
-        -- Настройки для watch
-        watches = {
-            auto_update = false,
-            completion = {
-                enabled = true,
-                delay = 300,
-            },
-            format = {
-                max_string_length = 100,
-                show_type = true,
-            },
-        },
     })
 end
 

@@ -18,12 +18,8 @@ return {
             -- require("mini.notify").setup({})
             require("mini.icons").setup({})
             require("mini.animate").setup({})
-        end
-    },
-    -- Split & join
-    {
-        "echasnovski/mini.splitjoin",
-        config = function()
+
+            -- Split & join
             local miniSplitJoin = require("mini.splitjoin")
             miniSplitJoin.setup({
                 mappings = { toggle = "" }, -- Disable default mapping

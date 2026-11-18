@@ -14,14 +14,17 @@ return {
         -- Автоматическое определение проектов
         require("telescope").load_extension("projects")
 
-        -- Фикс: delete_project оставлял nil-дыры в массиве, ломая повторное удаление
+        -- Удалять проект из истории и текущего сеанса без разрывов в массивах
         local history = require("project_nvim.utils.history")
-        local orig_delete = history.delete_project
         history.delete_project = function(project)
-            for k, v in ipairs(history.recent_projects) do
-                if v == project.value then
-                    table.remove(history.recent_projects, k)
-                    break
+            for _, key in ipairs({ "recent_projects", "session_projects" }) do
+                local projects = history[key]
+                if projects then
+                    for i = #projects, 1, -1 do
+                        if projects[i] == project.value then
+                            table.remove(projects, i)
+                        end
+                    end
                 end
             end
         end

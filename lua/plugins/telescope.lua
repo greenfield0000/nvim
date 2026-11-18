@@ -92,7 +92,7 @@ return {
                 local function delete_all_except_current(prompt_bufnr)
                     local cwd = vim.fn.getcwd()
                     local to_remove = {}
-                    for _, v in ipairs(history.recent_projects) do
+                    for _, v in ipairs(history.get_recent_projects()) do
                         if v ~= cwd then
                             table.insert(to_remove, v)
                         end

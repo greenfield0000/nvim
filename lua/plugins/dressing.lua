@@ -6,8 +6,7 @@ return {
                 enabled = true,
                 default_prompt = "➤ ",
                 title_pos = "left",
-                insert_only = true,
-                start_in_insert = true,
+                start_mode = "insert",
                 border = "rounded",
                 relative = "cursor",
                 win_options = {
@@ -43,15 +42,6 @@ return {
                 telescope = {
                     -- Конфигурация для telescope (если установлен)
                 },
-                get_config = function(opts)
-                    if opts.kind == "dap" then
-                        return {
-                            border = "single",
-                            relative = "editor",
-                        }
-                    end
-                    return {}
-                end,
             },
         }
     },
